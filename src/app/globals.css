@@ -1,26 +1,26 @@
-/* Modern Brutalist Design System - CSS Custom Properties */
+/* Clean Design System - CSS Custom Properties (see guideline-1-style.md) */
 :root {
-  /* Stark Color Palette */
-  --color-text-primary: #000000;
+  /* Clean Color Palette (see guideline-1-style.md) */
+  --color-text-primary: #14171f;
   --color-background: #ffffff;
-  --color-surface: #ffffff;
-  --color-accent: #000000;
-  --color-text-secondary: #666666;
-  --color-border: #000000;
-  --color-border-light: #cccccc;
+  --color-surface: #f9fafb;
+  --color-accent: #222834;
+  --color-text-secondary: #373f51;
+  --color-border: #d0d4dc;
+  --color-border-light: #e2e8f0;
 
-  /* Semantic Colors - Stark */
-  --color-success: #00ff00;
-  --color-warning: #ffff00;
-  --color-error: #ff0000;
+  /* Semantic Colors (see guideline-1-style.md) */
+  --color-success: #10b981;
+  --color-warning: #f59e0b;
+  --color-error: #ef4444;
 
-  /* Tight Spacing Scale (4px base unit) */
-  --spacing-xs: 4px;
-  --spacing-sm: 8px;
-  --spacing-md: 12px;
-  --spacing-lg: 16px;
-  --spacing-xl: 20px;
-  --spacing-2xl: 24px;
+  /* Clean Spacing Scale (8px base unit - see guideline-1-style.md) */
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-2xl: 64px;
 
   /* Heavy Typography */
   --font-size-xs: 12px;
@@ -41,13 +41,18 @@
   --line-height-normal: 1.4;
   --line-height-relaxed: 1.6;
 
-  /* Sharp Edges - No Border Radius */
+  /* Clean Border Radius (see guideline-1-style.md) */
   --border-radius-none: 0px;
+  --border-radius-sm: 6px;
+  --border-radius-md: 8px;
+  --border-radius-lg: 24px;
 
-  /* Heavy Shadows */
+  /* Clean Shadows (see guideline-1-style.md) */
   --shadow-none: none;
-  --shadow-heavy: 0 8px 24px rgba(0, 0, 0, 0.8);
-  --shadow-brutal: 0 12px 32px rgba(0, 0, 0, 0.9);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 8px 24px rgba(0, 0, 0, 0.12);
 
   /* Stark Transitions */
   --transition-fast: 100ms ease-in-out;
@@ -229,7 +234,7 @@ body {
   outline-offset: 2px;
 }
 
-/* Brutalist Card Styles */
+/* Clean Card Styles (see guideline-1-style.md) */
 .card {
   background: var(--color-background);
   border: 2px solid var(--color-border);
@@ -243,7 +248,7 @@ body {
   transform: translateY(-2px);
 }
 
-/* Brutalist Container */
+/* Clean Container (see guideline-1-style.md) */
 .container {
   width: 100%;
   max-width: 1400px;
@@ -252,7 +257,7 @@ body {
   padding-right: var(--spacing-lg);
 }
 
-/* Responsive Design - Brutalist */
+/* Responsive Design (see guideline-1-style.md) */
 @media (max-width: 640px) {
   .container {
     padding-left: var(--spacing-sm);
@@ -260,7 +265,7 @@ body {
   }
 }
 
-/* Brutalist Animations */
+/* Clean Animations (see guideline-1-style.md) */
 @keyframes starkFadeIn {
   from { opacity: 0; transform: scale(0.95); }
   to { opacity: 1; transform: scale(1); }
@@ -289,7 +294,7 @@ body {
 }
 
 
-/* Brutalist Dark Mode */
+/* Dark Mode (see guideline-1-style.md) */
 @media (prefers-color-scheme: dark) {
   :root {
     --color-background: #000000;

@@ -23,7 +23,7 @@ export default async function Home() {
 
   return (
     <div className={styles.container}>
-      {/* Brutalist Navigation */}
+      {/* Clean Navigation (see guideline-1-style.md) */}
       <nav className={styles.nav}>
         <div className="container">
           <div className={styles.navContent}>
@@ -47,10 +47,10 @@ export default async function Home() {
         </div>
       </nav>
 
-      {/* Brutalist Main Content */}
+      {/* Clean Main Content (see guideline-1-style.md) */}
       <main className="container">
         <div className={styles.main}>
-          {/* Brutalist Hero Section */}
+          {/* Clean Hero Section (see guideline-1-style.md) */}
           <div className={`${styles.hero} ${styles.fadeIn}`}>
             <h1 className={styles.heroTitle}>
               Welcome{userProfile?.full_name ? `, ${userProfile.full_name}` : ''}!
@@ -60,13 +60,13 @@ export default async function Home() {
             </p>
           </div>
 
-          {/* Brutalist Profile Section */}
+          {/* Clean Profile Section (see guideline-1-style.md) */}
           {userProfile ? (
             <div className={styles.slideIn}>
               <h2 className={styles.heroTitle}>Your Profile</h2>
 
               <div className={styles.profileGrid}>
-                {/* Brutalist Basic Info Card */}
+                {/* Clean Basic Info Card (see guideline-1-style.md) */}
                 <div className={styles.card}>
                   <h3 className={styles.cardTitle}>Basic Information</h3>
                   <div className={styles.cardContent}>
@@ -89,7 +89,7 @@ export default async function Home() {
                   </div>
                 </div>
 
-                {/* Brutalist Additional Info Card */}
+                {/* Clean Additional Info Card (see guideline-1-style.md) */}
                 <div className={styles.card}>
                   <h3 className={styles.cardTitle}>About You</h3>
                   <div className={styles.cardContent}>
@@ -116,7 +116,7 @@ export default async function Home() {
                 </div>
             </div>
 
-              {/* Brutalist Action Buttons */}
+              {/* Clean Action Buttons (see guideline-1-style.md) */}
               <div className={styles.actions}>
                 <Button
                   variant="primary"
@@ -135,7 +135,7 @@ export default async function Home() {
               </div>
           </div>
           ) : (
-            /* Brutalist Setup Profile Section */
+            /* Clean Setup Profile Section (see guideline-1-style.md) */
             <div className={styles.slideIn}>
               <div className={styles.setupCard}>
                 <div>

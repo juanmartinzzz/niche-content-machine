@@ -1,13 +1,13 @@
-/* Main Page - CSS Module */
+/* Main Page - Clean Design Styles (see guideline-1-style.md) */
 
 .container {
   min-height: 100vh;
 }
 
-/* Navigation */
+/* Clean Navigation (see guideline-1-style.md) */
 .nav {
   background-color: var(--color-accent);
-  border-bottom: 2px solid var(--color-text-primary);
+  border-bottom: 1px solid var(--color-border);
   padding: var(--spacing-lg);
 }
 
@@ -26,8 +26,9 @@
 .logoIcon {
   width: 32px;
   height: 32px;
-  background-color: var(--color-text-primary);
-  border: 2px solid var(--color-text-primary);
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,7 +50,7 @@
   font-size: var(--font-size-sm);
 }
 
-/* Main Content */
+/* Clean Main Content (see guideline-1-style.md) */
 .main {
   padding: var(--spacing-2xl);
 }
@@ -72,7 +73,7 @@
   margin: 0 auto var(--spacing-xl) auto;
 }
 
-/* Profile Section */
+/* Clean Profile Section (see guideline-1-style.md) */
 .profileGrid {
   display: grid;
   gap: var(--spacing-lg);
@@ -86,7 +87,8 @@
 
 .card {
   background-color: var(--color-surface);
-  border: 2px solid var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   padding: var(--spacing-lg);
 }
 
@@ -129,10 +131,11 @@
   text-decoration: underline;
 }
 
-/* Setup Profile Section */
+/* Clean Setup Profile Section (see guideline-1-style.md) */
 .setupCard {
   background-color: var(--color-surface);
-  border: 2px solid var(--color-border);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   padding: var(--spacing-2xl);
   text-align: center;
 }
@@ -141,7 +144,8 @@
   width: 64px;
   height: 64px;
   background-color: var(--color-accent);
-  border: 2px solid var(--color-text-primary);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -161,7 +165,7 @@
   margin-bottom: var(--spacing-xl);
 }
 
-/* Action Buttons */
+/* Clean Action Buttons (see guideline-1-style.md) */
 .actions {
   display: flex;
   flex-direction: column;
@@ -181,7 +185,7 @@
   max-width: 300px;
 }
 
-/* Animations */
+/* Clean Animations (see guideline-1-style.md) */
 @keyframes fadeIn {
   from {
     opacity: 0;
