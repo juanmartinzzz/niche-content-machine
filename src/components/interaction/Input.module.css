@@ -3,7 +3,7 @@
 .base {
   width: 100%;
   border: 1px solid var(--color-border);
-  border-radius: 50px;
+  border-radius: var(--border-radius-full);
   background-color: var(--color-background);
   transition: all 200ms ease-in-out;
   font-family: inherit;

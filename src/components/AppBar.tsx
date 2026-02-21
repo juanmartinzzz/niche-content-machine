@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
+import Link from 'next/link'
+import { Menu, X, ChevronLeft, ChevronRight, Bot } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -40,13 +41,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       {/* Sidebar */}
       <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${isMobileOpen ? styles.mobileOpen : ''} ${className}`}>
         {/* Collapse Toggle Button */}
-        <button
-          className={styles.collapseButton}
+        <Button
+          size="sm"
           onClick={() => setIsCollapsed(!isCollapsed)}
+          className={styles.collapseButton}
           aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         >
-          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        </button>
+          {isCollapsed ? <ChevronRight size={24} /> : <ChevronLeft size={24} />}
+        </Button>
 
         {/* Logo Section */}
         <div className={styles.logo}>
@@ -54,6 +56,20 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             <span className={styles.logoText}>Niche Content Machine</span>
           )}
         </div>
+
+        {/* Navigation Menu */}
+        <nav className={styles.navigation}>
+          <Link href="/llm-models-config">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <Bot size={20} />
+              {!isCollapsed && <span className={styles.navText}>Manage Models</span>}
+            </Button>
+          </Link>
+        </nav>
 
         {/* User Actions */}
         {userEmail && (

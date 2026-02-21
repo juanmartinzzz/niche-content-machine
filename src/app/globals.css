@@ -46,6 +46,7 @@
   --border-radius-sm: 6px;
   --border-radius-md: 8px;
   --border-radius-lg: 24px;
+  --border-radius-full: 9999px;
 
   /* Clean Shadows (see guideline-1-style.md) */
   --shadow-none: none;

@@ -14,7 +14,7 @@
   position: fixed;
   z-index: 50;
   background-color: var(--color-background);
-  border-radius: 50px;
+  border-radius: var(--border-radius-full);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   border: 1px solid var(--color-border);
@@ -57,7 +57,7 @@
   border: none;
   background-color: transparent;
   color: var(--color-text-secondary);
-  border-radius: 50px;
+  border-radius: var(--border-radius-full);
   cursor: pointer;
   transition: all 200ms ease-in-out;
   display: flex;

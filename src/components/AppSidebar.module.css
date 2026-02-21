@@ -12,7 +12,7 @@
   padding: var(--spacing-md);
   transition: width var(--transition-fast), transform var(--transition-fast);
   flex-shrink: 0;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .sidebar.collapsed {
@@ -32,15 +32,21 @@
 .collapseButton {
   position: absolute;
   top: 16px;
-  right: 12px;
-  background: none;
-  border: none;
-  color: var(--color-text-primary);
-  cursor: pointer;
-  padding: 4px;
-  border-radius: var(--border-radius-sm);
+  right: -20px;
+  /* background: none; */
+  /* border: none; */
+  /* color: var(--color-text-primary); */
+  /* cursor: pointer; */
+  padding: 8px;
+  border-radius: var(--border-radius-full);
   transition: var(--transition-fast);
   z-index: 10;
+  min-width: 40px;
+  min-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
 
 .collapseButton:hover {
@@ -51,7 +57,7 @@
 .logo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
+  justify-content: center;
   margin-bottom: var(--spacing-xl);
   padding: var(--spacing-sm);
   border-radius: var(--border-radius-md);
@@ -92,6 +98,47 @@
   overflow-wrap: break-word;
   hyphens: auto;
   transition: opacity var(--transition-fast);
+  text-align: center;
+  width: 100%;
+}
+
+/* Navigation Menu */
+.navigation {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  margin: var(--spacing-lg) 0;
+}
+
+.navItem {
+  justify-content: flex-start;
+  width: 100%;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  border: 1px solid transparent;
+}
+
+.navItem:hover {
+  border-color: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.navItem svg {
+  flex-shrink: 0;
+  color: var(--color-text-secondary);
+  transition: color var(--transition-fast);
+}
+
+.navItem:hover svg {
+  color: var(--color-accent);
+}
+
+.navText {
+  font-size: var(--font-size-md);
+  font-weight: 500;
+  transition: opacity var(--transition-fast);
+  white-space: nowrap;
 }
 
 /* User Actions */
@@ -135,7 +182,7 @@
   z-index: 1001;
   background-color: var(--color-background);
   border: 2px solid var(--color-border);
-  border-radius: var(--border-radius-md);
+  border-radius: var(--border-radius-full);
   padding: 8px;
   cursor: pointer;
   box-shadow: var(--shadow-sm);
