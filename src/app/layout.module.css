@@ -2,6 +2,8 @@
 
 .html {
   /* Font class applied via className prop */
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .body {
@@ -10,6 +12,9 @@
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
 }
 
 .container {

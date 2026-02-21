@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: var(--color-background);
+  background-color: var(--color-accent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -16,26 +16,27 @@
 }
 
 .header {
-  text-align: center;
-  margin-bottom: 48px;
+  margin-bottom: 32px;
 }
 
 .title {
   font-size: var(--font-size-4xl);
   font-weight: 700;
-  color: var(--color-text-primary);
+  color: var(--color-background);
   margin-bottom: 16px;
-}
-
-.subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-text-secondary);
+  text-align: center;
 }
 
 .form {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.form label {
+  text-align: center;
 }
 
 .formSection {
@@ -50,7 +51,7 @@
 }
 
 .link {
-  color: var(--color-accent);
+  color: var(--color-background);
   text-decoration: none;
   font-weight: 700;
 }

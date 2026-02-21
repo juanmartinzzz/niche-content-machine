@@ -74,10 +74,21 @@
   --color-foreground: var(--color-text-primary);
 }
 
-/* Global Styles */
-* {
+/* Comprehensive CSS Reset */
+*, *::before, *::after {
   box-sizing: border-box;
+  margin: 0;
+  padding: 0;
 }
+
+html, body {
+  margin: 0 !important;
+  padding: 0 !important;
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* Global Styles */
 
 html {
   line-height: var(--line-height-relaxed);
@@ -299,7 +310,7 @@ body {
   :root {
     --color-background: #000000;
     --color-surface: #000000;
-    --color-text-primary: #ffffff;
+    --color-text-primary: #000000;
     --color-text-secondary: #cccccc;
     --color-accent: #ffffff;
     --color-border: #ffffff;

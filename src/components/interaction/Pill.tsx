@@ -1,3 +1,5 @@
+'use client'
+
 import React, { forwardRef } from 'react';
 import { PillProps, ComponentSize } from './types';
 import styles from './Pill.module.css';

@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react';
 import { PillListProps } from './types';
 import { Pill } from './Pill';

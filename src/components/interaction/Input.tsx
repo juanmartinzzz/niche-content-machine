@@ -1,3 +1,5 @@
+'use client'
+
 import React, { forwardRef, useId } from 'react';
 import { InputProps, ComponentSize } from './types';
 import styles from './Input.module.css';

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
 import { Input } from '@/components/interaction'
@@ -14,23 +14,54 @@ export default function SignIn() {
   const router = useRouter()
   const supabase = createClient()
 
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser()
+        console.log('Auth check result:', { user: !!user, error })
+        if (user) {
+          console.log('User is already authenticated, redirecting to home')
+          router.push('/')
+        }
+      } catch (error) {
+        console.error('Error checking auth status:', error)
+      }
+    }
+    checkAuth()
+  }, [supabase, router])
+
   const handleSubmit = async (e: React.FormEvent) => {
+    console.log('handleSubmit called')
     e.preventDefault()
+    console.log('Form submitted with:', { email, password: '***' })
     setIsLoading(true)
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Calling supabase.auth.signInWithPassword...')
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
+      console.log('Sign in response:', { user: !!data?.user, error })
+
       if (error) {
-        alert(error.message)
+        console.error('Sign in error:', error)
+
+        // Handle specific error cases
+        if (error.message.includes('Email not confirmed')) {
+          alert('Please check your email and click the confirmation link before signing in.')
+        } else if (error.message.includes('Invalid login credentials')) {
+          alert('Invalid email or password. Please check your credentials and try again.')
+        } else {
+          alert(error.message)
+        }
       } else {
+        console.log('Sign in successful, redirecting to home')
         router.push('/')
       }
     } catch (error) {
-      console.error('Sign in error:', error)
+      console.error('Sign in error (catch):', error)
       alert('An unexpected error occurred')
     } finally {
       setIsLoading(false)

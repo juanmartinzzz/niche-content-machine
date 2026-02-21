@@ -4,76 +4,137 @@
   min-height: 100vh;
 }
 
-/* Clean Navigation (see guideline-1-style.md) */
-.nav {
-  background-color: var(--color-accent);
-  border-bottom: 1px solid var(--color-border);
-  padding: var(--spacing-lg);
+/* Clean Main Content (see guideline-1-style.md) */
+.main {
+  padding: 0;
+  padding-top: 80px; /* Account for AppBar height */
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
 }
 
-.navContent {
+/* Clean Header Section */
+.header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+  padding: var(--spacing-xl) 0;
+}
+
+.headerTitle {
+  font-size: var(--font-size-3xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+  font-weight: 700;
+}
+
+.headerSubtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Dashboard Container */
+.dashboard {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--spacing-2xl);
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
 }
 
-.logoIcon {
-  width: 32px;
-  height: 32px;
-  background-color: var(--color-background);
+@media (min-width: 640px) {
+  .statsGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.statCard {
+  background-color: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-md);
+  padding: var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  transition: all 200ms ease-in-out;
+}
+
+.statCard:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+}
+
+.statIcon {
+  font-size: 32px;
+  width: 48px;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  background-color: var(--color-accent);
+  border-radius: var(--border-radius-md);
+  color: white;
 }
 
-.logoText {
-  color: var(--color-text-primary);
+.statContent {
+  flex: 1;
+}
+
+.statNumber {
   font-size: var(--font-size-2xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
 }
 
-.userInfo {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.userEmail {
-  color: var(--color-background);
+.statLabel {
   font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin: 0;
 }
 
-/* Clean Main Content (see guideline-1-style.md) */
-.main {
-  padding: var(--spacing-2xl);
+/* Actions Section */
+.actionsSection {
+  margin-bottom: var(--spacing-xl);
 }
 
-.hero {
-  text-align: center;
-  margin-bottom: var(--spacing-2xl);
-}
-
-.heroTitle {
-  font-size: var(--font-size-4xl);
+.sectionTitle {
+  font-size: var(--font-size-xl);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-lg);
+  font-weight: 600;
 }
 
-.heroSubtitle {
-  font-size: var(--font-size-xl);
-  color: var(--color-text-secondary);
-  max-width: 512px;
-  margin: 0 auto var(--spacing-xl) auto;
+.actionButtons {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
 }
 
-/* Clean Profile Section (see guideline-1-style.md) */
+@media (min-width: 640px) {
+  .actionButtons {
+    flex-direction: row;
+    gap: var(--spacing-lg);
+  }
+
+  .actionButtons > * {
+    flex: 1;
+    max-width: 300px;
+  }
+}
+
+/* Profile Overview */
+.profileOverview {
+  margin-bottom: var(--spacing-xl);
+}
+
 .profileGrid {
   display: grid;
   gap: var(--spacing-lg);
@@ -85,7 +146,7 @@
   }
 }
 
-.card {
+.infoCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
@@ -93,9 +154,10 @@
 }
 
 .cardTitle {
-  font-size: var(--font-size-2xl);
+  font-size: var(--font-size-lg);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-lg);
+  font-weight: 600;
 }
 
 .cardContent {
@@ -131,59 +193,50 @@
   text-decoration: underline;
 }
 
-/* Clean Setup Profile Section (see guideline-1-style.md) */
+/* Setup Profile Section */
+.setupSection {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
 .setupCard {
   background-color: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   padding: var(--spacing-2xl);
   text-align: center;
+  max-width: 500px;
+  width: 100%;
 }
 
 .setupIcon {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   background-color: var(--color-accent);
-  border: 1px solid var(--color-border);
   border-radius: var(--border-radius-md);
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto var(--spacing-lg) auto;
-  font-size: 32px;
+  font-size: 40px;
 }
 
 .setupTitle {
-  font-size: var(--font-size-3xl);
+  font-size: var(--font-size-2xl);
   color: var(--color-text-primary);
   margin-bottom: var(--spacing-md);
+  font-weight: 600;
 }
 
 .setupDescription {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-base);
   color: var(--color-text-secondary);
   margin-bottom: var(--spacing-xl);
+  line-height: 1.6;
 }
 
-/* Clean Action Buttons (see guideline-1-style.md) */
-.actions {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  margin-top: var(--spacing-2xl);
-  justify-content: center;
-}
-
-@media (min-width: 640px) {
-  .actions {
-    flex-direction: row;
-  }
-}
-
-.actions > * {
-  flex: 1;
-  max-width: 300px;
-}
 
 /* Clean Animations (see guideline-1-style.md) */
 @keyframes fadeIn {
