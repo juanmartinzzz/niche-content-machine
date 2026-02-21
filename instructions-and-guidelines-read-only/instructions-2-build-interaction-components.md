@@ -5,7 +5,6 @@ This guide provides step-by-step instructions to create reusable interaction com
 
 ## Prerequisites
 - Next.js project setup (see `instructions-1-setup.md`)
-- Preferred styling solution configured (CSS-in-JS, styled-components, or custom CSS)
 - Icon library installed (Lucide icons recommended)
 
 ## Project Structure Setup

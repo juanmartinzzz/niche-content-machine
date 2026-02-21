@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Input } from '@/components/interaction'
+import { Button } from '@/components/interaction'
+import styles from './page.module.css'
 
 export default function SignIn() {
   const [email, setEmail] = useState('')
@@ -34,93 +37,63 @@ export default function SignIn() {
     }
   }
 
-  const handleSignInWithProvider = async (provider: 'google' | 'github') => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
-        },
-      })
-
-      if (error) {
-        alert(error.message)
-      }
-    } catch (error) {
-      console.error('OAuth sign in error:', error)
-      alert('An unexpected error occurred')
-    }
-  }
 
   return (
-    <div>
-      <div>
-        <div>
-          <h2>
-            Sign in to your account
-          </h2>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            SIGN IN
+          </h1>
+          <p className={styles.subtitle}>
+            ACCESS YOUR ACCOUNT
+          </p>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formSection}>
+            <Input
+              label="EMAIL"
+              type="email"
+              placeholder="ENTER YOUR EMAIL"
+              value={email}
+              onChange={setEmail}
+              required
+              size="lg"
+            />
+            <Input
+              label="PASSWORD"
+              type="password"
+              placeholder="ENTER YOUR PASSWORD"
+              value={password}
+              onChange={setPassword}
+              required
+              size="lg"
+            />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
-
-          <div>
-            <div>
-              <div>
-                <div></div>
-              </div>
-              <div>
-                <span>Or continue with</span>
-              </div>
-            </div>
-
-            <div>
-              <button
-                type="button"
-                onClick={() => handleSignInWithProvider('google')}
-              >
-                Google
-              </button>
-              <button
-                type="button"
-                onClick={() => handleSignInWithProvider('github')}
-              >
-                GitHub
-              </button>
-            </div>
-          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            size="lg"
+            disabled={isLoading}
+            className="w-full"
+          >
+            {isLoading ? 'SIGNING IN...' : 'SIGN IN'}
+          </Button>
         </form>
+
+        <div className={styles.actions}>
+          <p>
+            DON'T HAVE AN ACCOUNT?{' '}
+            <a
+              href="/auth/signup"
+              className={styles.link}
+            >
+              SIGN UP
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   )

@@ -1,0 +1,211 @@
+/* Main Page - CSS Module */
+
+.container {
+  min-height: 100vh;
+}
+
+/* Navigation */
+.nav {
+  background-color: var(--color-accent);
+  border-bottom: 2px solid var(--color-text-primary);
+  padding: var(--spacing-lg);
+}
+
+.navContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  background-color: var(--color-text-primary);
+  border: 2px solid var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoText {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-2xl);
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userEmail {
+  color: var(--color-background);
+  font-size: var(--font-size-sm);
+}
+
+/* Main Content */
+.main {
+  padding: var(--spacing-2xl);
+}
+
+.hero {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.heroTitle {
+  font-size: var(--font-size-4xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.heroSubtitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-secondary);
+  max-width: 512px;
+  margin: 0 auto var(--spacing-xl) auto;
+}
+
+/* Profile Section */
+.profileGrid {
+  display: grid;
+  gap: var(--spacing-lg);
+}
+
+@media (min-width: 768px) {
+  .profileGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-lg);
+}
+
+.cardTitle {
+  font-size: var(--font-size-2xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.fieldValue {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.link {
+  color: var(--color-accent);
+  text-decoration: none;
+}
+
+.link:hover {
+  color: var(--color-text-primary);
+  text-decoration: underline;
+}
+
+/* Setup Profile Section */
+.setupCard {
+  background-color: var(--color-surface);
+  border: 2px solid var(--color-border);
+  padding: var(--spacing-2xl);
+  text-align: center;
+}
+
+.setupIcon {
+  width: 64px;
+  height: 64px;
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto var(--spacing-lg) auto;
+  font-size: 32px;
+}
+
+.setupTitle {
+  font-size: var(--font-size-3xl);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+.setupDescription {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+/* Action Buttons */
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  margin-top: var(--spacing-2xl);
+  justify-content: center;
+}
+
+@media (min-width: 640px) {
+  .actions {
+    flex-direction: row;
+  }
+}
+
+.actions > * {
+  flex: 1;
+  max-width: 300px;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeIn 0.6s ease-out;
+}
+
+.slideIn {
+  animation: slideIn 0.6s ease-out;
+}

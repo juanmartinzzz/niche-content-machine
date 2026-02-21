@@ -1,12 +1,16 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { SupabaseProvider } from '@/components/SupabaseProvider'
+import styles from './layout.module.css'
 
-const inter = Inter({ subsets: ['latin'] })
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '700', '900'], // Regular, Bold, Black - for brutalist typography
+})
 
 export const metadata: Metadata = {
-  title: 'My Next.js App',
-  description: 'Next.js app with Supabase authentication',
+  title: 'Niche Content Machine',
+  description: 'Bold, brutal content creation platform',
 }
 
 export default function RootLayout({
@@ -15,11 +19,13 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en">
-      <body>
-        <SupabaseProvider>
-          {children}
-        </SupabaseProvider>
+    <html lang="en" className={`${inter.className} ${styles.html}`}>
+      <body className={styles.body}>
+        <div className={styles.container}>
+          <SupabaseProvider>
+            {children}
+          </SupabaseProvider>
+        </div>
       </body>
     </html>
   )

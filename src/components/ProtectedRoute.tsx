@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from '@supabase/auth-helpers-react'
+import { useUser } from './SupabaseProvider'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
 import { createClient } from '@/lib/supabase'

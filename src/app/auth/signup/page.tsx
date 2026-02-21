@@ -3,6 +3,9 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
+import { Input } from '@/components/interaction'
+import { Button } from '@/components/interaction'
+import styles from './page.module.css'
 
 export default function SignUp() {
   const [email, setEmail] = useState('')
@@ -42,59 +45,70 @@ export default function SignUp() {
   }
 
   return (
-    <div>
-      <div>
-        <div>
-          <h2>
+    <div className={styles.container}>
+      <div className={styles.content}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>
+            Sign up
+          </h1>
+          <p className={styles.subtitle}>
             Create your account
-          </h2>
+          </p>
         </div>
-        <form onSubmit={handleSubmit}>
-          <div>
-            <div>
-              <input
-                id="name"
-                name="name"
-                type="text"
-                required
-                placeholder="Full name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-              />
-            </div>
-            <div>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                placeholder="Email address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
+
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formSection}>
+            <Input
+              label="Full name"
+              type="text"
+              placeholder="Enter your full name"
+              value={name}
+              onChange={setName}
+              required
+              size="md"
+            />
+            <Input
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={setEmail}
+              required
+              size="md"
+            />
+            <Input
+              label="Password"
+              type="password"
+              placeholder="Create a password"
+              value={password}
+              onChange={setPassword}
+              required
+              size="md"
+            />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-            >
-              {isLoading ? 'Creating account...' : 'Sign up'}
-            </button>
-          </div>
+          <Button
+            type="submit"
+            variant="primary"
+            size="md"
+            disabled={isLoading}
+            className="w-full"
+          >
+            {isLoading ? 'Creating account...' : 'Sign up'}
+          </Button>
         </form>
+
+        <div className={styles.actions}>
+          <p>
+            Already have an account?{' '}
+            <a
+              href="/auth/signin"
+              className={styles.link}
+            >
+              Sign in
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   )

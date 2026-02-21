@@ -1,0 +1,95 @@
+/* Style Guide Button Styles - CSS Module */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  transition: all 200ms ease-in-out;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  box-sizing: border-box;
+  border: none;
+}
+
+.base:focus {
+  outline: 2px solid #222834;
+  outline-offset: 2px;
+}
+
+.base:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.primary {
+  background-color: #222834;
+  color: #ffffff;
+}
+
+.primary:hover:not(:disabled) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.primary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.secondary {
+  background-color: #ffffff;
+  border: 1px solid #d0d4dc;
+  color: #373f51;
+}
+
+.secondary:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+.secondary:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+.ghost {
+  background-color: transparent;
+  color: #14171f;
+}
+
+.ghost:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+.ghost:active:not(:disabled) {
+  transform: scale(0.95);
+}
+
+/* Size variants */
+.xs {
+  padding: 6px 12px;
+  font-size: 12px;
+  height: 32px;
+}
+
+.sm {
+  padding: 8px 16px;
+  font-size: 14px;
+  height: 36px;
+}
+
+.md {
+  padding: 12px 20px;
+  font-size: 16px;
+  height: 44px;
+}
+
+.lg {
+  padding: 14px 24px;
+  font-size: 18px;
+  height: 52px;
+}
+
+.xl {
+  padding: 16px 28px;
+  font-size: 20px;
+  height: 60px;
+}

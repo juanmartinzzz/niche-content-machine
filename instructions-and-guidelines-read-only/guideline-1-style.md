@@ -3,6 +3,11 @@
 ## Overview
 This style guide is inspired by a clean, professional aesthetic. It emphasizes clarity, minimalism, and strong visual hierarchy while maintaining responsive design principles.
 
+### CSS Architecture
+- co-located CSS Modules like `Button.tsx` and `Button.module.css`
+- CSS custom properties for stark design tokens
+- Component-specific classes for raw interactions
+
 ## Typography
 
 ### Font Families
@@ -63,7 +68,7 @@ This style guide is inspired by a clean, professional aesthetic. It emphasizes c
 ## Interactive Elements
 
 ### Component Sizes
-All interactive elements (buttons, inputs, pills) follow a standardized size system using Tailwind's size scale (xs, sm, md, lg, xl) with consistent heights for proper inline alignment:
+All interactive elements (buttons, inputs, pills) follow a standardized size system using size scale (2xs, xs, sm, md, lg, xl, 2xl, 3xl, 4xl, 5xl) with consistent heights for proper inline alignment:
 
 - **xs**: 32px height - Compact elements for tight spaces
 - **sm**: 36px height - Small elements for secondary actions
@@ -192,12 +197,6 @@ All interactive elements (buttons, inputs, pills) follow a standardized size sys
 - Animation: Smooth slide-in from appropriate direction
 
 ## Implementation Notes
-
-### CSS Architecture
-- Use co-located CSS Modules e.g. `Button.tsx`, `Button.module.css`
-- Custom properties for design tokens
-- Component-specific classes for complex interactions
-- Responsive utilities for mobile-first design
 
 ### Icon Usage
 - Lucide icons for consistency

@@ -1,0 +1,102 @@
+/* Signin Page - CSS Module */
+
+.container {
+  min-height: 100vh;
+  background-color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 64px 32px;
+}
+
+.content {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header {
+  margin-bottom: 32px;
+}
+
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--color-background);
+  margin-bottom: 16px;
+}
+
+.subtitle {
+  font-size: var(--font-size-lg);
+  color: var(--color-background);
+  opacity: 0.8;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.divider {
+  position: relative;
+  margin: 32px 0;
+}
+
+.divider::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--color-background);
+  transform: translateY(-50%);
+}
+
+.dividerText {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+}
+
+.dividerText span {
+  background-color: var(--color-accent);
+  padding: 0 16px;
+  color: var(--color-background);
+  font-weight: 900;
+}
+
+.oauthButtons {
+  display: flex;
+  gap: 16px;
+}
+
+.oauthButtons > * {
+  flex: 1;
+}
+
+.actions {
+  margin-top: 32px;
+  text-align: center;
+}
+
+.link {
+  color: var(--color-background);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.link:hover {
+  color: var(--color-text-primary);
+  transition: color 200ms ease-in-out;
+}

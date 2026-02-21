@@ -10,6 +10,7 @@ import {
   Drawer,
   PillOption,
 } from '../index';
+import styles from './InteractionExamples.module.css';
 
 export const InteractionExamples: React.FC = () => {
   // Form state
@@ -48,17 +49,17 @@ export const InteractionExamples: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto p-8 space-y-12">
-      <h1 className="text-3xl font-bold text-[#14171f] mb-8">Interaction Components</h1>
+    <div className={styles.container}>
+      <h1 className={styles.title}>Interaction Components</h1>
 
       {/* Buttons Section */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-[#14171f]">Buttons</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Buttons</h2>
 
         {/* Button Variants */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Variants</h3>
-          <div className="flex flex-wrap gap-4">
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Variants</h3>
+          <div className={styles.buttonGroup}>
             <Button variant="primary" onClick={() => console.log('Primary clicked')}>
               Primary Button
             </Button>
@@ -72,9 +73,9 @@ export const InteractionExamples: React.FC = () => {
         </div>
 
         {/* Button Sizes */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Sizes</h3>
-          <div className="flex flex-wrap items-end gap-4">
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Sizes</h3>
+          <div className={styles.buttonRow}>
             <Button variant="primary" size="xs" onClick={() => console.log('XS clicked')}>
               XS
             </Button>
@@ -94,8 +95,8 @@ export const InteractionExamples: React.FC = () => {
         </div>
 
         {/* Disabled Button */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Disabled State</h3>
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Disabled State</h3>
           <Button variant="primary" disabled onClick={() => console.log('Disabled clicked')}>
             Disabled Button
           </Button>
@@ -103,16 +104,16 @@ export const InteractionExamples: React.FC = () => {
       </section>
 
       {/* Form Inputs Section */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-[#14171f]">Form Inputs</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Form Inputs</h2>
 
         {/* Input Field */}
-        <div className="space-y-4">
+        <div className={styles.inputGroup}>
           <Input
             label="Text Input"
             placeholder="Enter some text..."
             value={inputValue}
-            onChange={(e) => handleInputChange(e.target.value)}
+            onChange={handleInputChange}
             error={errorInput}
             required
           />
@@ -122,32 +123,32 @@ export const InteractionExamples: React.FC = () => {
         </div>
 
         {/* Email Input */}
-        <div className="space-y-4">
+        <div className={styles.inputGroup}>
           <Input
             type="email"
             label="Email Address"
             placeholder="Enter your email..."
             value={emailValue}
-            onChange={(e) => setEmailValue(e.target.value)}
+            onChange={setEmailValue}
           />
         </div>
 
         {/* Textarea */}
-        <div className="space-y-4">
+        <div className={styles.inputGroup}>
           <Textarea
             label="Description"
             placeholder="Enter a longer description..."
             value={textareaValue}
-            onChange={(e) => setTextareaValue(e.target.value)}
+            onChange={setTextareaValue}
             autoResize
             rows={3}
           />
         </div>
 
         {/* Different Input Sizes */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Input Sizes</h3>
-          <div className="space-y-4">
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Input Sizes</h3>
+          <div className={styles.sizeGroup}>
             <Input size="xs" placeholder="Extra small input" />
             <Input size="sm" placeholder="Small input" />
             <Input size="md" placeholder="Medium input (default)" />
@@ -158,13 +159,13 @@ export const InteractionExamples: React.FC = () => {
       </section>
 
       {/* Pills Section */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-[#14171f]">Pills</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Pills</h2>
 
         {/* Individual Pills */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Individual Pills</h3>
-          <div className="flex flex-wrap gap-4">
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Individual Pills</h3>
+          <div className={styles.pillGroup}>
             <Pill label="Active Pill" selected />
             <Pill label="Inactive Pill" selected={false} />
             <Pill label="Disabled Pill" disabled />
@@ -172,8 +173,8 @@ export const InteractionExamples: React.FC = () => {
         </div>
 
         {/* Pill List - Single Selection */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Single Selection Pill List</h3>
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Single Selection Pill List</h3>
           <PillList
             options={pillOptions}
             selected={singleSelected}
@@ -183,8 +184,8 @@ export const InteractionExamples: React.FC = () => {
         </div>
 
         {/* Pill List - Multiple Selection */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-[#373f51]">Multiple Selection Pill List</h3>
+        <div className={styles.subsection}>
+          <h3 className={styles.subsectionTitle}>Multiple Selection Pill List</h3>
           <PillList
             options={pillOptions}
             selected={multipleSelected}
@@ -195,11 +196,11 @@ export const InteractionExamples: React.FC = () => {
       </section>
 
       {/* Drawer Section */}
-      <section className="space-y-6">
-        <h2 className="text-2xl font-semibold text-[#14171f]">Drawer</h2>
+      <section className={styles.section}>
+        <h2 className={styles.sectionTitle}>Drawer</h2>
 
-        <div className="space-y-4">
-          <div className="flex flex-wrap gap-4">
+        <div className={styles.subsection}>
+          <div className={styles.buttonGroup}>
             <Button variant="primary" onClick={() => setIsDrawerOpen(true)}>
               Open Drawer (Right)
             </Button>
@@ -213,20 +214,19 @@ export const InteractionExamples: React.FC = () => {
         onClose={() => setIsDrawerOpen(false)}
         position="right"
         shouldOpenWithBackdrop
-        widthClass="w-96"
       >
-        <div className="space-y-6">
-          <h3 className="text-xl font-semibold text-[#14171f]">Drawer Content</h3>
-          <p className="text-[#373f51]">
+        <div className={styles.drawerContent}>
+          <h3 className={styles.drawerTitle}>Drawer Content</h3>
+          <p className={styles.drawerText}>
             This is the content inside the drawer. You can put any components here.
           </p>
 
-          <div className="space-y-4">
+          <div className={styles.drawerForm}>
             <Input label="Name" placeholder="Enter your name" />
             <Textarea label="Message" placeholder="Enter your message" rows={4} />
           </div>
 
-          <div className="flex gap-3">
+          <div className={styles.drawerActions}>
             <Button variant="primary" onClick={() => setIsDrawerOpen(false)}>
               Save
             </Button>

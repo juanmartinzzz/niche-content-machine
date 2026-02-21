@@ -1,0 +1,18 @@
+/* Root Layout - CSS Module */
+
+.html {
+  /* Font class applied via className prop */
+}
+
+.body {
+  background-color: var(--color-accent);
+  color: var(--color-text-primary);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container {
+  min-height: 100vh;
+  background-color: var(--color-accent);
+}

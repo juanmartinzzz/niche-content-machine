@@ -1,0 +1,99 @@
+/* Interaction Examples - CSS Module */
+
+.container {
+  max-width: 896px;
+  margin: 0 auto;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 48px;
+}
+
+.title {
+  font-size: var(--font-size-4xl);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 32px;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.sectionTitle {
+  font-size: var(--font-size-3xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.subsection {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.subsectionTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 500;
+  color: var(--color-text-secondary);
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sizeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pillGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.drawerContent {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.drawerTitle {
+  font-size: var(--font-size-2xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.drawerText {
+  color: var(--color-text-secondary);
+}
+
+.drawerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.drawerActions {
+  display: flex;
+  gap: 12px;
+}

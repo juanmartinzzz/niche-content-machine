@@ -1,0 +1,69 @@
+/* Style Guide Pill Styles - CSS Module */
+
+.base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50px;
+  transition: all 200ms ease-in-out;
+  cursor: pointer;
+  font-weight: 500;
+  font-family: inherit;
+  box-sizing: border-box;
+  border: none;
+}
+
+.base:focus {
+  outline: 2px solid #222834;
+  outline-offset: 2px;
+}
+
+.base:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.selected {
+  background-color: #222834;
+  color: #ffffff;
+}
+
+.unselected {
+  background-color: #f9fafb;
+  color: #14171f;
+}
+
+.unselected:hover:not(:disabled) {
+  background-color: #f1f5f9;
+}
+
+/* Size variants */
+.xs {
+  padding: 6px 12px;
+  font-size: 12px;
+  height: 32px;
+}
+
+.sm {
+  padding: 8px 14px;
+  font-size: 14px;
+  height: 36px;
+}
+
+.md {
+  padding: 10px 16px;
+  font-size: 16px;
+  height: 44px;
+}
+
+.lg {
+  padding: 12px 18px;
+  font-size: 18px;
+  height: 52px;
+}
+
+.xl {
+  padding: 14px 20px;
+  font-size: 20px;
+  height: 60px;
+}

@@ -1,7 +1,10 @@
+'use client';
+
 import React, { useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { DrawerProps, DrawerPosition } from './types';
+import styles from './Drawer.module.css';
 
 interface DrawerContentProps extends Omit<DrawerProps, 'isOpen'> {
   onClose: () => void;
@@ -75,19 +78,19 @@ const DrawerContent: React.FC<DrawerContentProps> = ({
       exit="hidden"
       variants={variants}
       transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      className={`fixed z-50 bg-white shadow-xl ${positionClasses[position]} ${widthClass} ${position === 'bottom' ? 'max-h-[80vh]' : ''}`}
+      className={`${styles.content} ${styles[position]}`}
     >
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 p-2 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-2"
+        className={styles.closeButton}
         aria-label="Close drawer"
       >
-        <X size={20} />
+        <X size={16} />
       </button>
 
       {/* Content */}
-      <div className="p-6 pt-12 h-full overflow-y-auto">
+      <div className={styles.contentArea}>
         {children}
       </div>
     </motion.div>
@@ -131,7 +134,7 @@ export const Drawer: React.FC<DrawerProps> = ({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black bg-opacity-50"
+              className={styles.overlay}
               onClick={onClose}
             />
           )}
