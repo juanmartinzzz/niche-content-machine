@@ -7,7 +7,7 @@
 }
 
 .body {
-  background-color: var(--color-accent);
+  background-color: var(--color-background);
   color: var(--color-text-primary);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -19,5 +19,5 @@
 
 .container {
   min-height: 100vh;
-  background-color: var(--color-accent);
+  background-color: var(--color-background);
 }

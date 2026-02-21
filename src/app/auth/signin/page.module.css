@@ -2,7 +2,7 @@
 
 .container {
   min-height: 100vh;
-  background-color: var(--color-accent);
+  background-color: var(--color-background);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -22,7 +22,7 @@
 .title {
   font-size: var(--font-size-4xl);
   font-weight: 700;
-  color: var(--color-background);
+  color: var(--color-text-primary);
   margin-bottom: 16px;
   text-align: center;
 }
@@ -58,7 +58,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background-color: var(--color-background);
+  background-color: var(--color-border);
   transform: translateY(-50%);
 }
 
@@ -70,9 +70,9 @@
 }
 
 .dividerText span {
-  background-color: var(--color-accent);
+  background-color: var(--color-background);
   padding: 0 16px;
-  color: var(--color-background);
+  color: var(--color-text-primary);
   font-weight: 900;
 }
 
@@ -91,12 +91,12 @@
 }
 
 .link {
-  color: var(--color-background);
+  color: var(--color-accent);
   text-decoration: none;
   font-weight: 700;
 }
 
 .link:hover {
-  color: var(--color-text-primary);
+  color: var(--color-text-secondary);
   transition: color 200ms ease-in-out;
 }
