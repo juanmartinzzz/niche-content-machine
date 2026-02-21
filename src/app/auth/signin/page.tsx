@@ -45,9 +45,6 @@ export default function SignIn() {
           <h1 className={styles.title}>
             SIGN IN
           </h1>
-          <p className={styles.subtitle}>
-            ACCESS YOUR ACCOUNT
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} className={styles.form}>

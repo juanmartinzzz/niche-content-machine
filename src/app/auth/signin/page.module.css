@@ -24,13 +24,9 @@
   font-weight: 700;
   color: var(--color-background);
   margin-bottom: 16px;
+  text-align: center;
 }
 
-.subtitle {
-  font-size: var(--font-size-lg);
-  color: var(--color-background);
-  opacity: 0.8;
-}
 
 .form {
   display: flex;
@@ -38,6 +34,10 @@
   gap: 24px;
   max-width: 400px;
   margin: 0 auto;
+}
+
+.form label {
+  text-align: center;
 }
 
 .formSection {
