@@ -50,9 +50,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* Logo Section */}
         <div className={styles.logo}>
-          <div className={styles.logoIcon}>
-            <span>NCM</span>
-          </div>
           {!isCollapsed && (
             <span className={styles.logoText}>Niche Content Machine</span>
           )}

@@ -291,4 +291,17 @@ body {
   animation: brutalSlideIn var(--transition-normal);
 }
 
+/* App Layout Styles */
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.app-main-content {
+  flex: 1;
+  padding: var(--spacing-md);
+  background-color: var(--color-background);
+  overflow-x: auto;
+}
+
 

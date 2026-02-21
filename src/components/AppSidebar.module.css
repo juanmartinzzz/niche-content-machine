@@ -1,9 +1,7 @@
 /* AppSidebar Component - Collapsible Left Sidebar */
 
 .sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
+  position: relative;
   height: 100vh;
   width: 280px;
   background-color: var(--color-surface);
@@ -13,7 +11,7 @@
   flex-direction: column;
   padding: var(--spacing-md);
   transition: width var(--transition-fast), transform var(--transition-fast);
-  z-index: 1000;
+  flex-shrink: 0;
   overflow: hidden;
 }
 
@@ -90,9 +88,9 @@
   font-size: var(--font-size-xl);
   font-weight: 600;
   letter-spacing: -0.02em;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
   transition: opacity var(--transition-fast);
 }
 
@@ -131,7 +129,7 @@
 /* Mobile Toggle Button */
 .mobileToggle {
   display: none;
-  position: fixed;
+  position: absolute;
   top: 16px;
   left: 16px;
   z-index: 1001;
@@ -151,8 +149,12 @@
 /* Responsive Design */
 @media (max-width: 768px) {
   .sidebar {
+    position: absolute;
+    left: 0;
+    top: 0;
     transform: translateX(-100%);
     width: 280px;
+    z-index: 1000;
   }
 
   .sidebar.mobileOpen {

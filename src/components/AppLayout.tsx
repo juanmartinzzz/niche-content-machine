@@ -58,9 +58,11 @@ export function AppLayout({ children }: AppLayoutProps) {
   const showAppBar = !isLoading && userEmail
 
   return (
-    <>
+    <div className="app-layout">
       {showAppBar && <AppBar userEmail={userEmail} onSignOut={handleSignOut} />}
-      {children}
-    </>
+      <main className="app-main-content">
+        {children}
+      </main>
+    </div>
   )
 }
