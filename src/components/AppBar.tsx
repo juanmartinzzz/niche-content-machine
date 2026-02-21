@@ -28,8 +28,7 @@ export const AppBar: React.FC<AppBarProps> = ({
 
   return (
     <nav className={`${styles.nav} ${className}`}>
-      <div className="container">
-        <div className={styles.navContent}>
+      <div className={styles.navContent}>
           {/* Logo Section */}
           <div className={styles.logo}>
             <div className={styles.logoIcon}>
@@ -58,14 +57,12 @@ export const AppBar: React.FC<AppBarProps> = ({
 
           {/* Mobile Menu Button */}
           <div className={styles.mobileActions}>
-            <Button
-              variant="ghost"
-              size="sm"
+            <div
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className={styles.mobileMenuButton}
             >
               {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </Button>
+            </div>
           </div>
         </div>
 
@@ -92,7 +89,6 @@ export const AppBar: React.FC<AppBarProps> = ({
             )}
           </div>
         )}
-      </div>
     </nav>
   )
 }

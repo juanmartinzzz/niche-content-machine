@@ -128,16 +128,10 @@ export default async function Home() {
           ) : (
             /* Setup Profile Section */
             <div className={`${styles.setupSection} ${styles.slideIn}`}>
-              <div className={styles.setupCard}>
-                <div className={styles.setupIcon}>
-                  <span></span>
-                </div>
-                <h2 className={styles.setupTitle}>Let's Get Started</h2>
-                <p className={styles.setupDescription}>
-                  Complete your profile to unlock powerful content creation tools and personalized features.
-                </p>
-                <SetupProfileButton />
-              </div>
+              <p className={styles.setupDescription}>
+                Complete your profile to unlock powerful content creation tools and personalized features.
+              </p>
+              <SetupProfileButton />
             </div>
           )}
         </div>
