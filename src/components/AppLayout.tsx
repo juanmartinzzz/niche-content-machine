@@ -41,12 +41,25 @@ export function AppLayout({ children }: AppLayoutProps) {
     return () => subscription.unsubscribe()
   }, [supabase])
 
+  const handleSignOut = async () => {
+    try {
+      const { error } = await supabase.auth.signOut()
+      if (error) {
+        console.error('Error signing out:', error)
+        alert('Error signing out. Please try again.')
+      }
+    } catch (error) {
+      console.error('Error signing out:', error)
+      alert('Error signing out. Please try again.')
+    }
+  }
+
   // Don't show AppBar while loading or if no user
   const showAppBar = !isLoading && userEmail
 
   return (
     <>
-      {showAppBar && <AppBar userEmail={userEmail} />}
+      {showAppBar && <AppBar userEmail={userEmail} onSignOut={handleSignOut} />}
       {children}
     </>
   )

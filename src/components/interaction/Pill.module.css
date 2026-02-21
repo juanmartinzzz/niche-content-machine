@@ -14,7 +14,7 @@
 }
 
 .base:focus {
-  outline: 2px solid #222834;
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -24,17 +24,17 @@
 }
 
 .selected {
-  background-color: #222834;
-  color: #ffffff;
+  background-color: var(--color-accent);
+  color: var(--color-background);
 }
 
 .unselected {
-  background-color: #f9fafb;
-  color: #14171f;
+  background-color: var(--color-surface);
+  color: var(--color-text-primary);
 }
 
 .unselected:hover:not(:disabled) {
-  background-color: #f1f5f9;
+  background-color: var(--color-border-light);
 }
 
 /* Size variants */

@@ -1,0 +1,199 @@
+/* AppSidebar Component - Collapsible Left Sidebar */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 280px;
+  background-color: var(--color-surface);
+  border-right: 3px solid var(--color-border);
+  box-shadow: 2px 0 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: var(--spacing-md);
+  transition: width var(--transition-fast), transform var(--transition-fast);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.sidebar.collapsed {
+  width: 60px;
+}
+
+.sidebar.mobileOpen {
+  transform: translateX(0);
+}
+
+/* Mobile Overlay */
+.mobileOverlay {
+  display: none;
+}
+
+/* Collapse Toggle Button */
+.collapseButton {
+  position: absolute;
+  top: 16px;
+  right: 12px;
+  background: none;
+  border: none;
+  color: var(--color-text-primary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--border-radius-sm);
+  transition: var(--transition-fast);
+  z-index: 10;
+}
+
+.collapseButton:hover {
+  background-color: var(--color-surface);
+}
+
+/* Logo Section */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-sm);
+  border-radius: var(--border-radius-md);
+  transition: var(--transition-fast);
+  position: relative;
+}
+
+.logo:hover {
+  background-color: var(--color-surface);
+}
+
+.logoIcon {
+  width: 40px;
+  height: 40px;
+  background-color: var(--color-accent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--color-background);
+  transition: var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.logoIcon:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.logoText {
+  color: var(--color-text-primary);
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: opacity var(--transition-fast);
+}
+
+/* User Actions */
+.userActions {
+  margin-top: auto;
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-border-light);
+}
+
+.userEmail {
+  display: block;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  margin-bottom: var(--spacing-md);
+  word-break: break-all;
+  line-height: 1.4;
+  transition: opacity var(--transition-fast);
+}
+
+.signOutContainer {
+  width: 100%;
+}
+
+.signOutButton {
+  width: 100%;
+  justify-content: flex-start;
+  transition: var(--transition-fast);
+}
+
+.signOutButton:hover {
+  transform: translateY(-1px);
+}
+
+/* Mobile Toggle Button */
+.mobileToggle {
+  display: none;
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 1001;
+  background-color: var(--color-background);
+  border: 2px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  padding: 8px;
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition-fast);
+}
+
+.mobileToggle:hover {
+  background-color: var(--color-surface);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .sidebar {
+    transform: translateX(-100%);
+    width: 280px;
+  }
+
+  .sidebar.mobileOpen {
+    transform: translateX(0);
+  }
+
+  .mobileOverlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }
+
+  .mobileToggle {
+    display: block;
+  }
+
+  .collapseButton {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .sidebar {
+    width: 260px;
+  }
+
+  .sidebar.collapsed {
+    width: 50px;
+  }
+
+  .logo {
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .logoIcon {
+    width: 36px;
+    height: 36px;
+  }
+}

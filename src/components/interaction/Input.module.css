@@ -2,9 +2,9 @@
 
 .base {
   width: 100%;
-  border: 1px solid #d0d4dc;
+  border: 1px solid var(--color-border);
   border-radius: 50px;
-  background-color: #ffffff;
+  background-color: var(--color-background);
   transition: all 200ms ease-in-out;
   font-family: inherit;
   box-sizing: border-box;
@@ -12,19 +12,19 @@
 }
 
 .base:focus {
-  outline: 2px solid #222834;
+  outline: 2px solid var(--color-accent);
   outline-offset: 0;
-  border-color: #222834;
+  border-color: var(--color-accent);
 }
 
 .base:disabled {
-  background-color: #f9fafb;
+  background-color: var(--color-surface);
   opacity: 0.6;
   cursor: not-allowed;
 }
 
 .base::placeholder {
-  color: #373f51;
+  color: var(--color-text-secondary);
   opacity: 0.7;
 }
 
@@ -61,7 +61,7 @@
 
 /* Error state */
 .error {
-  border-color: #ef4444 !important;
+  border-color: var(--color-error) !important;
   background-color: rgba(239, 68, 68, 0.05) !important;
 }
 
@@ -70,12 +70,12 @@
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #14171f;
+  color: var(--color-text-primary);
   margin-bottom: 8px;
 }
 
 .required {
-  color: #ef4444;
+  color: var(--color-error);
   margin-left: 4px;
 }
 
@@ -84,5 +84,5 @@
   margin-top: 4px;
   font-size: 14px;
   font-weight: 400;
-  color: #ef4444;
+  color: var(--color-error);
 }

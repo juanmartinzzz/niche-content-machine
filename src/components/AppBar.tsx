@@ -1,94 +1,95 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/interaction'
-import styles from './AppBar.module.css'
+import styles from './AppSidebar.module.css'
 
-interface AppBarProps {
+interface AppSidebarProps {
   userEmail?: string
   onSignOut?: () => void
   className?: string
+  defaultCollapsed?: boolean
 }
 
-export const AppBar: React.FC<AppBarProps> = ({
+export const AppSidebar: React.FC<AppSidebarProps> = ({
   userEmail,
   onSignOut,
-  className = ''
+  className = '',
+  defaultCollapsed = false
 }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed)
+  const [isMobileOpen, setIsMobileOpen] = useState(false)
 
   const handleSignOut = () => {
     if (onSignOut) {
       onSignOut()
-    } else {
-      window.location.href = '/auth/signout'
     }
   }
 
   return (
-    <nav className={`${styles.nav} ${className}`}>
-      <div className={styles.navContent}>
-          {/* Logo Section */}
-          <div className={styles.logo}>
-            <div className={styles.logoIcon}>
-              <span>NCM</span>
-            </div>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileOpen && (
+        <div
+          className={styles.mobileOverlay}
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+
+      {/* Sidebar */}
+      <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ''} ${isMobileOpen ? styles.mobileOpen : ''} ${className}`}>
+        {/* Collapse Toggle Button */}
+        <button
+          className={styles.collapseButton}
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+        >
+          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
+
+        {/* Logo Section */}
+        <div className={styles.logo}>
+          <div className={styles.logoIcon}>
+            <span>NCM</span>
+          </div>
+          {!isCollapsed && (
             <span className={styles.logoText}>Niche Content Machine</span>
-          </div>
-
-          {/* Desktop User Actions */}
-          <div className={styles.desktopActions}>
-            {userEmail && (
-              <>
-                <span className={styles.userEmail}>{userEmail}</span>
-                <div className={styles.signOutContainer}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={handleSignOut}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </>
-            )}
-          </div>
-
-          {/* Mobile Menu Button */}
-          <div className={styles.mobileActions}>
-            <div
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className={styles.mobileMenuButton}
-            >
-              {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-            </div>
-          </div>
+          )}
         </div>
 
-        {/* Mobile Menu */}
-        {isMobileMenuOpen && (
-          <div className={styles.mobileMenu}>
-            {userEmail && (
-              <div className={styles.mobileUserInfo}>
-                <span className={styles.mobileUserEmail}>{userEmail}</span>
-                <div className={styles.mobileSignOutContainer}>
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => {
-                      handleSignOut()
-                      setIsMobileMenuOpen(false)
-                    }}
-                    className={styles.mobileSignOutButton}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              </div>
+        {/* User Actions */}
+        {userEmail && (
+          <div className={styles.userActions}>
+            {!isCollapsed && (
+              <span className={styles.userEmail}>{userEmail}</span>
             )}
+            <div className={styles.signOutContainer}>
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={handleSignOut}
+                className={styles.signOutButton}
+              >
+                {!isCollapsed && 'Sign Out'}
+                {isCollapsed && <X size={16} />}
+              </Button>
+            </div>
           </div>
         )}
-    </nav>
+      </aside>
+
+      {/* Mobile Menu Button */}
+      <button
+        className={styles.mobileToggle}
+        onClick={() => setIsMobileOpen(!isMobileOpen)}
+        aria-label="Toggle sidebar"
+      >
+        {isMobileOpen ? <X size={20} /> : <Menu size={20} />}
+      </button>
+    </>
   )
 }
+
+// Keep AppBar as alias for backward compatibility
+export const AppBar = AppSidebar
