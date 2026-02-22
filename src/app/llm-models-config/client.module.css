@@ -43,34 +43,20 @@
   color: #6b7280;
 }
 
-.modalBackdrop {
-  position: fixed;
-  inset: 0;
-  background-color: #000000;
-  opacity: 0.5;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 50;
-}
 
-.modalContent {
-  background-color: #ffffff;
-  border-radius: 8px;
-  padding: 24px;
-  width: 100%;
-  max-width: 448px;
-  max-height: 90vh;
-  overflow-y: auto;
-}
-
-.modalTitle {
+.drawerTitle {
   font-size: 18px;
   font-weight: 500;
   margin-bottom: 16px;
 }
 
-.modalBody {
+.drawerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.drawerBody {
   display: flex;
   flex-direction: column;
   gap: 16px;
