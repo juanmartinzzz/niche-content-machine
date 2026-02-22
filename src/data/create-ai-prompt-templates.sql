@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS ncm_ai_prompt_templates (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   
   -- Columns for prompt templates
-  slug VARCHAR(100) NOT NULL, -- Code reference key for template lookup
+  name VARCHAR(100) NOT NULL, -- Name of the prompt template
   endpoint_id UUID REFERENCES ncm_ai_endpoints(id) ON DELETE SET NULL, -- Optional link to specific endpoint
   system_prompt TEXT, -- System prompt text (can be null if only user prompt)
   user_prompt_template TEXT, -- User prompt with placeholder variables (e.g. "{{document_text}}")
@@ -17,8 +17,8 @@ CREATE TABLE IF NOT EXISTS ncm_ai_prompt_templates (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
 
-  -- Unique constraint for slug + version combination
-  UNIQUE(slug, version)
+  -- Unique constraint for name + version combination
+  UNIQUE(name, version)
 );
 
 -- Indexes for prompt templates
