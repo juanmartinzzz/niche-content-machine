@@ -15,9 +15,9 @@ export async function GET() {
       .from(getTableName('ai_providers'))
       .select(`
         *,
-        ${getTableName('ai_models')} (
+        ai_models:${getTableName('ai_models')} (
           *,
-          ${getTableName('ai_endpoints')} (*)
+          ai_endpoints:${getTableName('ai_endpoints')} (*)
         )
       `)
       .order('created_at', { ascending: false })

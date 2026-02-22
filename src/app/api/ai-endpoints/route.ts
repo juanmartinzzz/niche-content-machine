@@ -15,9 +15,9 @@ export async function GET() {
       .from(getTableName('ai_endpoints'))
       .select(`
         *,
-        ${getTableName('ai_models')} (
+        ai_models:${getTableName('ai_models')} (
           *,
-          ${getTableName('ai_providers')} (*)
+          ai_providers:${getTableName('ai_providers')} (*)
         )
       `)
       .order('created_at', { ascending: false })
@@ -79,9 +79,9 @@ export async function POST(request: NextRequest) {
       }])
       .select(`
         *,
-        ${getTableName('ai_models')} (
+        ai_models:${getTableName('ai_models')} (
           *,
-          ${getTableName('ai_providers')} (*)
+          ai_providers:${getTableName('ai_providers')} (*)
         )
       `)
       .single()

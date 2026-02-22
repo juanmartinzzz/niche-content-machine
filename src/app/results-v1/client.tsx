@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button, Input } from '@/components/interaction'
+import { Button, Input, PillList } from '@/components/interaction'
 import { Play, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 import styles from './client.module.css'
 
@@ -18,7 +18,7 @@ interface Endpoint {
   is_active: boolean
   created_at: string
   updated_at: string
-  ncm_ai_models: {
+  ai_models: {
     id: string
     provider_id: string
     model_identifier: string
@@ -33,7 +33,7 @@ interface Endpoint {
     deprecated_at: string | null
     created_at: string
     updated_at: string
-    ncm_ai_providers: {
+    ai_providers: {
       id: string
       name: string
       base_url: string
@@ -96,7 +96,7 @@ export const ResultsV1Client: React.FC = () => {
         if (endpointsRes.ok) {
           const endpointsData = await endpointsRes.json()
           // Filter out endpoints that don't have valid model data
-          const validEndpoints = (endpointsData.endpoints || []).filter((endpoint: any) => endpoint.ncm_ai_models)
+          const validEndpoints = (endpointsData.endpoints || []).filter((endpoint: any) => endpoint.ai_models)
           setEndpoints(validEndpoints)
         }
 
@@ -202,40 +202,37 @@ export const ResultsV1Client: React.FC = () => {
 
         <div className={styles.formRow}>
           <div className={styles.formField}>
-            <label htmlFor="endpoint-select">Endpoint</label>
-            <select
-              id="endpoint-select"
-              value={selectedEndpoint}
-              onChange={(e) => setSelectedEndpoint(e.target.value)}
-              className={styles.select}
-            >
-              <option value="">
-                {endpoints.length === 0 ? 'No endpoints available - create some in LLM Models Config' : 'Select an endpoint...'}
-              </option>
-              {endpoints.map(endpoint => (
-                <option key={endpoint.id} value={endpoint.id}>
-                  {endpoint.slug} - {endpoint.ncm_ai_models?.display_name || 'Unknown Model'} ({endpoint.ncm_ai_models?.ncm_ai_providers?.name || 'Unknown Provider'})
-                </option>
-              ))}
-            </select>
+            <label>Endpoint</label>
+            <PillList
+              options={[
+                ...(endpoints.length === 0 ? [{
+                  id: '',
+                  label: 'No endpoints available - create some in LLM Models Config'
+                }] : []),
+                ...endpoints.map(endpoint => ({
+                  id: endpoint.id,
+                  label: `${endpoint.slug} - ${endpoint.ai_models?.display_name || 'Unknown Model'} (${endpoint.ai_models?.ai_providers?.name || 'Unknown Provider'})`
+                }))
+              ]}
+              selected={selectedEndpoint ? [selectedEndpoint] : []}
+              onChange={(selected) => setSelectedEndpoint(selected[0] || '')}
+              size="xs"
+              variant="single"
+            />
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="template-select">Prompt Template</label>
-            <select
-              id="template-select"
-              value={selectedTemplate}
-              onChange={(e) => setSelectedTemplate(e.target.value)}
-              className={styles.select}
-            >
-              <option value="">Select a prompt template...</option>
-              {promptTemplates.map(template => (
-                <option key={template.id} value={template.id}>
-                  {template.name}
-                  {template.description && ` - ${template.description}`}
-                </option>
-              ))}
-            </select>
+            <label>Prompt Template</label>
+            <PillList
+              options={promptTemplates.map(template => ({
+                id: template.id,
+                label: template.description ? `${template.name} - ${template.description}` : template.name
+              }))}
+              selected={selectedTemplate ? [selectedTemplate] : []}
+              onChange={(selected) => setSelectedTemplate(selected[0] || '')}
+              size="xs"
+              variant="single"
+            />
           </div>
         </div>
 

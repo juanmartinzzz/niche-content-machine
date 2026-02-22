@@ -25,9 +25,9 @@ export async function POST(request: NextRequest) {
       .from(getTableName('ai_endpoints'))
       .select(`
         *,
-        ${getTableName('ai_models')} (
+        ai_models:${getTableName('ai_models')} (
           *,
-          ${getTableName('ai_providers')} (*)
+          ai_providers:${getTableName('ai_providers')} (*)
         )
       `)
       .eq('id', endpoint_id)
@@ -79,18 +79,32 @@ export async function POST(request: NextRequest) {
     // Prepare request body based on common AI API formats
     const requestBody: Record<string, unknown> = {
       model: endpoint.ai_models.model_identifier,
-      temperature: endpoint.default_temperature,
-      max_tokens: endpoint.default_max_tokens,
-      top_p: endpoint.default_top_p,
     }
 
-    // Add messages based on whether we have a system prompt
-    const messages = []
-    if (systemPrompt) {
-      messages.push({ role: 'system', content: systemPrompt })
+    // Only include parameters if they have valid values (not null)
+    if (endpoint.default_temperature !== null && endpoint.default_temperature !== undefined) {
+      requestBody.temperature = endpoint.default_temperature
     }
-    messages.push({ role: 'user', content: userPrompt })
-    requestBody.messages = messages
+    if (endpoint.default_max_tokens !== null && endpoint.default_max_tokens !== undefined) {
+      requestBody.max_tokens = endpoint.default_max_tokens
+    }
+    if (endpoint.default_top_p !== null && endpoint.default_top_p !== undefined) {
+      requestBody.top_p = endpoint.default_top_p
+    }
+
+    // Add messages/input based on the provider and endpoint
+    const messageArray = []
+    if (systemPrompt) {
+      messageArray.push({ role: 'system', content: systemPrompt })
+    }
+    messageArray.push({ role: 'user', content: userPrompt })
+
+    // xAI's /v1/responses endpoint uses 'input' instead of 'messages'
+    if (provider.base_url.includes('api.x.ai') && endpoint.api_path === '/responses') {
+      requestBody.input = messageArray
+    } else {
+      requestBody.messages = messageArray
+    }
 
     // Add structured output if configured
     if (promptTemplate.use_structured_output && promptTemplate.structured_output_schema) {
@@ -112,14 +126,26 @@ export async function POST(request: NextRequest) {
     console.log('Making AI API call to:', apiUrl)
     console.log('Request body:', JSON.stringify(requestBody, null, 2))
 
+    // Prepare headers with authentication
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    }
+
+    // Add authentication for xAI provider
+    if (provider.base_url.includes('api.x.ai')) {
+      const apiKey = process.env.GROK_API_KEY
+      if (!apiKey) {
+        return NextResponse.json({
+          error: 'GROK_API_KEY environment variable is required for xAI provider'
+        }, { status: 500 })
+      }
+      headers['Authorization'] = `Bearer ${apiKey}`
+    }
+
     // Make the API call
     const response = await fetch(apiUrl, {
       method: endpoint.http_method,
-      headers: {
-        'Content-Type': 'application/json',
-        // Note: In a real implementation, you'd add authentication headers here
-        // For now, assuming API keys are handled by the provider configuration
-      },
+      headers,
       body: JSON.stringify(requestBody),
       signal: AbortSignal.timeout((provider.global_timeout_seconds || 30) * 1000)
     })

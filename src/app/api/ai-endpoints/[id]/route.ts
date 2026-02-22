@@ -53,9 +53,9 @@ export async function PUT(
       .eq('id', id)
       .select(`
         *,
-        ${getTableName('ai_models')} (
+        ai_models:${getTableName('ai_models')} (
           *,
-          ${getTableName('ai_providers')} (*)
+          ai_providers:${getTableName('ai_providers')} (*)
         )
       `)
       .single()
