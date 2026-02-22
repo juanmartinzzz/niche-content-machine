@@ -190,6 +190,71 @@ All interactive elements (buttons, inputs, pills) follow a standardized size sys
 - Hover states on interactive rows
 - Responsive: Horizontal scroll on mobile
 
+#### Table Headers with Actions
+- **Pattern**: Title and action button rendered inline (title left, button right)
+- **Example**: "AI Providers" title with "Add Provider" button
+- **Layout**: Use flexbox with `justify-between` for proper spacing
+- **CSS Implementation**:
+  ```css
+  .table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+  .table-title {
+    font-size: 24px;
+    font-weight: 600;
+    color: #14171f;
+  }
+  ```
+- **React Implementation**:
+  ```tsx
+  import styles from './TableHeader.module.css';
+
+  <div className={styles.header}>
+    <h2 className={styles.title}>AI Providers</h2>
+    <Button size="sm">Add Provider</Button>
+  </div>
+  ```
+- **CSS Module Implementation**:
+  ```css
+  /* TableHeader.module.css */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .title {
+    font-size: 24px;
+    font-weight: 600;
+    color: var(--color-text-primary);
+    margin: 0;
+  }
+  ```
+- **Alignment**: Center vertically aligned, consistent spacing from edges
+- **Responsive**: Stack vertically on mobile if needed
+
+#### ExpandableTable Component
+- **Purpose**: Display tabular data with expandable rows for showing additional details, child entities, or nested information
+- **Key Features**:
+  - Configurable columns with custom rendering
+  - Row expansion with smooth animations and accessibility support
+  - Keyboard navigation (Enter/Space to expand/collapse)
+  - Responsive design with horizontal scroll on mobile
+  - Empty state messaging
+  - Size variants (xs, sm, md, lg, xl) following the component size system
+- **Usage Guidelines**:
+  - Use for hierarchical data where parent-child relationships need to be displayed
+  - Provide meaningful expandable content (details, related items, nested tables, etc.)
+  - Use `getRowKey` function to ensure unique row identification
+  - Consider performance with large datasets - virtual scrolling may be needed for 1000+ rows
+  - Ensure expandable content is clearly differentiated from main row content
+- **Accessibility**: Full keyboard navigation, ARIA labels, screen reader support
+- **Styling**: Clean borders, subtle shadows on hover, consistent with overall design system
+
 ### Drawers
 - Backdrop: Semi-transparent dark overlay
 - Content: Rounded corners, appropriate max-width
@@ -202,3 +267,44 @@ All interactive elements (buttons, inputs, pills) follow a standardized size sys
 - Lucide icons for consistency
 - 16px or 24px standard sizes
 - Semantic color usage (accent for actions, gray for decorative)
+
+### ExpandableTable Implementation
+```typescript
+import { ExpandableTable, type TableColumn } from '@/components/interaction';
+
+interface User {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+  lastActive: string;
+}
+
+const columns: TableColumn<User>[] = [
+  { key: 'name', header: 'Name' },
+  { key: 'email', header: 'Email' },
+  { key: 'role', header: 'Role' },
+  {
+    key: 'lastActive',
+    header: 'Last Active',
+    render: (user) => formatDate(user.lastActive)
+  }
+];
+
+const users: User[] = [/* user data */];
+
+<ExpandableTable
+  data={users}
+  columns={columns}
+  getRowKey={(user) => user.id}
+  expandableContent={(user) => (
+    <div>
+      <h4>User Details</h4>
+      <p>Additional information about {user.name}</p>
+      {/* Child components, nested tables, etc. */}
+    </div>
+  )}
+  size="md"
+  emptyMessage="No users found"
+/>
+```

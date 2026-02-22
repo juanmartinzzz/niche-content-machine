@@ -1,0 +1,478 @@
+.buttonDanger:hover {
+  background-color: #b91c1c;
+}
+
+.modelsCountContainer {
+  margin-top: 8px;
+}
+
+.capabilitiesContainer {
+  display: flex;
+  gap: 4px;
+}
+
+.visionBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.toolsBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  background-color: #ede9fe;
+  color: #6b21a8;
+}
+
+.endpointDisplayName {
+  font-size: 14px;
+  color: #111827;
+}
+
+.endpointPath {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.modalBackdrop {
+  position: fixed;
+  inset: 0;
+  background-color: #000000;
+  opacity: 0.5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+
+.modalContent {
+  background-color: #ffffff;
+  border-radius: 8px;
+  padding: 24px;
+  width: 100%;
+  max-width: 448px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 4px;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.modelExpandableContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.modelGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.sectionHeading {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.detailsList {
+  display: flex;
+  flex-direction: 'column';
+  gap: 4px;
+  font-size: 14px;
+}
+
+.label {
+  font-weight: 500;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  font-size: 14px;
+}
+
+.deprecatedWarning {
+  background-color: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 12px;
+}
+
+.deprecatedText {
+  font-size: 14px;
+  color: #92400e;
+}
+
+.timestamp {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.loadingContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+.loadingSpinner {
+  animation: spin 1s linear infinite;
+  border-radius: 9999px;
+  height: 32px;
+  width: 32px;
+  border-top: 2px solid #3b82f6;
+  border-right: 2px solid transparent;
+  border-bottom: 2px solid transparent;
+  border-left: 2px solid transparent;
+  margin-right: 16px;
+}
+
+.loadingText {
+  color: #374151;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.tabsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tabButtons {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid #d1d5db;
+}
+
+.tabButton {
+  padding: 8px 16px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  color: #6b7280;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.tabButton.active {
+  color: #111827;
+  border-bottom-color: #3b82f6;
+}
+
+.tabContent {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.tableTitle {
+  font-size: 24px;
+  font-weight: 600;
+  color: #14171f;
+  margin: 0;
+}
+
+.providerName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.providerUrl {
+  font-size: 14px;
+  color: #6b7280;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.statusActive {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.statusInactive {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.actionButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.providerDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.detailsGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.detailItem {
+  font-size: 14px;
+}
+
+.modelsList {
+  font-size: 14px;
+  color: #374151;
+}
+
+.modelsCount {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+.modelTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.modelTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.inactiveTag {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.notesSection {
+  font-size: 14px;
+  color: #374151;
+}
+
+.modelDisplayName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.endpointName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.endpointDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9fafb;
+  border-radius: 6px;
+}
+
+.endpointConfig {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.configItem {
+  font-size: 14px;
+}
+
+.parametersList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+}
+
+.descriptionText {
+  font-size: 14px;
+  color: #374151;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.formLabel {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+}
+
+.formInput {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.formTextarea {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  min-height: 80px;
+  resize: vertical;
+}
+
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.checkboxGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkboxLabel {
+  font-size: 14px;
+  color: #374151;
+}
+
+.buttonPrimary {
+  padding: 8px 16px;
+  background-color: #1f2937;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+
+.buttonPrimary:hover {
+  background-color: #111827;
+}
+
+.buttonSecondary {
+  padding: 8px 16px;
+  background-color: #ffffff;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+
+.buttonSecondary:hover {
+  background-color: #f9fafb;
+}
+
+.buttonDanger {
+  padding: 8px 16px;
+  background-color: #dc2626;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 150ms ease-in-out;
+}
+
+.buttonDanger:hover {
+  background-color: #b91c1c;
+}
+
+.errorMessage {
+  color: #dc2626;
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.successMessage {
+  color: #059669;
+  font-size: 14px;
+  margin-top: 4px;
+}

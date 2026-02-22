@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea } from '@/components/interaction'
+import { Button, Input, Textarea, ExpandableTable, type TableColumn } from '@/components/interaction'
+import { Pencil, Trash2 } from 'lucide-react'
+import styles from './client.module.css'
 
 interface Provider {
   id: string
@@ -51,6 +53,59 @@ interface Endpoint {
   ai_models?: Model & { ai_providers?: Provider }
 }
 
+// Model expandable content
+function getModelExpandableContent(model: Model, index: number) {
+  return (
+    <div className={styles.modelExpandableContent}>
+      <div className={styles.modelGrid}>
+        <div>
+          <h4 className={styles.sectionHeading}>Technical Details</h4>
+          <div className={styles.detailsList}>
+            <div><span className={styles.label}>Model ID:</span> {model.model_identifier}</div>
+            <div><span className={styles.label}>Context Window:</span> {model.context_window_tokens?.toLocaleString() || 'N/A'} tokens</div>
+            <div><span className={styles.label}>Max Output:</span> {model.max_output_tokens?.toLocaleString() || 'N/A'} tokens</div>
+          </div>
+        </div>
+        <div>
+          <h4 className={styles.sectionHeading}>Capabilities</h4>
+          <div className={styles.detailsList}>
+            <div><span className={styles.label}>Vision:</span> {model.supports_vision ? 'Yes' : 'No'}</div>
+            <div><span className={styles.label}>Tools:</span> {model.supports_tools ? 'Yes' : 'No'}</div>
+            <div><span className={styles.label}>Status:</span> {model.is_enabled ? 'Enabled' : 'Disabled'}</div>
+          </div>
+        </div>
+      </div>
+
+      {(model.input_cost_per_million_tokens || model.output_cost_per_million_tokens) && (
+        <div>
+          <h4 className={styles.sectionHeading}>Pricing</h4>
+          <div className={styles.pricingGrid}>
+            {model.input_cost_per_million_tokens && (
+              <div><span style={{ fontWeight: 500 }}>Input:</span> ${model.input_cost_per_million_tokens.toFixed(6)} per million tokens</div>
+            )}
+            {model.output_cost_per_million_tokens && (
+              <div><span style={{ fontWeight: 500 }}>Output:</span> ${model.output_cost_per_million_tokens.toFixed(6)} per million tokens</div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {model.deprecated_at && (
+        <div className={styles.deprecatedWarning}>
+          <div className={styles.deprecatedText}>
+            <span style={{ fontWeight: 500 }}>Deprecated:</span> This model was deprecated on {new Date(model.deprecated_at).toLocaleDateString()}
+          </div>
+        </div>
+      )}
+
+      <div className={styles.timestamp}>
+        Created: {new Date(model.created_at).toLocaleDateString()} |
+        Updated: {new Date(model.updated_at).toLocaleDateString()}
+      </div>
+    </div>
+  );
+}
+
 export function LLMModelsConfigClient() {
   const [activeTab, setActiveTab] = useState<'providers' | 'models' | 'endpoints'>('providers')
   const [showProviderForm, setShowProviderForm] = useState(false)
@@ -60,6 +115,7 @@ export function LLMModelsConfigClient() {
   const [editingModel, setEditingModel] = useState<Model | null>(null)
   const [editingEndpoint, setEditingEndpoint] = useState<Endpoint | null>(null)
   const [currentProviders, setCurrentProviders] = useState<Provider[]>([])
+  const [currentModels, setCurrentModels] = useState<Model[]>([])
   const [currentEndpoints, setCurrentEndpoints] = useState<Endpoint[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [isInitialLoading, setIsInitialLoading] = useState(true)
@@ -75,6 +131,13 @@ export function LLMModelsConfigClient() {
         if (providersResponse.ok) {
           const { providers } = await providersResponse.json()
           setCurrentProviders(providers)
+        }
+
+        // Fetch models
+        const modelsResponse = await fetch('/api/ai-models')
+        if (modelsResponse.ok) {
+          const { models } = await modelsResponse.json()
+          setCurrentModels(models)
         }
 
         // Fetch endpoints
@@ -175,14 +238,9 @@ export function LLMModelsConfigClient() {
 
         const { model } = await response.json()
 
-        // Update the model in the providers state
-        setCurrentProviders(prev =>
-          prev.map(p => ({
-            ...p,
-            ai_models: p.ai_models?.map(m =>
-              m.id === editingModel.id ? model : m
-            )
-          }))
+        // Update the model in the models state
+        setCurrentModels(prev =>
+          prev.map(m => m.id === editingModel.id ? model : m)
         )
       } else {
         const response = await fetch('/api/ai-models', {
@@ -198,14 +256,8 @@ export function LLMModelsConfigClient() {
 
         const { model } = await response.json()
 
-        // Add the model to the appropriate provider
-        setCurrentProviders(prev =>
-          prev.map(p =>
-            p.id === formData.provider_id
-              ? { ...p, ai_models: [model, ...(p.ai_models || [])] }
-              : p
-          )
-        )
+        // Add the model to the models state
+        setCurrentModels(prev => [model, ...prev])
       }
 
       setShowModelForm(false)
@@ -317,12 +369,7 @@ export function LLMModelsConfigClient() {
         throw new Error(error.error || 'Failed to delete model')
       }
 
-      setCurrentProviders(prev =>
-        prev.map(p => ({
-          ...p,
-          ai_models: p.ai_models?.filter(m => m.id !== modelId)
-        }))
-      )
+      setCurrentModels(prev => prev.filter(m => m.id !== modelId))
     } catch (error) {
       console.error('Error deleting model:', error)
       alert(error instanceof Error ? error.message : 'Failed to delete model. Please try again.')
@@ -360,43 +407,45 @@ export function LLMModelsConfigClient() {
 
   if (isInitialLoading) {
     return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading configuration...</p>
+      <div className={styles.loadingContainer}>
+        <div>
+          <div className={styles.loadingSpinner}></div>
+          <p className={styles.loadingText}>Loading configuration...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="space-y-6">
+    <div className={styles.tabsContainer}>
       {/* Tab Navigation */}
-      <div className="flex space-x-1 border-b border-gray-200">
+      <div className={styles.tabButtons}>
         {[
           { id: 'providers', label: 'AI Providers' },
           { id: 'models', label: 'Models' },
           { id: 'endpoints', label: 'Endpoints' }
         ].map((tab) => (
-          <button
+          <Button
             key={tab.id}
+            variant="ghost"
+            size="sm"
             onClick={() => setActiveTab(tab.id as typeof activeTab)}
-            className={`px-4 py-2 text-sm font-medium rounded-t-md ${
+            className={`rounded-t-md ${
               activeTab === tab.id
                 ? 'bg-blue-50 text-blue-600 border-b-2 border-blue-600'
                 : 'text-gray-500 hover:text-gray-700'
             }`}
           >
             {tab.label}
-          </button>
+          </Button>
         ))}
       </div>
 
       {/* Providers Tab */}
       {activeTab === 'providers' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">AI Providers</h2>
+        <div className={styles.tabContent}>
+          <div className={styles.tableHeader}>
+            <h2 className={styles.tableTitle}>AI Providers</h2>
             <Button
               size="sm"
               onClick={() => {
@@ -408,81 +457,139 @@ export function LLMModelsConfigClient() {
             </Button>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Base URL
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Models
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentProviders.map((provider) => (
-                  <tr key={provider.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {provider.name}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {provider.base_url}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        provider.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {provider.is_active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {provider.ai_models?.length || 0}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          setEditingProvider(provider)
-                          setShowProviderForm(true)
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteProvider(provider.id)}
-                        disabled={isLoading}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ExpandableTable
+            data={currentProviders}
+            columns={[
+              {
+                key: 'name',
+                header: 'Name',
+                render: (provider) => (
+                  <span className={styles.providerName}>{provider.name}</span>
+                ),
+              },
+              {
+                key: 'base_url',
+                header: 'Base URL',
+                render: (provider) => (
+                  <span className={styles.providerUrl}>{provider.base_url}</span>
+                ),
+              },
+              {
+                key: 'is_active',
+                header: 'Status',
+                render: (provider) => (
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    provider.is_active
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {provider.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                ),
+              },
+              {
+                key: 'models',
+                header: 'Models',
+                render: (provider) => (
+                  <span className={styles.providerUrl}>
+                    {currentModels.filter(m => m.provider_id === provider.id).length}
+                  </span>
+                ),
+              },
+              {
+                key: 'actions',
+                header: 'Actions',
+                className: 'text-right',
+                render: (provider, index) => (
+                  <div className={styles.actionButtons}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditingProvider(provider)
+                        setShowProviderForm(true)
+                      }}
+                      aria-label="Edit provider"
+                    >
+                      <Pencil size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteProvider(provider.id)}
+                      disabled={isLoading}
+                      aria-label="Delete provider"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+            expandableContent={(provider, index) => (
+              <div className={styles.providerDetails}>
+                <div className={styles.detailsGrid}>
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Configuration</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+                      <div><span style={{ fontWeight: 500 }}>Base URL:</span> {provider.base_url}</div>
+                      <div><span style={{ fontWeight: 500 }}>Timeout:</span> {provider.global_timeout_seconds}s</div>
+                      <div><span style={{ fontWeight: 500 }}>Max Retries:</span> {provider.max_retries}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Models</h4>
+                    <div className={styles.modelsList}>
+                      {currentModels.filter(m => m.provider_id === provider.id).length} models configured
+                    </div>
+                    {currentModels.filter(m => m.provider_id === provider.id).length > 0 && (
+                      <div className={styles.modelsCountContainer}>
+                        <div className={styles.modelsCount}>Active Models:</div>
+                        <div className={styles.modelTags}>
+                          {currentModels
+                            .filter(m => m.provider_id === provider.id && m.is_enabled)
+                            .slice(0, 3)
+                            .map(model => (
+                              <span key={model.id} className={styles.modelTag}>
+                                {model.display_name}
+                              </span>
+                            ))
+                          }
+                          {currentModels.filter(m => m.provider_id === provider.id && m.is_enabled).length > 3 && (
+                            <span className={styles.timestamp}>
+                              +{currentModels.filter(m => m.provider_id === provider.id && m.is_enabled).length - 3} more
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {provider.notes && (
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Notes</h4>
+                    <p className={styles.modelsList}>{provider.notes}</p>
+                  </div>
+                )}
+
+                <div className={styles.timestamp}>
+                  Created: {new Date(provider.created_at).toLocaleDateString()} |
+                  Updated: {new Date(provider.updated_at).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            getRowKey={(provider) => provider.id}
+            emptyMessage="No providers configured yet"
+          />
         </div>
       )}
 
       {/* Models Tab */}
       {activeTab === 'models' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">AI Models</h2>
+        <div className={styles.tabContent}>
+          <div className={styles.tableHeader}>
+            <h2 className={styles.tableTitle}>AI Models</h2>
             <Button
               size="sm"
               onClick={() => {
@@ -494,101 +601,110 @@ export function LLMModelsConfigClient() {
             </Button>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Model
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Provider
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Context Window
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Features
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentProviders.flatMap(provider =>
-                  provider.ai_models?.map(model => (
-                    <tr key={model.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm font-medium text-gray-900">{model.display_name}</div>
-                        <div className="text-sm text-gray-500">{model.model_identifier}</div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {provider.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {model.context_window_tokens?.toLocaleString() || 'N/A'}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        <div className="flex space-x-1">
-                          {model.supports_vision && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                              Vision
-                            </span>
-                          )}
-                          {model.supports_tools && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">
-                              Tools
-                            </span>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                          model.is_enabled
-                            ? 'bg-green-100 text-green-800'
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {model.is_enabled ? 'Enabled' : 'Disabled'}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          onClick={() => {
-                            setEditingModel(model)
-                            setShowModelForm(true)
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="ghost"
-                          onClick={() => handleDeleteModel(model.id)}
-                          disabled={isLoading}
-                        >
-                          Delete
-                        </Button>
-                      </td>
-                    </tr>
-                  )) || []
-                )}
-              </tbody>
-            </table>
-          </div>
+          <ExpandableTable
+            data={currentModels}
+            columns={[
+              {
+                key: 'display_name',
+                header: 'Model',
+                render: (model) => (
+                  <div>
+                    <div className={styles.providerName}>{model.display_name}</div>
+                    <div className={styles.providerUrl}>{model.model_identifier}</div>
+                  </div>
+                ),
+              },
+              {
+                key: 'provider_id',
+                header: 'Provider',
+                render: (model) => (
+                  <span className={styles.providerUrl}>
+                    {currentProviders.find(p => p.id === model.provider_id)?.name || 'Unknown Provider'}
+                  </span>
+                ),
+              },
+              {
+                key: 'context_window_tokens',
+                header: 'Context Window',
+                render: (model) => (
+                  <span className={styles.providerUrl}>
+                    {model.context_window_tokens?.toLocaleString() || 'N/A'}
+                  </span>
+                ),
+              },
+              {
+                key: 'supports_vision',
+                header: 'Features',
+                render: (model) => (
+                  <div className={styles.capabilitiesContainer}>
+                    {model.supports_vision && (
+                      <span className={styles.visionBadge}>
+                        Vision
+                      </span>
+                    )}
+                    {model.supports_tools && (
+                      <span className={styles.toolsBadge}>
+                        Tools
+                      </span>
+                    )}
+                  </div>
+                ),
+              },
+              {
+                key: 'is_enabled',
+                header: 'Status',
+                render: (model) => (
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    model.is_enabled
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {model.is_enabled ? 'Enabled' : 'Disabled'}
+                  </span>
+                ),
+              },
+              {
+                key: 'actions',
+                header: 'Actions',
+                className: 'text-right',
+                render: (model, index) => (
+                  <div className={styles.actionButtons}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditingModel(model)
+                        setShowModelForm(true)
+                      }}
+                      aria-label="Edit model"
+                    >
+                      <Pencil size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteModel(model.id)}
+                      disabled={isLoading}
+                      aria-label="Delete model"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+            expandableContent={getModelExpandableContent}
+            getRowKey={(model) => model.id}
+            emptyMessage="No models configured yet"
+          />
         </div>
       )}
 
       {/* Endpoints Tab */}
       {activeTab === 'endpoints' && (
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">AI Endpoints</h2>
+        <div className={styles.tabContent}>
+          <div className={styles.tableHeader}>
+            <h2 className={styles.tableTitle}>AI Endpoints</h2>
             <Button
               size="sm"
               onClick={() => {
@@ -600,90 +716,133 @@ export function LLMModelsConfigClient() {
             </Button>
           </div>
 
-          <div className="bg-white border border-gray-200 rounded-md overflow-hidden">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Slug
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Model
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    API Path
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Method
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Temperature
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {currentEndpoints.map((endpoint) => (
-                  <tr key={endpoint.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                      {endpoint.slug}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {endpoint.ai_models?.display_name}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {endpoint.ai_models?.ai_providers?.name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {endpoint.api_path}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {endpoint.http_method}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {endpoint.default_temperature || 'Default'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                        endpoint.is_active
-                          ? 'bg-green-100 text-green-800'
-                          : 'bg-red-100 text-red-800'
-                      }`}>
-                        {endpoint.is_active ? 'Active' : 'Inactive'}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-                      <Button
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {
-                          setEditingEndpoint(endpoint)
-                          setShowEndpointForm(true)
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => handleDeleteEndpoint(endpoint.id)}
-                        disabled={isLoading}
-                      >
-                        Delete
-                      </Button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+          <ExpandableTable
+            data={currentEndpoints}
+            columns={[
+              {
+                key: 'slug',
+                header: 'Slug',
+                render: (endpoint) => (
+                  <span className={styles.providerName}>{endpoint.slug}</span>
+                ),
+              },
+              {
+                key: 'model',
+                header: 'Model',
+                render: (endpoint) => (
+                  <div>
+                    <div className={styles.endpointDisplayName}>
+                      {endpoint.ai_models?.display_name}
+                    </div>
+                    <div className={styles.providerUrl}>
+                      {endpoint.ai_models?.ai_providers?.name}
+                    </div>
+                  </div>
+                ),
+              },
+              {
+                key: 'api_path',
+                header: 'API Path',
+                render: (endpoint) => (
+                  <span className={styles.providerUrl}>{endpoint.api_path}</span>
+                ),
+              },
+              {
+                key: 'http_method',
+                header: 'Method',
+                render: (endpoint) => (
+                  <span className={styles.providerUrl}>{endpoint.http_method}</span>
+                ),
+              },
+              {
+                key: 'default_temperature',
+                header: 'Temperature',
+                render: (endpoint) => (
+                  <span className={styles.providerUrl}>
+                    {endpoint.default_temperature || 'Default'}
+                  </span>
+                ),
+              },
+              {
+                key: 'is_active',
+                header: 'Status',
+                render: (endpoint) => (
+                  <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                    endpoint.is_active
+                      ? 'bg-green-100 text-green-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    {endpoint.is_active ? 'Active' : 'Inactive'}
+                  </span>
+                ),
+              },
+              {
+                key: 'actions',
+                header: 'Actions',
+                className: 'text-right',
+                render: (endpoint, index) => (
+                  <div className={styles.actionButtons}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => {
+                        setEditingEndpoint(endpoint)
+                        setShowEndpointForm(true)
+                      }}
+                      aria-label="Edit endpoint"
+                    >
+                      <Pencil size={16} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => handleDeleteEndpoint(endpoint.id)}
+                      disabled={isLoading}
+                      aria-label="Delete endpoint"
+                    >
+                      <Trash2 size={16} />
+                    </Button>
+                  </div>
+                ),
+              },
+            ]}
+            expandableContent={(endpoint, index) => (
+              <div className={styles.providerDetails}>
+                <div className={styles.detailsGrid}>
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Configuration</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+                      <div><span style={{ fontWeight: 500 }}>API Path:</span> {endpoint.api_path}</div>
+                      <div><span style={{ fontWeight: 500 }}>HTTP Method:</span> {endpoint.http_method}</div>
+                      <div><span style={{ fontWeight: 500 }}>Supports Streaming:</span> {endpoint.supports_streaming ? 'Yes' : 'No'}</div>
+                    </div>
+                  </div>
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Default Parameters</h4>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '14px' }}>
+                      <div><span style={{ fontWeight: 500 }}>Temperature:</span> {endpoint.default_temperature || 'Not set'}</div>
+                      <div><span style={{ fontWeight: 500 }}>Max Tokens:</span> {endpoint.default_max_tokens || 'Not set'}</div>
+                      <div><span style={{ fontWeight: 500 }}>Top-P:</span> {endpoint.default_top_p || 'Not set'}</div>
+                    </div>
+                  </div>
+                </div>
+
+                {endpoint.description && (
+                  <div>
+                    <h4 style={{ fontSize: '14px', fontWeight: 500, color: '#111827', marginBottom: '8px' }}>Description</h4>
+                    <p className={styles.modelsList}>{endpoint.description}</p>
+                  </div>
+                )}
+
+                <div className={styles.timestamp}>
+                  Created: {new Date(endpoint.created_at).toLocaleDateString()} |
+                  Updated: {new Date(endpoint.updated_at).toLocaleDateString()}
+                </div>
+              </div>
+            )}
+            getRowKey={(endpoint) => endpoint.id}
+            emptyMessage="No endpoints configured yet"
+          />
         </div>
       )}
 
@@ -765,13 +924,13 @@ function ProviderForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-medium mb-4">
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modalContent}>
+        <h3 className={styles.modalTitle}>
           {provider ? 'Edit Provider' : 'Add Provider'}
         </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={styles.tabContent}>
           <Input
             label="Name"
             value={formData.name}
@@ -788,15 +947,15 @@ function ProviderForm({
             placeholder="e.g. https://api.x.ai/v1"
           />
 
-          <div className="flex items-center space-x-2">
+          <div className={styles.checkboxContainer}>
             <input
               type="checkbox"
               id="is_active"
               checked={formData.is_active}
               onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-              className="rounded"
+              className={styles.checkboxInput}
             />
-            <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
+            <label htmlFor="is_active" className={styles.formLabel}>
               Active
             </label>
           </div>
@@ -829,7 +988,7 @@ function ProviderForm({
             rows={3}
           />
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={styles.formActions}>
             <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
               Cancel
             </Button>
@@ -887,21 +1046,21 @@ function ModelForm({
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-medium mb-4">
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modalContent}>
+        <h3 className={styles.modalTitle}>
           {model ? 'Edit Model' : 'Add Model'}
         </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={styles.tabContent}>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={styles.formLabel}>
               Provider
             </label>
             <select
               value={formData.provider_id}
               onChange={(e) => setFormData(prev => ({ ...prev, provider_id: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.formInput}
               required
             >
               <option value="">Select a provider...</option>
@@ -951,42 +1110,42 @@ function ModelForm({
             placeholder="e.g. 4096"
           />
 
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+          <div className={styles.modalBody}>
+            <div className={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 id="supports_vision"
                 checked={formData.supports_vision}
                 onChange={(e) => setFormData(prev => ({ ...prev, supports_vision: e.target.checked }))}
-                className="rounded"
+                className={styles.checkboxInput}
               />
-              <label htmlFor="supports_vision" className="text-sm font-medium text-gray-700">
+              <label htmlFor="supports_vision" className={styles.formLabel}>
                 Supports Vision
               </label>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 id="supports_tools"
                 checked={formData.supports_tools}
                 onChange={(e) => setFormData(prev => ({ ...prev, supports_tools: e.target.checked }))}
-                className="rounded"
+                className={styles.checkboxInput}
               />
-              <label htmlFor="supports_tools" className="text-sm font-medium text-gray-700">
+              <label htmlFor="supports_tools" className={styles.formLabel}>
                 Supports Tools
               </label>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 id="is_enabled"
                 checked={formData.is_enabled}
                 onChange={(e) => setFormData(prev => ({ ...prev, is_enabled: e.target.checked }))}
-                className="rounded"
+                className={styles.checkboxInput}
               />
-              <label htmlFor="is_enabled" className="text-sm font-medium text-gray-700">
+              <label htmlFor="is_enabled" className={styles.formLabel}>
                 Enabled
               </label>
             </div>
@@ -1014,7 +1173,7 @@ function ModelForm({
             placeholder="e.g. 0.000015"
           />
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={styles.formActions}>
             <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
               Cancel
             </Button>
@@ -1074,13 +1233,13 @@ function EndpointForm({
   const availableModels = providers.flatMap(p => p.ai_models || [])
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-full max-w-md max-h-[90vh] overflow-y-auto">
-        <h3 className="text-lg font-medium mb-4">
+    <div className={styles.modalBackdrop}>
+      <div className={styles.modalContent}>
+        <h3 className={styles.modalTitle}>
           {endpoint ? 'Edit Endpoint' : 'Add Endpoint'}
         </h3>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className={styles.tabContent}>
           <Input
             label="Slug"
             value={formData.slug}
@@ -1090,13 +1249,13 @@ function EndpointForm({
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={styles.formLabel}>
               Model
             </label>
             <select
               value={formData.model_id}
               onChange={(e) => setFormData(prev => ({ ...prev, model_id: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.formInput}
               required
             >
               <option value="">Select a model...</option>
@@ -1120,13 +1279,13 @@ function EndpointForm({
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className={styles.formLabel}>
               HTTP Method
             </label>
             <select
               value={formData.http_method}
               onChange={(e) => setFormData(prev => ({ ...prev, http_method: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={styles.formInput}
             >
               <option value="GET">GET</option>
               <option value="POST">POST</option>
@@ -1168,29 +1327,29 @@ function EndpointForm({
             placeholder="e.g. 1.0"
           />
 
-          <div className="space-y-2">
-            <div className="flex items-center space-x-2">
+          <div className={styles.modalBody}>
+            <div className={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 id="supports_streaming"
                 checked={formData.supports_streaming}
                 onChange={(e) => setFormData(prev => ({ ...prev, supports_streaming: e.target.checked }))}
-                className="rounded"
+                className={styles.checkboxInput}
               />
-              <label htmlFor="supports_streaming" className="text-sm font-medium text-gray-700">
+              <label htmlFor="supports_streaming" className={styles.formLabel}>
                 Supports Streaming
               </label>
             </div>
 
-            <div className="flex items-center space-x-2">
+            <div className={styles.checkboxContainer}>
               <input
                 type="checkbox"
                 id="is_active"
                 checked={formData.is_active}
                 onChange={(e) => setFormData(prev => ({ ...prev, is_active: e.target.checked }))}
-                className="rounded"
+                className={styles.checkboxInput}
               />
-              <label htmlFor="is_active" className="text-sm font-medium text-gray-700">
+              <label htmlFor="is_active" className={styles.formLabel}>
                 Active
               </label>
             </div>
@@ -1204,7 +1363,7 @@ function EndpointForm({
             rows={3}
           />
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className={styles.formActions}>
             <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
               Cancel
             </Button>

@@ -5,6 +5,7 @@ export { Textarea } from './Textarea';
 export { Pill } from './Pill';
 export { PillList } from './PillList';
 export { Drawer } from './Drawer';
+export { ExpandableTable } from './ExpandableTable';
 
 // Types
 export type {
@@ -21,4 +22,6 @@ export type {
   PillListProps,
   DrawerProps,
   DrawerPosition,
+  TableColumn,
+  ExpandableTableProps,
 } from './types';

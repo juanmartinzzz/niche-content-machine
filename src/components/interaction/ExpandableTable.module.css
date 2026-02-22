@@ -1,0 +1,293 @@
+/* ExpandableTable Styles (see guideline-1-style.md) */
+
+.container {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  background-color: var(--color-background);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: var(--font-size-base);
+  line-height: var(--line-height-normal);
+}
+
+.header {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.headerCell {
+  padding: var(--spacing-sm) var(--spacing-md);
+  text-align: left;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  border-right: 1px solid var(--color-border-light);
+}
+
+.headerCell:last-child {
+  border-right: none;
+}
+
+.body {
+  background-color: var(--color-background);
+}
+
+.row {
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color var(--transition-normal);
+}
+
+.row:hover {
+  background-color: var(--color-surface);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.cell {
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-right: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+}
+
+.cell:last-child {
+  border-right: none;
+}
+
+.emptyCell {
+  padding: var(--spacing-lg);
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-style: italic;
+}
+
+/* Expandable functionality */
+.expandColumn {
+  width: 48px;
+  padding: var(--spacing-xs);
+  border-right: 1px solid var(--color-border-light);
+}
+
+.expandCell {
+  width: 48px;
+  padding: var(--spacing-xs);
+  border-right: 1px solid var(--color-border-light);
+  text-align: center;
+}
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  transition: background-color var(--transition-fast);
+  color: var(--color-text-secondary);
+}
+
+.expandButton:hover {
+  background-color: var(--color-surface);
+  color: var(--color-accent);
+}
+
+.expandButton:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.expandIcon {
+  transition: transform var(--transition-fast);
+}
+
+.expandPlaceholder {
+  width: 32px;
+  height: 32px;
+}
+
+.expandedContentRow {
+  background-color: var(--color-surface);
+  border-bottom: 1px solid var(--color-border-light);
+}
+
+.expandedContentCell {
+  padding: 0;
+  border-right: none;
+}
+
+.expandedContent {
+  padding: var(--spacing-md);
+  border-top: 1px solid var(--color-border-light);
+  background-color: var(--color-background);
+  border-radius: 0 0 var(--border-radius-md) var(--border-radius-md);
+}
+
+/* Size variants */
+.xs {
+  font-size: var(--font-size-sm);
+}
+
+.xs .headerCell,
+.xs .cell,
+.xs .emptyCell {
+  padding: var(--spacing-xs);
+}
+
+.xs .expandColumn,
+.xs .expandCell {
+  width: 36px;
+}
+
+.xs .expandButton {
+  width: 24px;
+  height: 24px;
+}
+
+.xs .expandPlaceholder {
+  width: 24px;
+  height: 24px;
+}
+
+.xs .expandedContent {
+  padding: var(--spacing-sm);
+}
+
+.sm {
+  font-size: var(--font-size-sm);
+}
+
+.sm .headerCell,
+.sm .cell,
+.sm .emptyCell {
+  padding: var(--spacing-xs) var(--spacing-sm);
+}
+
+.sm .expandColumn,
+.sm .expandCell {
+  width: 40px;
+}
+
+.sm .expandButton {
+  width: 28px;
+  height: 28px;
+}
+
+.sm .expandPlaceholder {
+  width: 28px;
+  height: 28px;
+}
+
+.sm .expandedContent {
+  padding: var(--spacing-sm);
+}
+
+.md {
+  font-size: var(--font-size-base);
+}
+
+.lg {
+  font-size: var(--font-size-lg);
+}
+
+.lg .headerCell,
+.lg .cell,
+.lg .emptyCell {
+  padding: var(--spacing-md);
+}
+
+.lg .expandColumn,
+.lg .expandCell {
+  width: 56px;
+}
+
+.lg .expandButton {
+  width: 40px;
+  height: 40px;
+}
+
+.lg .expandPlaceholder {
+  width: 40px;
+  height: 40px;
+}
+
+.lg .expandedContent {
+  padding: var(--spacing-lg);
+}
+
+.xl {
+  font-size: var(--font-size-xl);
+}
+
+.xl .headerCell,
+.xl .cell,
+.xl .emptyCell {
+  padding: var(--spacing-lg);
+}
+
+.xl .expandColumn,
+.xl .expandCell {
+  width: 64px;
+}
+
+.xl .expandButton {
+  width: 48px;
+  height: 48px;
+}
+
+.xl .expandPlaceholder {
+  width: 48px;
+  height: 48px;
+}
+
+.xl .expandedContent {
+  padding: var(--spacing-xl);
+}
+
+/* Accessibility */
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Responsive behavior */
+@media (max-width: 640px) {
+  .container {
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+  }
+
+  .headerCell,
+  .cell {
+    white-space: nowrap;
+    min-width: 120px;
+  }
+
+  .expandColumn,
+  .expandCell {
+    position: sticky;
+    left: 0;
+    background-color: inherit;
+    z-index: 1;
+  }
+
+  .expandColumn {
+    background-color: var(--color-surface);
+  }
+}

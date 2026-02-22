@@ -75,3 +75,20 @@ export interface DrawerProps extends CommonProps {
   widthClass?: string;
   children: ReactNode;
 }
+
+// ExpandableTable component types
+export interface TableColumn<T = any> {
+  key: keyof T | string;
+  header: string;
+  render?: (row: T, index: number) => ReactNode;
+  className?: string;
+}
+
+export interface ExpandableTableProps<T = any> extends CommonProps {
+  data: T[];
+  columns: TableColumn<T>[];
+  expandableContent?: (row: T, index: number) => ReactNode | null | undefined;
+  getRowKey: (row: T, index: number) => string;
+  emptyMessage?: string;
+  size?: ComponentSize;
+}
