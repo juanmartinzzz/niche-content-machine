@@ -13,12 +13,24 @@ CREATE TABLE IF NOT EXISTS ncm_ai_prompt_templates (
   is_active BOOLEAN DEFAULT false NOT NULL, -- Whether this is the active version
   description TEXT, -- Optional description of what this template does
 
+  -- Structured output configuration (optional)
+  use_structured_output BOOLEAN DEFAULT false NOT NULL, -- Whether to use structured outputs
+  structured_output_schema JSONB, -- Schema definition for structured outputs (Pydantic, Zod, or JSON Schema)
+  structured_output_format VARCHAR(20) check (structured_output_format in ('pydantic', 'zod', 'json_schema')), -- Schema format: 'pydantic', 'zod', or 'json_schema'
+
   -- Timestamps for created_at and updated_at
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
 
   -- Unique constraint for name + version combination
-  UNIQUE(name, version)
+  UNIQUE(name, version),
+
+  -- Constraint: if structured output is enabled, schema and format must be provided
+  CONSTRAINT check_structured_output
+    CHECK (
+      (use_structured_output = false) OR
+      (use_structured_output = true AND structured_output_schema IS NOT NULL AND structured_output_format IS NOT NULL)
+    )
 );
 
 -- Indexes for prompt templates

@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -67,6 +67,26 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             >
               <Bot size={20} />
               {!isCollapsed && <span className={styles.navText}>Manage Models</span>}
+            </Button>
+          </Link>
+          <Link href="/prompt-templates">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <MessageCircle size={20} />
+              {!isCollapsed && <span className={styles.navText}>Prompt Templates</span>}
+            </Button>
+          </Link>
+          <Link href="/results-v1">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <TestTube size={20} />
+              {!isCollapsed && <span className={styles.navText}>Results V1</span>}
             </Button>
           </Link>
         </nav>
