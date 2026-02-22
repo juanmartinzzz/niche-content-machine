@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase-server'
 import { redirect } from 'next/navigation'
+import { LLMModelsConfigClient } from './client'
 
 export default async function LLMModelsConfigPage() {
   const supabase = await createClient()
@@ -17,23 +18,10 @@ export default async function LLMModelsConfigPage() {
             LLM Models Configuration
           </h1>
           <p style={{ color: '#666', marginBottom: '2rem' }}>
-            Configure and manage your language model settings and preferences.
+            Configure and manage your AI providers, models, and endpoints.
           </p>
 
-          {/* Placeholder content - this would be expanded with actual model management features */}
-          <div style={{
-            padding: '2rem',
-            border: '1px solid #e0e0e0',
-            borderRadius: '8px',
-            backgroundColor: '#f9f9f9'
-          }}>
-            <h2 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-              Model Settings
-            </h2>
-            <p style={{ color: '#888' }}>
-              Model configuration options will appear here.
-            </p>
-          </div>
+          <LLMModelsConfigClient />
         </div>
       </main>
     </div>

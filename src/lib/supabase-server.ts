@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 
+export function getTableName(table: string): string {
+  const prefix = process.env.SUPABASE_TABLE_PREFIX || ''
+  return `${prefix}${table}`
+}
+
 export async function createClient() {
   const cookieStore = await cookies()
 
