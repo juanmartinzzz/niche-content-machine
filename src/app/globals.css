@@ -5,9 +5,14 @@
   --color-background: #ffffff;
   --color-surface: #f9fafb;
   --color-accent: #222834;
-  --color-text-secondary: #373f51;
   --color-border: #d0d4dc;
   --color-border-light: #e2e8f0;
+
+  /* Text Colors */
+  --color-text-secondary: #373f51;
+  --color-text-tertiary: #64748b;
+  --color-text-quaternary: #94a3b8;
+  --color-text-quinary: #cad4e3;
 
   /* Semantic Colors (see guideline-1-style.md) */
   --color-success: #10b981;
@@ -15,14 +20,17 @@
   --color-error: #ef4444;
 
   /* Clean Spacing Scale (8px base unit - see guideline-1-style.md) */
+  --spacing-xxs: 4px;
   --spacing-xs: 8px;
   --spacing-sm: 16px;
   --spacing-md: 24px;
   --spacing-lg: 32px;
   --spacing-xl: 48px;
   --spacing-2xl: 64px;
+  --spacing-3xl: 96px;
 
   /* Heavy Typography */
+  --font-size-xxs: 10px;
   --font-size-xs: 12px;
   --font-size-sm: 14px;
   --font-size-base: 16px;
@@ -43,7 +51,7 @@
 
   /* Clean Border Radius (see guideline-1-style.md) */
   --border-radius-none: 0px;
-  --border-radius-sm: 6px;
+  --border-radius-sm: 4px;
   --border-radius-md: 8px;
   --border-radius-lg: 24px;
   --border-radius-full: 9999px;

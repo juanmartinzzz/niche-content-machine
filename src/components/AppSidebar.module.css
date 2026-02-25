@@ -141,6 +141,23 @@
   white-space: nowrap;
 }
 
+.navDivider {
+  height: 1px;
+  background-color: var(--color-border-light);
+  margin: var(--spacing-xs) 0;
+  flex-shrink: 0;
+}
+
+.navSection {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-quaternary);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  text-align: center;
+  transition: opacity var(--transition-fast);
+}
+
 /* User Actions */
 .userActions {
   margin-top: auto;
@@ -157,6 +174,7 @@
   word-break: break-all;
   line-height: 1.4;
   transition: opacity var(--transition-fast);
+  text-align: center;
 }
 
 .signOutContainer {
@@ -165,7 +183,7 @@
 
 .signOutButton {
   width: 100%;
-  justify-content: flex-start;
+  justify-content: center;
   transition: var(--transition-fast);
 }
 

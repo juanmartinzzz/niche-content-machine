@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -59,14 +59,26 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* Navigation Menu */}
         <nav className={styles.navigation}>
-          <Link href="/llm-models-config">
+          <Link href="/results-v1">
             <Button
               variant="ghost"
               size="sm"
               className={styles.navItem}
             >
-              <Bot size={20} />
-              {!isCollapsed && <span className={styles.navText}>Manage Models</span>}
+              <TestTube size={20} />
+              {!isCollapsed && <span className={styles.navText}>Results V1</span>}
+            </Button>
+          </Link>
+          <div className={styles.navDivider} />
+          {!isCollapsed && <div className={styles.navSection}>Settings</div>}
+          <Link href="/runbooks">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <Workflow size={20} />
+              {!isCollapsed && <span className={styles.navText}>Runbooks</span>}
             </Button>
           </Link>
           <Link href="/prompt-templates">
@@ -79,14 +91,14 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               {!isCollapsed && <span className={styles.navText}>Prompt Templates</span>}
             </Button>
           </Link>
-          <Link href="/results-v1">
+          <Link href="/llm-models-config">
             <Button
               variant="ghost"
               size="sm"
               className={styles.navItem}
             >
-              <TestTube size={20} />
-              {!isCollapsed && <span className={styles.navText}>Results V1</span>}
+              <Bot size={20} />
+              {!isCollapsed && <span className={styles.navText}>Models & Endpoints</span>}
             </Button>
           </Link>
         </nav>

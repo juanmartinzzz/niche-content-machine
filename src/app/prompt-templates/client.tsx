@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, type TableColumn } from '@/components/interaction'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Braces, Copy } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import styles from './client.module.css'
 
@@ -76,7 +76,11 @@ export const PromptTemplatesClient: React.FC = () => {
       user_prompt_template: template.user_prompt_template,
       description: template.description || '',
       use_structured_output: template.use_structured_output || false,
-      structured_output_schema: template.structured_output_schema ? JSON.stringify(template.structured_output_schema, null, 2) : '',
+      structured_output_schema: template.structured_output_schema
+        ? (typeof template.structured_output_schema === 'string'
+            ? template.structured_output_schema
+            : JSON.stringify(template.structured_output_schema, null, 2))
+        : '',
       structured_output_format: template.structured_output_format || 'pydantic'
     })
     setIsDrawerOpen(true)
@@ -87,13 +91,19 @@ export const PromptTemplatesClient: React.FC = () => {
       // Prepare the data for submission
       const submitData = { ...formData }
 
-      // Parse and validate structured output schema if enabled
+      // Handle structured output schema based on format
       if (formData.use_structured_output && formData.structured_output_schema.trim()) {
-        try {
-          submitData.structured_output_schema = JSON.parse(formData.structured_output_schema)
-        } catch {
-          alert('Invalid JSON in structured output schema. Please check your schema definition.')
-          return
+        if (formData.structured_output_format === 'json_schema') {
+          try {
+            submitData.structured_output_schema = JSON.parse(formData.structured_output_schema)
+          } catch {
+            alert('Invalid JSON in structured output schema. Please check your JSON Schema definition.')
+            return
+          }
+        } else {
+          // For Pydantic and Zod, store as string for now
+          // TODO: Add conversion to JSON Schema for API compatibility
+          submitData.structured_output_schema = formData.structured_output_schema.trim()
         }
       } else {
         submitData.structured_output_schema = null
@@ -140,6 +150,20 @@ export const PromptTemplatesClient: React.FC = () => {
     }
   }
 
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text)
+    } catch (err) {
+      // Fallback for browsers that don't support clipboard API
+      const textArea = document.createElement('textarea')
+      textArea.value = text
+      document.body.appendChild(textArea)
+      textArea.select()
+      document.execCommand('copy')
+      document.body.removeChild(textArea)
+    }
+  }
+
   const columns: TableColumn<PromptTemplate>[] = [
     {
       key: 'name',
@@ -150,7 +174,7 @@ export const PromptTemplatesClient: React.FC = () => {
             {template.name}
             {template.use_structured_output && (
               <span className={styles.structuredOutputBadge} title={`Structured Output (${template.structured_output_format})`}>
-                🔧
+                <Braces size={16} />
               </span>
             )}
           </div>
@@ -202,6 +226,77 @@ export const PromptTemplatesClient: React.FC = () => {
     }
   ]
 
+  const renderExpandableContent = (template: PromptTemplate) => {
+    const structuredOutputSchemaText = template.structured_output_schema
+      ? (typeof template.structured_output_schema === 'string'
+          ? template.structured_output_schema
+          : JSON.stringify(template.structured_output_schema, null, 2))
+      : ''
+
+    return (
+      <div className={styles.expandedContent}>
+        <div className={styles.expandedSection}>
+          <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <span>User Prompt Template</span>
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => copyToClipboard(template.user_prompt_template)}
+              aria-label="Copy User Prompt Template"
+              className={styles.copyButton}
+            >
+              <Copy size={14} />
+            </Button>
+          </h4>
+          <pre className={styles.expandedCodeBlock}>{template.user_prompt_template}</pre>
+        </div>
+
+        {template.system_prompt && (
+          <div className={styles.expandedSection}>
+            <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>System Prompt</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => copyToClipboard(template.system_prompt)}
+                aria-label="Copy System Prompt"
+                className={styles.copyButton}
+              >
+                <Copy size={14} />
+              </Button>
+            </h4>
+            <pre className={styles.expandedCodeBlock}>{template.system_prompt}</pre>
+          </div>
+        )}
+
+        {template.use_structured_output && template.structured_output_schema && (
+          <div className={styles.expandedSection}>
+            <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span>Structured Output Schema ({template.structured_output_format})</span>
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={() => copyToClipboard(structuredOutputSchemaText)}
+                aria-label="Copy Structured Output Schema"
+                className={styles.copyButton}
+              >
+                <Copy size={14} />
+              </Button>
+            </h4>
+            <pre className={styles.expandedCodeBlock}>
+              {structuredOutputSchemaText}
+            </pre>
+          </div>
+        )}
+
+        <div className={styles.expandedSection}>
+          <h4 className={styles.expandedSectionTitle}>Last Updated</h4>
+          <p className={styles.expandedText}>{formatHumanReadableDate(template.updated_at)}</p>
+        </div>
+      </div>
+    )
+  }
+
   if (isLoading) {
     return <div>Loading prompt templates...</div>
   }
@@ -226,6 +321,7 @@ export const PromptTemplatesClient: React.FC = () => {
       <ExpandableTable
         data={templates}
         columns={columns}
+        expandableContent={renderExpandableContent}
         getRowKey={(template) => template.id}
         emptyMessage="No prompt templates found. Create your first template to get started."
       />

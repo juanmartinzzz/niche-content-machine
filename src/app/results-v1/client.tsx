@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { Button, Input, PillList } from '@/components/interaction'
+import { Button, Input, Textarea, PillList } from '@/components/interaction'
 import { Play, Loader2, AlertCircle, CheckCircle } from 'lucide-react'
 import styles from './client.module.css'
 
@@ -79,6 +79,7 @@ export const ResultsV1Client: React.FC = () => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<string>('')
   const [selectedTemplate, setSelectedTemplate] = useState<string>('')
   const [variables, setVariables] = useState<Record<string, string>>({})
+  const [arbitraryInput, setArbitraryInput] = useState<string>('')
   const [isLoading, setIsLoading] = useState(false)
   const [result, setResult] = useState<GenerateResponse | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -96,7 +97,7 @@ export const ResultsV1Client: React.FC = () => {
         if (endpointsRes.ok) {
           const endpointsData = await endpointsRes.json()
           // Filter out endpoints that don't have valid model data
-          const validEndpoints = (endpointsData.endpoints || []).filter((endpoint: any) => endpoint.ai_models)
+          const validEndpoints = (endpointsData.endpoints || []).filter((endpoint: Endpoint) => endpoint.ai_models)
           setEndpoints(validEndpoints)
         }
 
@@ -166,7 +167,8 @@ export const ResultsV1Client: React.FC = () => {
         body: JSON.stringify({
           endpoint_id: selectedEndpoint,
           prompt_template_id: selectedTemplate,
-          variables
+          variables,
+          arbitrary_input: arbitraryInput.trim() || null
         })
       })
 
@@ -260,6 +262,18 @@ export const ResultsV1Client: React.FC = () => {
         {currentTemplate && (
           <div className={styles.templatePreview}>
             <h4>Prompt Preview</h4>
+
+            <div className={styles.promptSection}>
+              <strong>Arbitrary Input (Optional):</strong>
+              <Textarea
+                value={arbitraryInput}
+                onChange={setArbitraryInput}
+                placeholder="Add any additional context, instructions, or data that should be included with the prompt execution..."
+                className={styles.arbitraryInputTextarea}
+                rows={3}
+              />
+            </div>
+
             {currentTemplate.system_prompt && (
               <div className={styles.promptSection}>
                 <strong>System:</strong>
@@ -335,6 +349,65 @@ export const ResultsV1Client: React.FC = () => {
               <strong>Template:</strong> {result.prompt_template.name} (v{result.prompt_template.version})
             </div>
           </div>
+
+          {/* Content Type and Text Section */}
+          {(() => {
+            // Try to extract text content from different response formats
+            let extractedText = ''
+            let contentType = 'unknown'
+
+            if (result.response.output?.[0]?.content?.[0]?.text) {
+              // xAI/Grok format
+              extractedText = result.response.output[0].content[0].text
+              contentType = 'text/plain'
+            } else if (result.response.choices?.[0]?.message?.content) {
+              // OpenAI format
+              extractedText = result.response.choices[0].message.content
+              contentType = 'text/plain'
+            }
+
+            // Try to parse as JSON
+            let parsedJson = null
+            let isValidJson = false
+            try {
+              if (extractedText.trim()) {
+                parsedJson = JSON.parse(extractedText)
+                isValidJson = true
+                contentType = 'application/json'
+              }
+            } catch {
+              // Not valid JSON, keep as text
+            }
+
+            return extractedText ? (
+              <div className={styles.responseContent}>
+                <h4>Content Type & Text</h4>
+                <div className={styles.contentMeta}>
+                  <div className={styles.metaItem}>
+                    <strong>Content Type:</strong> {contentType}
+                  </div>
+                  <div className={styles.metaItem}>
+                    <strong>Length:</strong> {extractedText.length} characters
+                  </div>
+                </div>
+
+                {isValidJson ? (
+                  <div>
+                    <p className={styles.jsonNote}>✓ Valid JSON detected - showing formatted:</p>
+                    <pre className={styles.responseJson}>
+                      {JSON.stringify(parsedJson, null, 2)}
+                    </pre>
+                  </div>
+                ) : (
+                  <div className={styles.textContent}>
+                    <pre className={styles.responseText}>
+                      {extractedText}
+                    </pre>
+                  </div>
+                )}
+              </div>
+            ) : null
+          })()}
 
           <div className={styles.responseContent}>
             <h4>Raw API Response</h4>

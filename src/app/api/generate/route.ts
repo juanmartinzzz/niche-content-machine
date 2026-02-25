@@ -12,7 +12,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { endpoint_id, prompt_template_id, variables = {} } = body
+    const { endpoint_id, prompt_template_id, variables = {}, arbitrary_input } = body
 
     if (!endpoint_id || !prompt_template_id) {
       return NextResponse.json({
@@ -71,6 +71,11 @@ export async function POST(request: NextRequest) {
       userPrompt = userPrompt.replace(new RegExp(placeholder, 'g'), String(value))
     })
 
+    // Append arbitrary input to the user prompt if provided
+    if (arbitrary_input && arbitrary_input.trim()) {
+      userPrompt += '\n\n' + arbitrary_input.trim()
+    }
+
     // Construct the API request based on the provider
     const provider = endpoint.ai_models.ai_providers
     const baseUrl = provider.base_url.replace(/\/$/, '') // Remove trailing slash
@@ -102,23 +107,54 @@ export async function POST(request: NextRequest) {
     // xAI's /v1/responses endpoint uses 'input' instead of 'messages'
     if (provider.base_url.includes('api.x.ai') && endpoint.api_path === '/responses') {
       requestBody.input = messageArray
+      // xAI responses endpoint requires explicit text format specification
+      if (!requestBody.text) {
+        requestBody.text = { format: { type: 'text' } }
+      }
     } else {
       requestBody.messages = messageArray
     }
 
     // Add structured output if configured
     if (promptTemplate.use_structured_output && promptTemplate.structured_output_schema) {
-      // Handle different structured output formats
-      if (promptTemplate.structured_output_format === 'json_schema') {
-        requestBody.response_format = {
-          type: 'json_schema',
-          json_schema: promptTemplate.structured_output_schema
+      // Handle different providers and their structured output formats
+      if (provider.base_url.includes('api.x.ai') && endpoint.api_path === '/responses') {
+        // xAI's /responses endpoint uses text.format for structured outputs
+        let schemaToUse = promptTemplate.structured_output_schema
+
+        // For xAI, we need JSON Schema format
+        if (promptTemplate.structured_output_format === 'json_schema') {
+          // Schema is already a JSON object
+          schemaToUse = promptTemplate.structured_output_schema
+        } else {
+          // For Pydantic/Zod formats, we currently don't support conversion to JSON Schema
+          // Return an error asking user to use JSON Schema format for xAI endpoints
+          return NextResponse.json({
+            error: `xAI endpoints currently only support JSON Schema format for structured outputs. Please update your prompt template to use 'json_schema' format instead of '${promptTemplate.structured_output_format}'.`
+          }, { status: 400 })
         }
-      } else if (promptTemplate.structured_output_format === 'pydantic') {
-        // For pydantic schemas, we'll pass them as JSON schema for now
-        requestBody.response_format = {
-          type: 'json_schema',
-          json_schema: promptTemplate.structured_output_schema
+
+        requestBody.text = {
+          format: {
+            type: 'json_schema',
+            name: 'structured_output',
+            schema: schemaToUse,
+            strict: true
+          }
+        }
+      } else {
+        // OpenAI-style response_format for other providers
+        if (promptTemplate.structured_output_format === 'json_schema') {
+          requestBody.response_format = {
+            type: 'json_schema',
+            json_schema: promptTemplate.structured_output_schema
+          }
+        } else if (promptTemplate.structured_output_format === 'pydantic') {
+          // For pydantic schemas, we'll pass them as JSON schema for now
+          requestBody.response_format = {
+            type: 'json_schema',
+            json_schema: promptTemplate.structured_output_schema
+          }
         }
       }
     }
@@ -175,6 +211,7 @@ export async function POST(request: NextRequest) {
           tokens_used: aiResponse.usage?.total_tokens,
           cost_cents: calculateCost(aiResponse.usage, endpoint.ai_models),
           duration_ms: 0, // Would need to track this properly
+          arbitrary_input: arbitrary_input || null,
           created_at: new Date().toISOString()
         }])
     } catch (logError) {
