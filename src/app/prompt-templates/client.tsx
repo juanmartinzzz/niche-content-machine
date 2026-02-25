@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, type TableColumn } from '@/components/interaction'
+import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, useToast, type TableColumn } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Braces, Copy } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import styles from './client.module.css'
@@ -26,6 +26,7 @@ export const PromptTemplatesClient: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true)
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [editingTemplate, setEditingTemplate] = useState<PromptTemplate | null>(null)
+  const { showToast } = useToast()
   const [formData, setFormData] = useState({
     name: '',
     system_prompt: '',
@@ -126,27 +127,50 @@ export const PromptTemplatesClient: React.FC = () => {
         fetchTemplates()
       } else {
         const errorData = await response.json()
-        alert(`Error saving template: ${errorData.error || 'Unknown error'}`)
+        showToast(`Error saving template: ${errorData.error || 'Unknown error'}`, 'error')
       }
     } catch (error) {
       console.error('Error saving prompt template:', error)
-      alert('Error saving prompt template. Please try again.')
+      showToast('Error saving prompt template. Please try again.', 'error')
     }
   }
 
   const handleDeleteTemplate = async (template: PromptTemplate) => {
-    if (!confirm(`Are you sure you want to delete "${template.name}"?`)) return
+    console.log('handleDeleteTemplate called with template:', template)
+    if (!confirm(`Are you sure you want to delete "${template.name}"?`)) {
+      console.log('User cancelled delete')
+      return
+    }
 
+    console.log('User confirmed delete, making API call')
     try {
       const response = await fetch(`/api/prompt-templates/${template.id}`, {
         method: 'DELETE'
       })
 
+      console.log('Delete API response:', response.status, response.ok)
       if (response.ok) {
-        fetchTemplates()
+        console.log('Delete successful, updating local state')
+        // Optimistically update the local state
+        setTemplates(prev => prev.filter(t => t.id !== template.id))
+      } else {
+        const responseText = await response.text()
+        console.error('Delete failed - raw response:', responseText)
+        console.error('Response status:', response.status)
+        console.error('Response ok:', response.ok)
+
+        try {
+          const errorData = JSON.parse(responseText)
+          console.error('Delete failed - parsed:', errorData)
+          showToast(`Delete failed: ${errorData.error || 'Unknown error'}`, 'error')
+        } catch (parseError) {
+          console.error('Failed to parse response as JSON:', parseError)
+          showToast(`Delete failed: ${responseText || 'Unknown error'}`, 'error')
+        }
       }
     } catch (error) {
       console.error('Error deleting prompt template:', error)
+      showToast('Error deleting prompt template. Please try again.', 'error')
     }
   }
 
@@ -163,6 +187,7 @@ export const PromptTemplatesClient: React.FC = () => {
       document.body.removeChild(textArea)
     }
   }
+
 
   const columns: TableColumn<PromptTemplate>[] = [
     {

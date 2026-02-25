@@ -133,3 +133,12 @@
 .copyButton {
   padding: 4px;
 }
+
+.buttonDanger {
+  color: #dc2626;
+}
+
+.buttonDanger:hover {
+  background-color: #fef2f2;
+  color: #b91c1c;
+}

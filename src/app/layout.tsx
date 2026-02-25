@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { SupabaseProvider } from '@/components/SupabaseProvider'
 import { AppLayout } from '@/components/AppLayout'
+import { ToastProvider } from '@/components/interaction'
 import styles from './layout.module.css'
 import './globals.css'
 
@@ -24,11 +25,13 @@ export default function RootLayout({
     <html lang="en" className={`${inter.className} ${styles.html}`}>
       <body className={styles.body}>
         <SupabaseProvider>
-          <AppLayout>
-            <div className={styles.container}>
-              {children}
-            </div>
-          </AppLayout>
+          <ToastProvider>
+            <AppLayout>
+              <div className={styles.container}>
+                {children}
+              </div>
+            </AppLayout>
+          </ToastProvider>
         </SupabaseProvider>
       </body>
     </html>

@@ -92,3 +92,19 @@ export interface ExpandableTableProps<T = any> extends CommonProps {
   emptyMessage?: string;
   size?: ComponentSize;
 }
+
+// Toast component types
+export type ToastVariant = 'success' | 'error' | 'warning' | 'info';
+
+export interface ToastProps {
+  id: string;
+  message: string;
+  variant?: ToastVariant;
+  duration?: number;
+  onClose?: (id: string) => void;
+}
+
+export interface ToastContextType {
+  showToast: (message: string, variant?: ToastVariant, duration?: number) => void;
+  hideToast: (id: string) => void;
+}
