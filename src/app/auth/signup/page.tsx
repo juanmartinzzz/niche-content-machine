@@ -13,9 +13,19 @@ export default function SignUp() {
   const [name, setName] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
 
   useEffect(() => {
+    const initSupabase = async () => {
+      const client = await createClient()
+      setSupabase(client)
+    }
+    initSupabase()
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return
+
     const checkAuth = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()

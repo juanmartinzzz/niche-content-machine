@@ -2,6 +2,7 @@
 
 import { createClient } from '@/lib/supabase'
 import { createContext, useContext, useEffect, useState } from 'react'
+import { createBrowserClient } from '@supabase/ssr'
 import type { User } from '@supabase/supabase-js'
 
 interface SupabaseContextType {
@@ -17,9 +18,20 @@ const SupabaseContext = createContext<SupabaseContextType>({
 export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
 
   useEffect(() => {
+    // Initialize Supabase client
+    const initSupabase = async () => {
+      const client = await createClient()
+      setSupabase(client)
+    }
+    initSupabase()
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return
+
     // Get initial session
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession()
@@ -38,7 +50,7 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
     )
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [supabase])
 
   return (
     <SupabaseContext.Provider value={{ user, loading }}>

@@ -1,13 +1,22 @@
 import { createBrowserClient } from '@supabase/ssr'
 
 let supabase: ReturnType<typeof createBrowserClient>
+let configPromise: Promise<{ supabaseUrl: string; supabaseAnonKey: string }> | null = null
 
-export function createClient() {
+async function getSupabaseConfig() {
+  if (!configPromise) {
+    configPromise = fetch('/api/config').then(res => res.json())
+  }
+  return configPromise
+}
+
+export async function createClient() {
   // Create a singleton instance
   if (!supabase) {
+    const config = await getSupabaseConfig()
     supabase = createBrowserClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      config.supabaseUrl,
+      config.supabaseAnonKey
     )
   }
   return supabase

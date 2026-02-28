@@ -1,0 +1,78 @@
+.pageContainer {
+  padding: var(--spacing-lg);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.pageTitle {
+  font-size: var(--font-size-xl);
+  font-weight: 600;
+  color: var(--color-text-primary);
+  margin: 0;
+}
+
+.addButton {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.tableContainer {
+  /* Additional table styling if needed */
+}
+
+.loadingState {
+  text-align: center;
+  padding: var(--spacing-lg);
+}
+
+.errorState {
+  padding: var(--spacing-lg);
+  color: var(--color-error, #ef4444);
+}
+
+.expandableContent {
+  padding: var(--spacing-md);
+  background-color: var(--color-surface-light, #f9fafb);
+  border-radius: var(--border-radius-md);
+}
+
+.configSection h4 {
+  font-weight: 500;
+  margin-bottom: var(--spacing-sm);
+  color: var(--color-text-primary);
+}
+
+.configSection pre {
+  font-size: var(--font-size-sm);
+  background-color: var(--color-background);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--color-border);
+  overflow-x: auto;
+  margin: 0;
+}
+
+.actionButton {
+  padding: 4px;
+}
+
+.deleteButton {
+  padding: 4px;
+  color: var(--color-error, #ef4444);
+}
+
+.formButtons {
+  display: flex;
+  gap: 12px;
+  padding-top: 16px;
+}
+
+.formButton {
+  flex: 1;
+}

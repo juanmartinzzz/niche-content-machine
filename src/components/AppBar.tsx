@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -99,6 +99,28 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             >
               <Bot size={20} />
               {!isCollapsed && <span className={styles.navText}>Models & Endpoints</span>}
+            </Button>
+          </Link>
+          <div className={styles.navDivider} />
+          {!isCollapsed && <div className={styles.navSection}>Integrations</div>}
+          <Link href="/integrations/manage">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <Settings size={20} />
+              {!isCollapsed && <span className={styles.navText}>Manage</span>}
+            </Button>
+          </Link>
+          <Link href="/integrations/telegram">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <MessageCircle size={20} />
+              {!isCollapsed && <span className={styles.navText}>Telegram Chats</span>}
             </Button>
           </Link>
         </nav>

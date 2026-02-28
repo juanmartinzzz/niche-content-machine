@@ -30,17 +30,14 @@ cp .env.example .env
 
 Update the following variables in `.env` (these match Vercel's Supabase integration):
 
-**Public Variables (safe to expose in client-side code):**
-- `NEXT_PUBLIC_SUPABASE_URL`: Your Supabase project URL (found in your Supabase dashboard under Settings > API)
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY`: Your Supabase anonymous/public key (found in your Supabase dashboard under Settings > API)
-- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: Your Supabase publishable key for client-side operations
+**Server-side Variables (keep these secret, accessed via API endpoint for client):**
+- `SUPABASE_URL`: Your Supabase project URL (found in your Supabase dashboard under Settings > API)
+- `SUPABASE_ANON_KEY`: Your Supabase anonymous/public key (found in your Supabase dashboard under Settings > API)
 
 **Private Variables (keep these secret, server-side only):**
 - `SUPABASE_SERVICE_ROLE_KEY`: Your Supabase service role key (keep this secret, only use server-side)
 - `SUPABASE_SECRET_KEY`: Your Supabase secret key for server-side operations
 - `SUPABASE_JWT_SECRET`: Your Supabase JWT secret for token verification
-- `SUPABASE_URL`: Your Supabase project URL (same as NEXT_PUBLIC_SUPABASE_URL)
-- `SUPABASE_PUBLISHABLE_KEY`: Your Supabase publishable key (same as NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
 
 **Database Connection Variables (for direct database access):**
 - `POSTGRES_DATABASE`: Database name (typically "postgres")

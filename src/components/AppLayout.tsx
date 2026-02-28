@@ -11,9 +11,19 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [userEmail, setUserEmail] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
 
   useEffect(() => {
+    const initSupabase = async () => {
+      const client = await createClient()
+      setSupabase(client)
+    }
+    initSupabase()
+  }, [])
+
+  useEffect(() => {
+    if (!supabase) return
+
     const getUser = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser()

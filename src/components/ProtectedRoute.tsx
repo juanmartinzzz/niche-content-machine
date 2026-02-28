@@ -2,8 +2,9 @@
 
 import { useUser } from './SupabaseProvider'
 import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase'
+import { createBrowserClient } from '@supabase/ssr'
 import { databaseService } from '@/lib/database'
 
 interface ProtectedRouteProps {
@@ -14,10 +15,18 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) {
   const user = useUser()
   const router = useRouter()
-  const supabase = createClient()
+  const [supabase, setSupabase] = useState<any>(null)
 
   useEffect(() => {
-    if (user === undefined) return // Still loading
+    const initSupabase = async () => {
+      const client = await createClient()
+      setSupabase(client)
+    }
+    initSupabase()
+  }, [])
+
+  useEffect(() => {
+    if (user === undefined || !supabase) return // Still loading
 
     if (!user) {
       router.push('/auth/signin')
@@ -40,7 +49,7 @@ export function ProtectedRoute({ children, requiredRole }: ProtectedRouteProps) 
       }
       checkUserRole()
     }
-  }, [user, router, requiredRole])
+  }, [user, router, requiredRole, supabase])
 
   if (user === undefined) {
     return <div>Loading...</div>
