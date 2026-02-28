@@ -51,18 +51,59 @@ export async function POST(
     const {
       step_name,
       description,
+      step_type,
       prompt_template_id,
       endpoint_id,
       input_from_step_id,
       timeout_seconds,
       retry_count,
-      retry_delay_seconds
+      retry_delay_seconds,
+      endpoint_config
     } = body
 
-    if (!step_name || !prompt_template_id || !endpoint_id) {
+    if (!step_name) {
       return NextResponse.json({
-        error: 'step_name, prompt_template_id, and endpoint_id are required'
+        error: 'step_name is required'
       }, { status: 400 })
+    }
+
+    const validStepTypes = ['ai_operation', 'endpoint_call']
+    const finalStepType = step_type || 'ai_operation'
+
+    if (!validStepTypes.includes(finalStepType)) {
+      return NextResponse.json({
+        error: `Invalid step_type. Must be one of: ${validStepTypes.join(', ')}`
+      }, { status: 400 })
+    }
+
+    // Validate step type specific requirements
+    if (finalStepType === 'ai_operation') {
+      if (!prompt_template_id || !endpoint_id) {
+        return NextResponse.json({
+          error: 'prompt_template_id and endpoint_id are required for ai_operation steps'
+        }, { status: 400 })
+      }
+    } else if (finalStepType === 'endpoint_call') {
+      if (!endpoint_config) {
+        return NextResponse.json({
+          error: 'endpoint_config is required for endpoint_call steps'
+        }, { status: 400 })
+      }
+
+      // Validate endpoint_config structure
+      const { method, url } = endpoint_config
+      if (!method || !url) {
+        return NextResponse.json({
+          error: 'endpoint_config must include method and url for endpoint_call steps'
+        }, { status: 400 })
+      }
+
+      const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+      if (!validMethods.includes(method.toUpperCase())) {
+        return NextResponse.json({
+          error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
+        }, { status: 400 })
+      }
     }
 
     // Get the next step order
@@ -83,13 +124,15 @@ export async function POST(
         runbook_id: id,
         step_name,
         description: description || null,
-        prompt_template_id,
-        endpoint_id,
+        step_type: finalStepType,
+        prompt_template_id: finalStepType === 'ai_operation' ? prompt_template_id : null,
+        endpoint_id: finalStepType === 'ai_operation' ? endpoint_id : null,
         input_from_step_id: input_from_step_id || null,
         step_order: nextStepOrder,
         timeout_seconds: timeout_seconds ?? 300,
         retry_count: retry_count ?? 0,
-        retry_delay_seconds: retry_delay_seconds ?? 5
+        retry_delay_seconds: retry_delay_seconds ?? 5,
+        endpoint_config: finalStepType === 'endpoint_call' ? endpoint_config : null
       }])
       .select()
       .single()

@@ -9,8 +9,9 @@ import styles from './client.module.css'
 interface RunbookStep {
   id: string
   runbook_id: string
-  prompt_template_id: string
-  endpoint_id: string
+  step_type: 'ai_operation' | 'endpoint_call'
+  prompt_template_id: string | null
+  endpoint_id: string | null
   step_order: number
   step_name: string
   description: string | null
@@ -18,6 +19,7 @@ interface RunbookStep {
   timeout_seconds: number
   retry_count: number
   retry_delay_seconds: number
+  endpoint_config: any | null
   created_at: string
   updated_at: string
 }
@@ -88,7 +90,7 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
             .map((step) => (
               <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                 <Pill
-                  label={`Step ${step.step_order}: ${step.step_name}`}
+                  label={`Step ${step.step_order}: ${step.step_name} (${step.step_type === 'ai_operation' ? 'AI' : 'HTTP'})`}
                   size="sm"
                   onClick={() => onEditStep(step, runbook)}
                 />
@@ -171,12 +173,14 @@ export const RunbooksClient: React.FC = () => {
   const [stepFormData, setStepFormData] = useState({
     step_name: '',
     description: '',
+    step_type: 'ai_operation' as 'ai_operation' | 'endpoint_call',
     prompt_template_id: '',
     endpoint_id: '',
     input_from_step_id: '',
     timeout_seconds: 300,
     retry_count: 0,
-    retry_delay_seconds: 5
+    retry_delay_seconds: 5,
+    endpoint_config: null as any
   })
   const [formData, setFormData] = useState({
     name: '',
@@ -365,12 +369,14 @@ export const RunbooksClient: React.FC = () => {
     setStepFormData({
       step_name: '',
       description: '',
+      step_type: 'ai_operation',
       prompt_template_id: '',
       endpoint_id: '',
       input_from_step_id: '',
       timeout_seconds: 300,
       retry_count: 0,
-      retry_delay_seconds: 5
+      retry_delay_seconds: 5,
+      endpoint_config: null
     })
 
     try {
@@ -394,12 +400,14 @@ export const RunbooksClient: React.FC = () => {
     setStepFormData({
       step_name: step.step_name,
       description: step.description || '',
-      prompt_template_id: step.prompt_template_id,
-      endpoint_id: step.endpoint_id,
+      step_type: step.step_type,
+      prompt_template_id: step.prompt_template_id || '',
+      endpoint_id: step.endpoint_id || '',
       input_from_step_id: step.input_from_step_id || '',
       timeout_seconds: step.timeout_seconds,
       retry_count: step.retry_count,
-      retry_delay_seconds: step.retry_delay_seconds
+      retry_delay_seconds: step.retry_delay_seconds,
+      endpoint_config: step.endpoint_config
     })
 
     try {
@@ -689,15 +697,34 @@ export const RunbooksClient: React.FC = () => {
           </div>
 
           <div className={styles.formField}>
-            <label className={styles.formLabel}>Prompt Template</label>
+            <label className={styles.formLabel}>Step Type</label>
             <select
-              value={stepFormData.prompt_template_id}
-              onChange={(e) => setStepFormData({ ...stepFormData, prompt_template_id: e.target.value })}
+              value={stepFormData.step_type}
+              onChange={(e) => setStepFormData({ ...stepFormData, step_type: e.target.value as 'ai_operation' | 'endpoint_call' })}
               style={{
                 width: '100%',
                 padding: '8px 12px',
                 border: '1px solid #d1d5db',
                 borderRadius: '6px',
+                fontSize: '14px'
+              }}
+            >
+              <option value="ai_operation">AI Operation</option>
+              <option value="endpoint_call">Endpoint Call</option>
+            </select>
+          </div>
+
+          {stepFormData.step_type === 'ai_operation' && (
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Prompt Template</label>
+              <select
+                value={stepFormData.prompt_template_id}
+                onChange={(e) => setStepFormData({ ...stepFormData, prompt_template_id: e.target.value })}
+                style={{
+                  width: '100%',
+                  padding: '8px 12px',
+                  border: '1px solid #d1d5db',
+                  borderRadius: '6px',
                 fontSize: '14px'
               }}
             >
@@ -709,7 +736,9 @@ export const RunbooksClient: React.FC = () => {
               ))}
             </select>
           </div>
+          )}
 
+          {stepFormData.step_type === 'ai_operation' && (
           <div className={styles.formField}>
             <label className={styles.formLabel}>Endpoint</label>
             <select
@@ -731,6 +760,40 @@ export const RunbooksClient: React.FC = () => {
               ))}
             </select>
           </div>
+          )}
+
+          {stepFormData.step_type === 'endpoint_call' && (
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Endpoint Configuration</label>
+              <Textarea
+                value={stepFormData.endpoint_config ? JSON.stringify(stepFormData.endpoint_config, null, 2) : ''}
+                onChange={(value) => {
+                  try {
+                    const parsed = value ? JSON.parse(value) : null
+                    setStepFormData({ ...stepFormData, endpoint_config: parsed })
+                  } catch (e) {
+                    // Invalid JSON, store as string for now
+                    setStepFormData({ ...stepFormData, endpoint_config: value })
+                  }
+                }}
+                placeholder={`{
+  "method": "POST",
+  "url": "https://api.example.com/endpoint",
+  "headers": {"Content-Type": "application/json"},
+  "body_template": "{\\"input\\": \\"{{input}}\\"}",
+  "response_mapping": {
+    "output_path": "$.data",
+    "output_key": "result"
+  }
+}`}
+                className={styles.formTextarea}
+                rows={8}
+              />
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Configure the HTTP endpoint call. Use {"{{input}}"} to reference step input.
+              </div>
+            </div>
+          )}
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Input Source (Optional)</label>
