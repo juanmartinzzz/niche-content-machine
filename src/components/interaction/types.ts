@@ -62,6 +62,7 @@ export interface PillListProps extends CommonProps {
   onChange: (selected: string[]) => void;
   variant?: PillVariant;
   size?: ComponentSize;
+  maxVisibleItems?: number;
 }
 
 // Drawer component types

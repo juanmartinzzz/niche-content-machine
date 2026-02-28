@@ -1,5 +1,10 @@
 /* Select Component Styles - CSS Module */
 
+.container {
+  position: relative;
+  width: 100%;
+}
+
 .trigger {
   width: 100%;
   border: 1px solid var(--color-border);
@@ -109,14 +114,16 @@
   top: 100%;
   left: 0;
   right: 0;
-  z-index: 1000;
+  z-index: 9999;
   background-color: var(--color-background);
   border: 1px solid var(--color-border);
-  border-radius: var(--border-radius-full);
+  border-radius: var(--border-radius-md);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  margin-top: 4px;
+  margin-top: 1px;
   max-height: 200px;
   overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 /* Search container */
@@ -151,7 +158,7 @@
 /* Option styles */
 .option {
   width: 100%;
-  padding: 10px 16px;
+  padding: 12px 16px;
   text-align: left;
   background: none;
   border: none;
@@ -161,6 +168,17 @@
   color: var(--color-text-primary);
   transition: background-color 150ms ease-in-out;
   border-radius: 0;
+  position: relative;
+}
+
+.option:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 8px;
+  height: 1px;
+  background-color: var(--color-accent);
 }
 
 .option:hover,
@@ -175,13 +193,14 @@
 }
 
 .option:first-child {
-  border-top-left-radius: var(--border-radius-sm);
-  border-top-right-radius: var(--border-radius-sm);
+  border-top-left-radius: var(--border-radius-md);
+  border-top-right-radius: var(--border-radius-md);
 }
 
 .option:last-child {
-  border-bottom-left-radius: var(--border-radius-sm);
-  border-bottom-right-radius: var(--border-radius-sm);
+  border-bottom: none;
+  border-bottom-left-radius: var(--border-radius-md);
+  border-bottom-right-radius: var(--border-radius-md);
 }
 
 /* No options message */

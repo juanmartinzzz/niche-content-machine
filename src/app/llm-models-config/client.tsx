@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, type TableColumn } from '@/components/interaction'
+import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Select, type TableColumn, type SelectOption } from '@/components/interaction'
 import { Pencil, Trash2 } from 'lucide-react'
 import styles from './client.module.css'
 
@@ -1072,24 +1072,17 @@ function ModelForm({
       </h3>
 
       <form onSubmit={handleSubmit} className={styles.drawerForm}>
-        <div>
-          <label className={styles.formLabel}>
-            Provider
-          </label>
-          <select
-            value={formData.provider_id}
-            onChange={(e) => setFormData(prev => ({ ...prev, provider_id: e.target.value }))}
-            className={styles.formInput}
-            required
-          >
-            <option value="">Select a provider...</option>
-            {providers.map(provider => (
-              <option key={provider.id} value={provider.id}>
-                {provider.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <Select
+          label="Provider"
+          value={formData.provider_id}
+          onChange={(value) => setFormData(prev => ({ ...prev, provider_id: value }))}
+          placeholder="Select a provider..."
+          options={providers.map(provider => ({
+            id: provider.id,
+            label: provider.name
+          }))}
+          required
+        />
 
         <Input
           label="Model Identifier"
@@ -1318,21 +1311,17 @@ function EndpointForm({
           placeholder="e.g. /chat/completions"
         />
 
-        <div>
-          <label className={styles.formLabel}>
-            HTTP Method
-          </label>
-          <select
-            value={formData.http_method}
-            onChange={(e) => setFormData(prev => ({ ...prev, http_method: e.target.value }))}
-            className={styles.formInput}
-          >
-            <option value="GET">GET</option>
-            <option value="POST">POST</option>
-            <option value="PUT">PUT</option>
-            <option value="DELETE">DELETE</option>
-          </select>
-        </div>
+        <Select
+          label="HTTP Method"
+          value={formData.http_method}
+          onChange={(value) => setFormData(prev => ({ ...prev, http_method: value }))}
+          options={[
+            { id: 'GET', label: 'GET' },
+            { id: 'POST', label: 'POST' },
+            { id: 'PUT', label: 'PUT' },
+            { id: 'DELETE', label: 'DELETE' }
+          ]}
+        />
 
         <Input
           label="Default Temperature"

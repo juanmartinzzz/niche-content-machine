@@ -36,6 +36,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
         )
       : options;
 
+
     // Find selected option
     const selectedOption = options.find(option => option.id === value);
 
@@ -126,7 +127,7 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
     };
 
     return (
-      <div ref={containerRef} className="w-full relative">
+      <div ref={containerRef} className={styles.container}>
         {label && (
           <label
             htmlFor={selectId}

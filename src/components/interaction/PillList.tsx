@@ -1,6 +1,6 @@
 'use client'
 
-import React from 'react';
+import React, { useState } from 'react';
 import { PillListProps } from './types';
 import { Pill } from './Pill';
 
@@ -10,10 +10,12 @@ export const PillList: React.FC<PillListProps> = ({
   onChange,
   variant = 'single',
   size = 'md',
+  maxVisibleItems = 9,
   className = '',
   disabled = false,
   ...props
 }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
   const handlePillClick = (optionId: string) => {
     if (disabled) return;
 
@@ -30,11 +32,19 @@ export const PillList: React.FC<PillListProps> = ({
     }
   };
 
+  const handleToggleExpand = () => {
+    setIsExpanded(!isExpanded);
+  };
+
+  // Determine which options to show
+  const visibleOptions = isExpanded ? options : options.slice(0, maxVisibleItems);
+  const shouldShowExpandButton = options.length > maxVisibleItems;
+
   const containerClasses = `flex flex-wrap gap-2 ${className}`;
 
   return (
     <div className={containerClasses} role={variant === 'multiple' ? 'group' : 'radiogroup'} {...props}>
-      {options.map((option) => (
+      {visibleOptions.map((option) => (
         <Pill
           key={option.id}
           label={option.label}
@@ -45,6 +55,17 @@ export const PillList: React.FC<PillListProps> = ({
           disabled={disabled}
         />
       ))}
+      {shouldShowExpandButton && (
+        <Pill
+          label={isExpanded ? 'Show less' : `+${options.length - maxVisibleItems} more`}
+          selected={false}
+          onClick={handleToggleExpand}
+          variant="single"
+          size={size}
+          disabled={disabled}
+          className="cursor-pointer"
+        />
+      )}
     </div>
   );
 };
