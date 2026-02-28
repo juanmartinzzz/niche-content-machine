@@ -19,6 +19,10 @@ interface RunbookStep {
   timeout_seconds: number
   retry_count: number
   retry_delay_seconds: number
+  // Simple endpoint configuration (new)
+  http_method: string | null
+  endpoint_url: string | null
+  // Advanced endpoint configuration (legacy)
   endpoint_config: any | null
   created_at: string
   updated_at: string
@@ -180,6 +184,10 @@ export const RunbooksClient: React.FC = () => {
     timeout_seconds: 300,
     retry_count: 0,
     retry_delay_seconds: 5,
+    // Simple endpoint configuration (new)
+    http_method: '',
+    endpoint_url: '',
+    // Advanced endpoint configuration (legacy)
     endpoint_config: null as any
   })
   const [formData, setFormData] = useState({
@@ -376,6 +384,10 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: 300,
       retry_count: 0,
       retry_delay_seconds: 5,
+      // Simple endpoint configuration (new)
+      http_method: '',
+      endpoint_url: '',
+      // Advanced endpoint configuration (legacy)
       endpoint_config: null
     })
 
@@ -407,6 +419,10 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: step.timeout_seconds,
       retry_count: step.retry_count,
       retry_delay_seconds: step.retry_delay_seconds,
+      // Simple endpoint configuration (new)
+      http_method: step.http_method || '',
+      endpoint_url: step.endpoint_url || '',
+      // Advanced endpoint configuration (legacy)
       endpoint_config: step.endpoint_config
     })
 
@@ -698,20 +714,16 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Step Type</label>
-            <select
-              value={stepFormData.step_type}
-              onChange={(e) => setStepFormData({ ...stepFormData, step_type: e.target.value as 'ai_operation' | 'endpoint_call' })}
-              style={{
-                width: '100%',
-                padding: '8px 12px',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                fontSize: '14px'
-              }}
-            >
-              <option value="ai_operation">AI Operation</option>
-              <option value="endpoint_call">Endpoint Call</option>
-            </select>
+            <PillList
+              options={[
+                { id: 'ai_operation', label: 'AI Operation' },
+                { id: 'endpoint_call', label: 'Endpoint Call' }
+              ]}
+              selected={[stepFormData.step_type]}
+              onChange={(selected) => setStepFormData({ ...stepFormData, step_type: selected[0] as 'ai_operation' | 'endpoint_call' })}
+              variant="single"
+              size="sm"
+            />
           </div>
 
           {stepFormData.step_type === 'ai_operation' && (
@@ -763,36 +775,101 @@ export const RunbooksClient: React.FC = () => {
           )}
 
           {stepFormData.step_type === 'endpoint_call' && (
-            <div className={styles.formField}>
-              <label className={styles.formLabel}>Endpoint Configuration</label>
-              <Textarea
-                value={stepFormData.endpoint_config ? JSON.stringify(stepFormData.endpoint_config, null, 2) : ''}
-                onChange={(value) => {
-                  try {
-                    const parsed = value ? JSON.parse(value) : null
-                    setStepFormData({ ...stepFormData, endpoint_config: parsed })
-                  } catch (e) {
-                    // Invalid JSON, store as string for now
-                    setStepFormData({ ...stepFormData, endpoint_config: value })
-                  }
-                }}
-                placeholder={`{
+            <>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>HTTP Method</label>
+                <PillList
+                  options={[
+                    { id: 'GET', label: 'GET' },
+                    { id: 'POST', label: 'POST' },
+                    { id: 'PUT', label: 'PUT' },
+                    { id: 'PATCH', label: 'PATCH' },
+                    { id: 'DELETE', label: 'DELETE' },
+                    { id: 'HEAD', label: 'HEAD' },
+                    { id: 'OPTIONS', label: 'OPTIONS' }
+                  ]}
+                  selected={stepFormData.http_method ? [stepFormData.http_method] : []}
+                  onChange={(selected) => setStepFormData({ ...stepFormData, http_method: selected[0] || '' })}
+                  variant="single"
+                  size="sm"
+                />
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Endpoint URL</label>
+                <Input
+                  value={stepFormData.endpoint_url}
+                  onChange={(value) => setStepFormData({ ...stepFormData, endpoint_url: value })}
+                  placeholder="https://api.example.com/endpoint"
+                />
+                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                  For POST/PUT/PATCH requests, the JSON output from the previous step will be sent as the request body.
+                </div>
+              </div>
+
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>
+                  <input
+                    type="checkbox"
+                    checked={!!stepFormData.endpoint_config}
+                    onChange={(e) => {
+                      if (e.target.checked) {
+                        // Enable advanced config with default structure
+                        setStepFormData({
+                          ...stepFormData,
+                          endpoint_config: {
+                            method: stepFormData.http_method || 'GET',
+                            url: stepFormData.endpoint_url || '',
+                            headers: { 'Content-Type': 'application/json' }
+                          }
+                        })
+                      } else {
+                        // Disable advanced config
+                        setStepFormData({ ...stepFormData, endpoint_config: null })
+                      }
+                    }}
+                    style={{ marginRight: '8px' }}
+                  />
+                  Use Advanced Configuration
+                </label>
+                <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                  Enable for custom headers, body templates, and response mapping.
+                </div>
+              </div>
+
+              {stepFormData.endpoint_config && (
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Advanced Endpoint Configuration</label>
+                  <Textarea
+                    value={stepFormData.endpoint_config ? JSON.stringify(stepFormData.endpoint_config, null, 2) : ''}
+                    onChange={(value) => {
+                      try {
+                        const parsed = value ? JSON.parse(value) : null
+                        setStepFormData({ ...stepFormData, endpoint_config: parsed })
+                      } catch (e) {
+                        // Invalid JSON, store as string for now
+                        setStepFormData({ ...stepFormData, endpoint_config: value })
+                      }
+                    }}
+                    placeholder={`{
   "method": "POST",
   "url": "https://api.example.com/endpoint",
-  "headers": {"Content-Type": "application/json"},
-  "body_template": "{\\"input\\": \\"{{input}}\\"}",
+  "headers": {"Content-Type": "application/json", "Authorization": "Bearer token"},
+  "body_template": "{\\"input\\": \\"{{input}}\\", \\"custom_field\\": \\"value\\"}",
   "response_mapping": {
     "output_path": "$.data",
     "output_key": "result"
   }
 }`}
-                className={styles.formTextarea}
-                rows={8}
-              />
-              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                Configure the HTTP endpoint call. Use {"{{input}}"} to reference step input.
-              </div>
-            </div>
+                    className={styles.formTextarea}
+                    rows={10}
+                  />
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                    Advanced configuration for custom headers, body templates, and response mapping. Use {"{{input}}"} to reference step input.
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
           <div className={styles.formField}>

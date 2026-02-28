@@ -15,7 +15,12 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
   step_name VARCHAR(255) NOT NULL, -- Human-readable name
   description TEXT,
 
-  -- Endpoint configuration
+  -- Simple endpoint configuration (for basic GET/POST requests)
+  http_method VARCHAR(10) CHECK (http_method IN ('GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS')),
+  endpoint_url TEXT,
+
+  -- Advanced endpoint configuration (for complex scenarios with headers, body templates, response mapping, etc.)
+  -- This JSONB will be used when http_method and endpoint_url are not sufficient
   endpoint_config JSONB,
 
   -- Input handling (references previous step outputs)
@@ -40,6 +45,7 @@ CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_template ON ncm_ai_runbook_s
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint ON ncm_ai_runbook_steps(endpoint_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_input_from ON ncm_ai_runbook_steps(input_from_step_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_type ON ncm_ai_runbook_steps(step_type);
+CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint_url ON ncm_ai_runbook_steps(endpoint_url) WHERE endpoint_url IS NOT NULL;
 
 
 -- Row Level Security (RLS)

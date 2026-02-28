@@ -108,3 +108,21 @@ export interface ToastContextType {
   showToast: (message: string, variant?: ToastVariant, duration?: number) => void;
   hideToast: (id: string) => void;
 }
+
+// Select component types
+export interface SelectOption {
+  id: string;
+  label: string;
+}
+
+export interface SelectProps extends CommonProps {
+  options: SelectOption[];
+  value?: string;
+  onChange?: (value: string) => void;
+  placeholder?: string;
+  label?: string;
+  required?: boolean;
+  error?: string;
+  size?: ComponentSize;
+  numberOptionsToShowSearch?: number;
+}

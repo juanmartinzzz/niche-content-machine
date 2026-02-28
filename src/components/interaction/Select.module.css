@@ -1,0 +1,216 @@
+/* Select Component Styles - CSS Module */
+
+.trigger {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  background-color: var(--color-background);
+  transition: all 200ms ease-in-out;
+  font-family: inherit;
+  box-sizing: border-box;
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  position: relative;
+}
+
+.trigger:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+.trigger:disabled {
+  background-color: var(--color-surface);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.triggerText {
+  flex: 1;
+  text-align: left;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.triggerIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 8px;
+}
+
+.clearButton {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: var(--border-radius-sm);
+  color: var(--color-text-secondary);
+  transition: color 200ms ease-in-out;
+}
+
+.clearButton:hover {
+  color: var(--color-text-primary);
+}
+
+.chevron {
+  color: var(--color-text-secondary);
+  transition: transform 200ms ease-in-out;
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* Size variants for trigger */
+.xs {
+  padding: 8px 12px;
+  font-size: 12px;
+  height: 32px;
+}
+
+.sm {
+  padding: 10px 14px;
+  font-size: 14px;
+  height: 36px;
+}
+
+.md {
+  padding: 12px 16px;
+  font-size: 16px;
+  height: 44px;
+}
+
+.lg {
+  padding: 14px 18px;
+  font-size: 18px;
+  height: 52px;
+}
+
+.xl {
+  padding: 16px 20px;
+  font-size: 20px;
+  height: 60px;
+}
+
+/* Error state */
+.error {
+  border-color: var(--color-error) !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+}
+
+/* Dropdown */
+.dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  background-color: var(--color-background);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-full);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-top: 4px;
+  max-height: 200px;
+  overflow: hidden;
+}
+
+/* Search container */
+.searchContainer {
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.searchInput {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-sm);
+  padding: 8px 12px;
+  font-size: 14px;
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+  font-family: inherit;
+}
+
+.searchInput:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+/* Options container */
+.optionsContainer {
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+/* Option styles */
+.option {
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  transition: background-color 150ms ease-in-out;
+  border-radius: 0;
+}
+
+.option:hover,
+.option.highlighted {
+  background-color: var(--color-surface);
+}
+
+.option.selected {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--color-accent);
+  font-weight: 500;
+}
+
+.option:first-child {
+  border-top-left-radius: var(--border-radius-sm);
+  border-top-right-radius: var(--border-radius-sm);
+}
+
+.option:last-child {
+  border-bottom-left-radius: var(--border-radius-sm);
+  border-bottom-right-radius: var(--border-radius-sm);
+}
+
+/* No options message */
+.noOptions {
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 14px;
+  font-style: italic;
+}
+
+/* Label styles */
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+/* Error message styles */
+.errorMessage {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-error);
+}

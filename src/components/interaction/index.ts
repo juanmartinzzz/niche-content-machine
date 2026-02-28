@@ -6,6 +6,7 @@ export { Pill } from './Pill';
 export { PillList } from './PillList';
 export { Drawer } from './Drawer';
 export { ExpandableTable } from './ExpandableTable';
+export { Select } from './Select';
 export { Toast } from './Toast';
 export { ToastContainer } from './ToastContainer';
 export { ToastProvider, useToast } from './ToastContext';
@@ -25,6 +26,8 @@ export type {
   PillListProps,
   DrawerProps,
   DrawerPosition,
+  SelectOption,
+  SelectProps,
   TableColumn,
   ExpandableTableProps,
   ToastProps,

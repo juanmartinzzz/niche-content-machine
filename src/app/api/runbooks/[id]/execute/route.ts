@@ -48,7 +48,7 @@ export async function POST(
   }
 }
 
-async function executeRunbook(executionId: string, initialInput: any) {
+async function executeRunbook(executionId: string, initialInput: Record<string, unknown>) {
   try {
     // Get runbook steps
     const { data: steps, error: stepsError } = await supabaseAdmin
@@ -92,7 +92,7 @@ async function executeRunbook(executionId: string, initialInput: any) {
   }
 }
 
-async function executeStep(step: any, input: any, executionId: string) {
+async function executeStep(step: Record<string, unknown>, input: Record<string, unknown>, executionId: string) {
   // Create step execution record
   const { data: stepExecution, error: stepError } = await supabaseAdmin
     .from(getTableName('ai_runbook_step_executions'))
@@ -148,47 +148,77 @@ async function executeStep(step: any, input: any, executionId: string) {
   }
 }
 
-async function executeAIOperation(step: any, input: any, stepExecutionId: string) {
+async function executeAIOperation(_step: Record<string, unknown>, _input: Record<string, unknown>, _stepExecutionId: string) {
   // TODO: Implement AI operation execution
   // This should call the existing AI endpoint logic
   throw new Error('AI operation execution not yet implemented')
 }
 
-async function executeEndpointCall(step: any, input: any, stepExecutionId: string) {
-  const config = step.endpoint_config
-
-  if (!config) {
-    throw new Error('Endpoint configuration is required for endpoint_call steps')
-  }
-
-  const { method, url, headers = {}, body_template, response_mapping } = config
-
-  // Replace template variables in body
+async function executeEndpointCall(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string) {
+  let method: string
+  let url: string
+  let headers = {}
   let body = null
-  if (body_template) {
-    body = body_template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
-      // Simple JSON path resolution - in production, use a proper JSON path library
-      return getValueByPath(input, path) || match
-    })
+  let response_mapping = null
+
+  // Check if using simple configuration (new approach)
+  if (step.http_method && step.endpoint_url) {
+    method = step.http_method
+    url = step.endpoint_url
+
+    // For POST/PUT/PATCH requests, use the input from previous step as JSON body
+    if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && input) {
+      body = JSON.stringify(input)
+      headers['Content-Type'] = 'application/json'
+    }
+  }
+  // Fall back to advanced configuration (legacy approach)
+  else if (step.endpoint_config) {
+    const config = step.endpoint_config
+    method = config.method
+    url = config.url
+    headers = config.headers || {}
+    response_mapping = config.response_mapping
+
+    // Handle body template for advanced config
+    if (config.body_template) {
+      body = config.body_template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+        // Simple JSON path resolution - in production, use a proper JSON path library
+        return getValueByPath(input, path) || match
+      })
+    }
+    // If no body template but it's a POST/PUT/PATCH, use input as JSON body
+    else if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && input) {
+      body = JSON.stringify(input)
+      headers['Content-Type'] = 'application/json'
+    }
+  } else {
+    throw new Error('Endpoint configuration is required for endpoint_call steps. Use http_method + endpoint_url for simple requests, or endpoint_config for advanced configuration.')
   }
 
   try {
     const response = await fetch(url, {
       method: method.toUpperCase(),
       headers: {
-        'Content-Type': 'application/json',
         ...headers
       },
-      body: body ? JSON.stringify(JSON.parse(body)) : undefined
+      body: body
     })
 
     if (!response.ok) {
       throw new Error(`HTTP ${response.status}: ${response.statusText}`)
     }
 
-    const responseData = await response.json()
+    const contentType = response.headers.get('content-type')
+    let responseData
 
-    // Extract output using response mapping
+    if (contentType && contentType.includes('application/json')) {
+      responseData = await response.json()
+    } else {
+      responseData = await response.text()
+    }
+
+    // Extract output using response mapping (only for advanced config)
     let output = responseData
     if (response_mapping) {
       const { output_path, output_key } = response_mapping
@@ -206,12 +236,12 @@ async function executeEndpointCall(step: any, input: any, stepExecutionId: strin
   }
 }
 
-function getValueByPath(obj: any, path: string): any {
+function getValueByPath(obj: Record<string, unknown>, path: string): unknown {
   return path.split('.').reduce((current, key) => current?.[key], obj)
 }
 
-async function updateExecutionStatus(executionId: string, status: string, finalOutput: any = null, errorMessage: string = null) {
-  const updateData: any = {
+async function updateExecutionStatus(executionId: string, status: string, finalOutput: Record<string, unknown> | null = null, errorMessage: string | null = null) {
+  const updateData: Record<string, unknown> = {
     execution_status: status,
     updated_at: new Date().toISOString()
   }

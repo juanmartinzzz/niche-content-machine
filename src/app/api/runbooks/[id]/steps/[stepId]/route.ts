@@ -26,6 +26,10 @@ export async function PUT(
       timeout_seconds,
       retry_count,
       retry_delay_seconds,
+      // Simple endpoint configuration (new)
+      http_method,
+      endpoint_url,
+      // Advanced endpoint configuration (legacy)
       endpoint_config
     } = body
 
@@ -52,25 +56,50 @@ export async function PUT(
         }, { status: 400 })
       }
     } else if (finalStepType === 'endpoint_call') {
-      if (!endpoint_config) {
+      // Check if using simple configuration
+      const hasSimpleConfig = http_method && endpoint_url
+      const hasAdvancedConfig = endpoint_config
+
+      if (!hasSimpleConfig && !hasAdvancedConfig) {
         return NextResponse.json({
-          error: 'endpoint_config is required for endpoint_call steps'
+          error: 'Either http_method + endpoint_url (simple config) or endpoint_config (advanced config) is required for endpoint_call steps'
         }, { status: 400 })
       }
 
-      // Validate endpoint_config structure
-      const { method, url } = endpoint_config
-      if (!method || !url) {
-        return NextResponse.json({
-          error: 'endpoint_config must include method and url for endpoint_call steps'
-        }, { status: 400 })
+      // Validate simple configuration
+      if (hasSimpleConfig) {
+        const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
+        if (!validMethods.includes(http_method.toUpperCase())) {
+          return NextResponse.json({
+            error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
+          }, { status: 400 })
+        }
+
+        // Validate URL format
+        try {
+          new URL(endpoint_url)
+        } catch {
+          return NextResponse.json({
+            error: 'endpoint_url must be a valid URL'
+          }, { status: 400 })
+        }
       }
 
-      const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
-      if (!validMethods.includes(method.toUpperCase())) {
-        return NextResponse.json({
-          error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
-        }, { status: 400 })
+      // Validate advanced configuration (legacy)
+      if (hasAdvancedConfig && !hasSimpleConfig) {
+        const { method, url } = endpoint_config
+        if (!method || !url) {
+          return NextResponse.json({
+            error: 'endpoint_config must include method and url for endpoint_call steps'
+          }, { status: 400 })
+        }
+
+        const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+        if (!validMethods.includes(method.toUpperCase())) {
+          return NextResponse.json({
+            error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
+          }, { status: 400 })
+        }
       }
     }
 
@@ -86,7 +115,11 @@ export async function PUT(
         timeout_seconds: timeout_seconds ?? 300,
         retry_count: retry_count ?? 0,
         retry_delay_seconds: retry_delay_seconds ?? 5,
-        endpoint_config: finalStepType === 'endpoint_call' ? endpoint_config : null
+        // Simple endpoint configuration
+        http_method: finalStepType === 'endpoint_call' && http_method ? http_method : null,
+        endpoint_url: finalStepType === 'endpoint_call' && endpoint_url ? endpoint_url : null,
+        // Advanced endpoint configuration (for complex scenarios)
+        endpoint_config: finalStepType === 'endpoint_call' && endpoint_config ? endpoint_config : null
       })
       .eq('id', stepId)
       .eq('runbook_id', id)

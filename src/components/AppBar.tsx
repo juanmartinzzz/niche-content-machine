@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings, Play } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -59,6 +59,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
 
         {/* Navigation Menu */}
         <nav className={styles.navigation}>
+          <Link href="/runbook-execution">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <Play size={20} />
+              {!isCollapsed && <span className={styles.navText}>Runbook Execution</span>}
+            </Button>
+          </Link>
           <Link href="/results-v1">
             <Button
               variant="ghost"
