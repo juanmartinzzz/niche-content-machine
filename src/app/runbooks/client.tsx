@@ -15,7 +15,6 @@ interface RunbookStep {
   step_order: number
   step_name: string
   description: string | null
-  input_from_step_id: string | null
   timeout_seconds: number
   retry_count: number
   retry_delay_seconds: number
@@ -171,7 +170,6 @@ export const RunbooksClient: React.FC = () => {
   const [isStepDrawerOpen, setIsStepDrawerOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<RunbookStep | null>(null)
   const [currentRunbook, setCurrentRunbook] = useState<Runbook | null>(null)
-  const [availableStepsForInput, setAvailableStepsForInput] = useState<RunbookStep[]>([])
   const [availableTemplates, setAvailableTemplates] = useState<Array<{id: string, name: string}>>([])
   const [availableEndpoints, setAvailableEndpoints] = useState<Array<{id: string, slug: string, ai_models?: {display_name: string, ai_providers?: {name: string}}}>>([])
   const [stepFormData, setStepFormData] = useState({
@@ -180,7 +178,6 @@ export const RunbooksClient: React.FC = () => {
     step_type: 'ai_operation' as 'ai_operation' | 'endpoint_call',
     prompt_template_id: '',
     endpoint_id: '',
-    input_from_step_id: '',
     timeout_seconds: 300,
     retry_count: 0,
     retry_delay_seconds: 5,
@@ -422,7 +419,6 @@ export const RunbooksClient: React.FC = () => {
       step_type: 'ai_operation',
       prompt_template_id: '',
       endpoint_id: '',
-      input_from_step_id: '',
       timeout_seconds: 300,
       retry_count: 0,
       retry_delay_seconds: 5,
@@ -432,17 +428,6 @@ export const RunbooksClient: React.FC = () => {
       // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
       endpoint_config: null
     })
-
-    try {
-      const response = await fetch(`/api/runbooks/${runbook.id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setAvailableStepsForInput(data.steps || [])
-      }
-    } catch (error) {
-      console.error('Error fetching runbook steps:', error)
-      setAvailableStepsForInput([])
-    }
 
     setIsStepDrawerOpen(true)
   }
@@ -457,7 +442,6 @@ export const RunbooksClient: React.FC = () => {
       step_type: step.step_type,
       prompt_template_id: step.prompt_template_id || '',
       endpoint_id: step.endpoint_id || '',
-      input_from_step_id: step.input_from_step_id || '',
       timeout_seconds: step.timeout_seconds,
       retry_count: step.retry_count,
       retry_delay_seconds: step.retry_delay_seconds,
@@ -467,17 +451,6 @@ export const RunbooksClient: React.FC = () => {
       // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
       endpoint_config: step.endpoint_config
     })
-
-    try {
-      const response = await fetch(`/api/runbooks/${runbook.id}`)
-      if (response.ok) {
-        const data = await response.json()
-        setAvailableStepsForInput(data.steps || [])
-      }
-    } catch (error) {
-      console.error('Error fetching runbook steps:', error)
-      setAvailableStepsForInput([])
-    }
 
     setIsStepDrawerOpen(true)
   }
@@ -897,22 +870,6 @@ export const RunbooksClient: React.FC = () => {
             </>
           )}
 
-          <div className={styles.formField}>
-            <Select
-              label="Input Source (Optional)"
-              value={stepFormData.input_from_step_id}
-              onChange={(value) => setStepFormData({ ...stepFormData, input_from_step_id: value })}
-              placeholder="Use runbook initial input"
-              options={availableStepsForInput
-                .filter(step => !editingStep || step.id !== editingStep.id)
-                .sort((a, b) => a.step_order - b.step_order)
-                .map(step => ({
-                  id: step.id,
-                  label: `Step ${step.step_order}: ${step.step_name}`
-                }))}
-              size="sm"
-            />
-          </div>
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Timeout (seconds)</label>

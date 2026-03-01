@@ -23,9 +23,6 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
   -- This JSONB enhances the simple configuration when present, providing custom headers, body templates, and response mapping
   endpoint_config JSONB,
 
-  -- Input handling (references previous step outputs)
-  input_from_step_id UUID REFERENCES ncm_ai_runbook_steps(id) ON DELETE SET NULL, -- NULL = use runbook initial input
-
   -- Execution settings
   timeout_seconds INTEGER DEFAULT 300,
   retry_count INTEGER DEFAULT 0,
@@ -43,7 +40,6 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_runbook_order ON ncm_ai_runbook_steps(runbook_id, step_order);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_template ON ncm_ai_runbook_steps(prompt_template_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint ON ncm_ai_runbook_steps(endpoint_id);
-CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_input_from ON ncm_ai_runbook_steps(input_from_step_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_type ON ncm_ai_runbook_steps(step_type);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint_url ON ncm_ai_runbook_steps(endpoint_url) WHERE endpoint_url IS NOT NULL;
 
