@@ -31,12 +31,14 @@ export interface InputProps extends CommonProps {
   label?: string;
   required?: boolean;
   size?: ComponentSize;
+  showPasswordToggle?: boolean;
 }
 
 // Textarea component types
 export interface TextareaProps extends InputProps {
   rows?: number;
   autoResize?: boolean;
+  monospace?: boolean;
 }
 
 // Pill component types

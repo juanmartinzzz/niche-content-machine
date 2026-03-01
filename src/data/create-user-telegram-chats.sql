@@ -1,7 +1,7 @@
 -- Create the ncm_user_telegram_chats table for managing user Telegram chat connections
 CREATE TABLE IF NOT EXISTS ncm_user_telegram_chats (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id UUID NOT NULL REFERENCES ncm_user_profiles(id) ON DELETE CASCADE,
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
   chat_id VARCHAR(100) NOT NULL, -- Telegram chat identifier (can be numeric or string)
   chat_title VARCHAR(255), -- Optional human-readable name for the chat
   is_active BOOLEAN DEFAULT true NOT NULL,
