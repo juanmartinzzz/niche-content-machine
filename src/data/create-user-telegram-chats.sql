@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS ncm_user_telegram_chats (
   chat_id VARCHAR(100) NOT NULL, -- Telegram chat identifier (can be numeric or string)
   chat_title VARCHAR(255), -- Optional human-readable name for the chat
   is_active BOOLEAN DEFAULT true NOT NULL,
+  is_default BOOLEAN DEFAULT false NOT NULL, -- Whether this is the user's default notification chat
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
   -- Ensure unique chat_id per user
@@ -15,6 +16,12 @@ CREATE TABLE IF NOT EXISTS ncm_user_telegram_chats (
 CREATE INDEX IF NOT EXISTS idx_user_telegram_chats_user_id ON ncm_user_telegram_chats(user_id);
 CREATE INDEX IF NOT EXISTS idx_user_telegram_chats_chat_id ON ncm_user_telegram_chats(chat_id);
 CREATE INDEX IF NOT EXISTS idx_user_telegram_chats_active ON ncm_user_telegram_chats(is_active);
+CREATE INDEX IF NOT EXISTS idx_user_telegram_chats_is_default ON ncm_user_telegram_chats(is_default);
+
+-- Ensure only one default chat per user
+CREATE UNIQUE INDEX IF NOT EXISTS idx_user_telegram_chats_one_default
+  ON ncm_user_telegram_chats(user_id)
+  WHERE is_default = true;
 
 -- Enable Row Level Security (RLS)
 ALTER TABLE ncm_user_telegram_chats ENABLE ROW LEVEL SECURITY;
@@ -45,8 +52,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- Function to manage default chat logic
+CREATE OR REPLACE FUNCTION manage_default_telegram_chat()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- If this is being set as default, unset all other default chats for this user
+  IF NEW.is_default = true AND (OLD.is_default IS NULL OR OLD.is_default = false) THEN
+    UPDATE ncm_user_telegram_chats
+    SET is_default = false, updated_at = NOW()
+    WHERE user_id = NEW.user_id AND id != NEW.id AND is_default = true;
+  END IF;
+
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- Create trigger to automatically update updated_at
 CREATE TRIGGER trigger_update_ncm_user_telegram_chats_updated_at
   BEFORE UPDATE ON ncm_user_telegram_chats
   FOR EACH ROW
   EXECUTE FUNCTION update_ncm_user_telegram_chats_updated_at();
+
+-- Create trigger to manage default chat logic
+CREATE TRIGGER trigger_manage_default_telegram_chat
+  BEFORE UPDATE ON ncm_user_telegram_chats
+  FOR EACH ROW
+  EXECUTE FUNCTION manage_default_telegram_chat();

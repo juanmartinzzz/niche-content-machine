@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { Button, Input } from '@/components/interaction'
-import { Plus, Trash2, MessageCircle, AlertCircle, CheckCircle } from 'lucide-react'
+import { Plus, Trash2, MessageCircle, AlertCircle, CheckCircle, Star } from 'lucide-react'
 
 interface TelegramChat {
   id: string
   chat_id: string
   chat_title: string | null
   is_active: boolean
+  is_default: boolean
   created_at: string
   updated_at: string
 }
@@ -134,6 +135,29 @@ export const TelegramClient: React.FC = () => {
     }
   }
 
+  const handleSetDefaultChat = async (chat: TelegramChat) => {
+    if (!confirm('This will set this chat as your default for notifications. Only one chat can be default at a time. Continue?')) return
+
+    try {
+      const response = await fetch(`/api/integrations/telegram/chats/${chat.chat_id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_default: true })
+      })
+
+      if (response.ok) {
+        alert('This chat has been set as your default for notifications.')
+        await fetchChats()
+      } else {
+        const errorData = await response.json()
+        alert(`Error setting default chat: ${errorData.error || 'Unknown error'}`)
+      }
+    } catch (error) {
+      console.error('Error setting default chat:', error)
+      alert('Error setting default chat. Please try again.')
+    }
+  }
+
   if (isLoading) {
     return <div>Loading...</div>
   }
@@ -247,6 +271,13 @@ export const TelegramClient: React.FC = () => {
                     />
                     Active
                   </label>
+                  <Button
+                    size="sm"
+                    variant={chat.is_default ? "primary" : "ghost"}
+                    onClick={() => handleSetDefaultChat(chat)}
+                  >
+                    <Star size={16} fill={chat.is_default ? "currentColor" : "none"} />
+                  </Button>
                   <Button
                     size="sm"
                     variant="ghost"
