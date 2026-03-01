@@ -14,14 +14,19 @@ export default async function TelegramPage() {
     <div className="container">
       <main>
         <div style={{ padding: '2rem' }}>
-          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '1rem' }}>
-            Telegram Bot Integration
-          </h1>
-          <p style={{ color: '#666', marginBottom: '2rem' }}>
-            Manage your Telegram chat connections to receive notifications from the bot.
-          </p>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <div>
+              <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
+                Telegram Bot Integration
+              </h1>
+              <p style={{ color: '#666', margin: '0.5rem 0 0 0' }}>
+                Manage your Telegram chat connections to receive notifications from the bot.
+              </p>
+            </div>
+            <TelegramClient showHeaderButton={true} />
+          </div>
 
-          <TelegramClient />
+          <TelegramClient showHeaderButton={false} />
         </div>
       </main>
     </div>

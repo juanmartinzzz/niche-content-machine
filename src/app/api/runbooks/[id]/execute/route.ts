@@ -213,20 +213,30 @@ async function executeTelegramMessage(step: Record<string, unknown>, input: Reco
   const telegramApiUrl = api_url || 'https://api.telegram.org'
 
   // Send message via Telegram Bot API
-  const telegramResponse = await fetch(`${telegramApiUrl}/bot${bot_token}/sendMessage`, {
+  const telegramEndpoint = `${telegramApiUrl}${bot_token}/sendMessage`
+  const telegramPayload = {
+    chat_id: telegramChatId, // This is the VARCHAR chat_id from user_telegram_chats table
+    text: message,
+    disable_web_page_preview: false
+  }
+
+  console.log('🔄 Telegram API Request:')
+  console.log('Endpoint:', telegramEndpoint)
+  console.log('Payload:', JSON.stringify(telegramPayload, null, 2))
+
+  const telegramResponse = await fetch(telegramEndpoint, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      chat_id: telegramChatId, // This is the VARCHAR chat_id from user_telegram_chats table
-      text: message,
-      parse_mode: 'HTML', // Default to HTML for better formatting
-      disable_web_page_preview: false
-    })
+    body: JSON.stringify(telegramPayload)
   })
 
   const telegramResult = await telegramResponse.json()
+
+  console.log('📨 Telegram API Response:')
+  console.log('Status:', telegramResponse.status)
+  console.log('Result:', JSON.stringify(telegramResult, null, 2))
 
   if (!telegramResponse.ok) {
     console.error('Telegram API error:', telegramResult)

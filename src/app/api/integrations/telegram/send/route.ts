@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
     const telegramApiUrl = api_url || 'https://api.telegram.org'
 
     // Send message via Telegram Bot API
-    const telegramResponse = await fetch(`${telegramApiUrl}/bot${bot_token}/sendMessage`, {
+    const telegramResponse = await fetch(`${telegramApiUrl}${bot_token}/sendMessage`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

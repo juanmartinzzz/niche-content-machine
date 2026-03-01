@@ -15,13 +15,15 @@ export async function PUT(
     }
 
     const body = await request.json()
-    const { is_active, is_default } = body
+    const { is_active, is_default, chat_title, chat_id } = body
 
     const { chatId } = await params
 
     const updateData: any = {}
     if (is_active !== undefined) updateData.is_active = is_active
     if (is_default !== undefined) updateData.is_default = is_default
+    if (chat_title !== undefined) updateData.chat_title = chat_title
+    if (chat_id !== undefined) updateData.chat_id = chat_id
 
     const { data, error } = await supabaseAdmin
       .from(getTableName('user_telegram_chats'))
