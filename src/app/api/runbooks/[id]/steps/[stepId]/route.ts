@@ -26,10 +26,10 @@ export async function PUT(
       timeout_seconds,
       retry_count,
       retry_delay_seconds,
-      // Simple endpoint configuration (new)
+      // Simple endpoint configuration (base method and URL)
       http_method,
       endpoint_url,
-      // Advanced endpoint configuration (legacy)
+      // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
       endpoint_config
     } = body
 
@@ -62,7 +62,7 @@ export async function PUT(
 
       if (!hasSimpleConfig && !hasAdvancedConfig) {
         return NextResponse.json({
-          error: 'Either http_method + endpoint_url (simple config) or endpoint_config (advanced config) is required for endpoint_call steps'
+          error: 'http_method + endpoint_url are required for endpoint_call steps. endpoint_config is optional for advanced features.'
         }, { status: 400 })
       }
 

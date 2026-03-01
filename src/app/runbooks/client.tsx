@@ -19,10 +19,10 @@ interface RunbookStep {
   timeout_seconds: number
   retry_count: number
   retry_delay_seconds: number
-  // Simple endpoint configuration (new)
+  // Simple endpoint configuration (base method and URL)
   http_method: string | null
   endpoint_url: string | null
-  // Advanced endpoint configuration (legacy)
+  // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
   endpoint_config: any | null
   created_at: string
   updated_at: string
@@ -184,10 +184,10 @@ export const RunbooksClient: React.FC = () => {
     timeout_seconds: 300,
     retry_count: 0,
     retry_delay_seconds: 5,
-    // Simple endpoint configuration (new)
+    // Simple endpoint configuration (base method and URL)
     http_method: '',
     endpoint_url: '',
-    // Advanced endpoint configuration (legacy)
+    // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
     endpoint_config: null as any
   })
   const [formData, setFormData] = useState({
@@ -426,10 +426,10 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: 300,
       retry_count: 0,
       retry_delay_seconds: 5,
-      // Simple endpoint configuration (new)
+      // Simple endpoint configuration (base method and URL)
       http_method: '',
       endpoint_url: '',
-      // Advanced endpoint configuration (legacy)
+      // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
       endpoint_config: null
     })
 
@@ -461,10 +461,10 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: step.timeout_seconds,
       retry_count: step.retry_count,
       retry_delay_seconds: step.retry_delay_seconds,
-      // Simple endpoint configuration (new)
+      // Simple endpoint configuration (base method and URL)
       http_method: step.http_method || '',
       endpoint_url: step.endpoint_url || '',
-      // Advanced endpoint configuration (legacy)
+      // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
       endpoint_config: step.endpoint_config
     })
 
@@ -845,8 +845,6 @@ export const RunbooksClient: React.FC = () => {
                         setStepFormData({
                           ...stepFormData,
                           endpoint_config: {
-                            method: stepFormData.http_method || 'GET',
-                            url: stepFormData.endpoint_url || '',
                             headers: { 'Content-Type': 'application/json' }
                           }
                         })
@@ -860,7 +858,7 @@ export const RunbooksClient: React.FC = () => {
                   Use Advanced Configuration
                 </label>
                 <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                  Enable for custom headers, body templates, and response mapping.
+                  Enable for custom headers, body templates, and response mapping. Advanced configuration enhances but does not override the method or URL.
                 </div>
               </div>
 

@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
   endpoint_url TEXT,
 
   -- Advanced endpoint configuration (for complex scenarios with headers, body templates, response mapping, etc.)
-  -- This JSONB will be used when http_method and endpoint_url are not sufficient
+  -- This JSONB enhances the simple configuration when present, providing custom headers, body templates, and response mapping
   endpoint_config JSONB,
 
   -- Input handling (references previous step outputs)

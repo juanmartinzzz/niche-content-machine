@@ -157,43 +157,43 @@ async function executeAIOperation(_step: Record<string, unknown>, _input: Record
 async function executeEndpointCall(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string) {
   let method: string
   let url: string
-  let headers = {}
+  let headers: Record<string, string> = {}
   let body = null
   let response_mapping = null
 
-  // Check if using simple configuration (new approach)
-  if (step.http_method && step.endpoint_url) {
-    method = step.http_method
-    url = step.endpoint_url
+  // Use simple configuration as base (required)
+  const httpMethod = step.http_method as string
+  const endpointUrl = step.endpoint_url as string
+  if (httpMethod && endpointUrl) {
+    method = httpMethod
+    url = endpointUrl
 
     // For POST/PUT/PATCH requests, use the input from previous step as JSON body
     if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && input) {
       body = JSON.stringify(input)
       headers['Content-Type'] = 'application/json'
     }
+  } else {
+    throw new Error('Endpoint configuration is required for endpoint_call steps. http_method + endpoint_url are required. endpoint_config is optional for advanced features.')
   }
-  // Fall back to advanced configuration (legacy approach)
-  else if (step.endpoint_config) {
-    const config = step.endpoint_config
-    method = config.method
-    url = config.url
-    headers = config.headers || {}
-    response_mapping = config.response_mapping
 
-    // Handle body template for advanced config
-    if (config.body_template) {
-      body = config.body_template.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+  // Apply advanced configuration enhancements (optional)
+  const endpointConfig = step.endpoint_config as Record<string, unknown> | null
+  if (endpointConfig) {
+    // Merge headers from advanced config
+    const configHeaders = endpointConfig.headers as Record<string, string> | undefined
+    headers = { ...headers, ...(configHeaders || {}) }
+    response_mapping = endpointConfig.response_mapping
+
+    // Handle body template for advanced config (overrides simple body handling)
+    const bodyTemplate = endpointConfig.body_template as string | undefined
+    if (bodyTemplate) {
+      body = bodyTemplate.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
         // Simple JSON path resolution - in production, use a proper JSON path library
-        return getValueByPath(input, path) || match
+        const value = getValueByPath(input, path)
+        return value !== undefined ? String(value) : match
       })
     }
-    // If no body template but it's a POST/PUT/PATCH, use input as JSON body
-    else if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && input) {
-      body = JSON.stringify(input)
-      headers['Content-Type'] = 'application/json'
-    }
-  } else {
-    throw new Error('Endpoint configuration is required for endpoint_call steps. Use http_method + endpoint_url for simple requests, or endpoint_config for advanced configuration.')
   }
 
   try {
