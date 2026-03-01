@@ -9,7 +9,7 @@ import styles from './client.module.css'
 interface RunbookStep {
   id: string
   runbook_id: string
-  step_type: 'ai_operation' | 'endpoint_call'
+  step_type: 'ai_operation' | 'endpoint_call' | 'telegram_message'
   prompt_template_id: string | null
   endpoint_id: string | null
   step_order: number
@@ -18,6 +18,8 @@ interface RunbookStep {
   timeout_seconds: number
   retry_count: number
   retry_delay_seconds: number
+  // Telegram message configuration
+  user_telegram_chat_id: string | null
   // Simple endpoint configuration (base method and URL)
   http_method: string | null
   endpoint_url: string | null
@@ -172,15 +174,18 @@ export const RunbooksClient: React.FC = () => {
   const [currentRunbook, setCurrentRunbook] = useState<Runbook | null>(null)
   const [availableTemplates, setAvailableTemplates] = useState<Array<{id: string, name: string}>>([])
   const [availableEndpoints, setAvailableEndpoints] = useState<Array<{id: string, slug: string, ai_models?: {display_name: string, ai_providers?: {name: string}}}>>([])
+  const [availableTelegramChats, setAvailableTelegramChats] = useState<Array<{id: string, chat_id: string, chat_title: string | null, is_default: boolean}>>([])
   const [stepFormData, setStepFormData] = useState({
     step_name: '',
     description: '',
-    step_type: 'ai_operation' as 'ai_operation' | 'endpoint_call',
+    step_type: 'ai_operation' as 'ai_operation' | 'endpoint_call' | 'telegram_message',
     prompt_template_id: '',
     endpoint_id: '',
     timeout_seconds: 300,
     retry_count: 0,
     retry_delay_seconds: 5,
+    // Telegram message configuration
+    user_telegram_chat_id: '',
     // Simple endpoint configuration (base method and URL)
     http_method: '',
     endpoint_url: '',
@@ -289,11 +294,28 @@ export const RunbooksClient: React.FC = () => {
     }
   }, [])
 
+  const fetchAvailableTelegramChats = useCallback(async () => {
+    try {
+      const response = await fetch('/api/integrations/telegram/chats')
+      if (response.ok) {
+        const chats = await response.json()
+        setAvailableTelegramChats(chats)
+      } else {
+        console.log('No telegram chats available or API error')
+        setAvailableTelegramChats([])
+      }
+    } catch (error) {
+      console.error('Error fetching telegram chats:', error)
+      setAvailableTelegramChats([])
+    }
+  }, [])
+
   useEffect(() => {
     fetchRunbooks()
     fetchAvailableTemplates()
     fetchAvailableEndpoints()
-  }, [fetchRunbooks, fetchAvailableTemplates, fetchAvailableEndpoints])
+    fetchAvailableTelegramChats()
+  }, [fetchRunbooks, fetchAvailableTemplates, fetchAvailableEndpoints, fetchAvailableTelegramChats])
 
   const handleCreateRunbook = () => {
     setEditingRunbook(null)
@@ -422,6 +444,8 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: 300,
       retry_count: 0,
       retry_delay_seconds: 5,
+      // Telegram message configuration
+      user_telegram_chat_id: '',
       // Simple endpoint configuration (base method and URL)
       http_method: '',
       endpoint_url: '',
@@ -445,6 +469,8 @@ export const RunbooksClient: React.FC = () => {
       timeout_seconds: step.timeout_seconds,
       retry_count: step.retry_count,
       retry_delay_seconds: step.retry_delay_seconds,
+      // Telegram message configuration
+      user_telegram_chat_id: step.user_telegram_chat_id || '',
       // Simple endpoint configuration (base method and URL)
       http_method: step.http_method || '',
       endpoint_url: step.endpoint_url || '',
@@ -479,6 +505,11 @@ export const RunbooksClient: React.FC = () => {
 
       if (!hasSimpleConfig && !hasAdvancedConfig) {
         alert('HTTP method and endpoint URL are required for endpoint call steps, or use advanced configuration')
+        return
+      }
+    } else if (stepFormData.step_type === 'telegram_message') {
+      if (!stepFormData.user_telegram_chat_id.trim()) {
+        alert('Telegram chat is required for telegram message steps')
         return
       }
     }
@@ -757,12 +788,13 @@ export const RunbooksClient: React.FC = () => {
             <PillList
               options={[
                 { id: 'ai_operation', label: 'AI Operation' },
-                { id: 'endpoint_call', label: 'Endpoint Call' }
+                { id: 'endpoint_call', label: 'Endpoint Call' },
+                { id: 'telegram_message', label: 'Telegram Message' }
               ]}
               selected={[stepFormData.step_type]}
-              onChange={(selected) => setStepFormData({ ...stepFormData, step_type: selected[0] as 'ai_operation' | 'endpoint_call' })}
+              onChange={(selected) => setStepFormData({ ...stepFormData, step_type: selected[0] as 'ai_operation' | 'endpoint_call' | 'telegram_message' })}
               variant="single"
-              size="sm"
+              size="xs"
             />
           </div>
 
@@ -796,6 +828,25 @@ export const RunbooksClient: React.FC = () => {
               size="sm"
             />
           </div>
+          )}
+
+          {stepFormData.step_type === 'telegram_message' && (
+            <div className={styles.formField}>
+              <Select
+                label="Telegram Chat"
+                value={stepFormData.user_telegram_chat_id}
+                onChange={(value) => setStepFormData({ ...stepFormData, user_telegram_chat_id: value })}
+                placeholder="Select a telegram chat..."
+                options={availableTelegramChats.map(chat => ({
+                  id: chat.id,
+                  label: chat.chat_title ? `${chat.chat_title} (${chat.chat_id})` : chat.chat_id + (chat.is_default ? ' (Default)' : '')
+                }))}
+                size="sm"
+              />
+              <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                Select the Telegram chat where the message will be sent.
+              </div>
+            </div>
           )}
 
           {stepFormData.step_type === 'endpoint_call' && (

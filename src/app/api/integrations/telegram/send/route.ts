@@ -1,3 +1,6 @@
+// DEPRECATED: This endpoint is deprecated. Use telegram_message step type in runbook execution instead.
+// This endpoint will be removed in a future version.
+
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'

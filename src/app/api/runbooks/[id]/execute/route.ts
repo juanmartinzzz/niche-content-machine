@@ -117,6 +117,8 @@ async function executeStep(step: Record<string, unknown>, input: Record<string, 
       output = await executeAIOperation(step, input, stepExecution.id, userId)
     } else if (step.step_type === 'endpoint_call') {
       output = await executeEndpointCall(step, input, stepExecution.id, userId)
+    } else if (step.step_type === 'telegram_message') {
+      output = await executeTelegramMessage(step, input, stepExecution.id, userId)
     } else {
       throw new Error(`Unknown step type: ${step.step_type}`)
     }
@@ -152,6 +154,98 @@ async function executeAIOperation(_step: Record<string, unknown>, _input: Record
   // TODO: Implement AI operation execution
   // This should call the existing AI endpoint logic
   throw new Error('AI operation execution not yet implemented')
+}
+
+async function executeTelegramMessage(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {
+  // Get the user_telegram_chat_id (UUID foreign key to user_telegram_chats table)
+  const userTelegramChatId = step.user_telegram_chat_id as string
+  if (!userTelegramChatId) {
+    throw new Error('user_telegram_chat_id is required for telegram_message steps')
+  }
+
+  // Extract message from input - can be a string or object with 'message' field
+  let message: string
+  if (typeof input === 'string') {
+    message = input
+  } else if (input && typeof input.message === 'string') {
+    message = input.message
+  } else {
+    throw new Error('Input must be a string or contain a "message" field for telegram_message steps')
+  }
+
+  // Look up the actual Telegram chat_id from the user_telegram_chats table
+  // Note: user_telegram_chat_id is the UUID primary key, chat_id is the VARCHAR Telegram identifier
+  const { data: userChat, error: chatError } = await supabaseAdmin
+    .from(getTableName('user_telegram_chats'))
+    .select('chat_id, is_active') // chat_id is VARCHAR(100) - can be numeric or string
+    .eq('id', userTelegramChatId) // Use the UUID primary key
+    .eq('user_id', userId) // Ensure it belongs to the authenticated user
+    .single()
+
+  if (chatError || !userChat) {
+    throw new Error('Telegram chat configuration not found or not accessible')
+  }
+
+  if (!userChat.is_active) {
+    throw new Error('Telegram chat is disabled')
+  }
+
+  // Get the actual Telegram chat identifier (string, can be numeric or string)
+  const telegramChatId = userChat.chat_id
+
+  // Fetch bot configuration
+  const { data: telegramBot, error: botError } = await supabaseAdmin
+    .from(getTableName('integrations'))
+    .select('config')
+    .eq('type', 'telegram_bot')
+    .eq('is_active', true)
+    .single()
+
+  if (botError || !telegramBot) {
+    throw new Error('Telegram bot not configured')
+  }
+
+  const { bot_token, api_url } = telegramBot.config
+  if (!bot_token) {
+    throw new Error('Bot token not configured')
+  }
+
+  const telegramApiUrl = api_url || 'https://api.telegram.org'
+
+  // Send message via Telegram Bot API
+  const telegramResponse = await fetch(`${telegramApiUrl}/bot${bot_token}/sendMessage`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      chat_id: telegramChatId, // This is the VARCHAR chat_id from user_telegram_chats table
+      text: message,
+      parse_mode: 'HTML', // Default to HTML for better formatting
+      disable_web_page_preview: false
+    })
+  })
+
+  const telegramResult = await telegramResponse.json()
+
+  if (!telegramResponse.ok) {
+    console.error('Telegram API error:', telegramResult)
+
+    // Handle specific Telegram API errors
+    if (telegramResult.error_code === 429) {
+      throw new Error('Rate limit exceeded. Please try again later.')
+    }
+
+    throw new Error(`Failed to send message via Telegram: ${telegramResult.description || 'Unknown error'}`)
+  }
+
+  return {
+    success: true,
+    message_id: telegramResult.result?.message_id,
+    chat_id: telegramChatId, // The actual Telegram chat identifier used in the API call
+    message: message.substring(0, 100) + (message.length > 100 ? '...' : ''), // Truncate for logging
+    telegram_response: telegramResult
+  }
 }
 
 async function executeEndpointCall(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {

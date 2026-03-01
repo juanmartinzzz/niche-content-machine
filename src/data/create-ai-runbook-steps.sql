@@ -8,9 +8,10 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
   runbook_id UUID NOT NULL REFERENCES ncm_ai_runbooks(id) ON DELETE CASCADE,
   prompt_template_id UUID REFERENCES ncm_ai_prompt_templates(id) ON DELETE RESTRICT,
   endpoint_id UUID REFERENCES ncm_ai_endpoints(id) ON DELETE RESTRICT,
+  user_telegram_chat_id UUID REFERENCES ncm_user_telegram_chats(id) ON DELETE RESTRICT,
 
   -- Step configuration
-  step_type VARCHAR(50) DEFAULT 'ai_operation' NOT NULL CHECK (step_type IN ('ai_operation', 'endpoint_call')),
+  step_type VARCHAR(50) DEFAULT 'ai_operation' NOT NULL CHECK (step_type IN ('ai_operation', 'endpoint_call', 'telegram_message')),
   step_order INTEGER NOT NULL, -- Execution order (1, 2, 3...)
   step_name VARCHAR(255) NOT NULL, -- Human-readable name
   description TEXT,
@@ -33,13 +34,20 @@ CREATE TABLE IF NOT EXISTS ncm_ai_runbook_steps (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
 
   -- Constraints
-  UNIQUE(runbook_id, step_order)
+  UNIQUE(runbook_id, step_order),
+
+  -- user_telegram_chat_id is required when step_type is 'telegram_message'
+  CHECK (
+    (step_type = 'telegram_message' AND user_telegram_chat_id IS NOT NULL) OR
+    (step_type != 'telegram_message' AND user_telegram_chat_id IS NULL)
+  )
 );
 
 -- Indexes for runbook steps
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_runbook_order ON ncm_ai_runbook_steps(runbook_id, step_order);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_template ON ncm_ai_runbook_steps(prompt_template_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint ON ncm_ai_runbook_steps(endpoint_id);
+CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_user_telegram_chat ON ncm_ai_runbook_steps(user_telegram_chat_id);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_type ON ncm_ai_runbook_steps(step_type);
 CREATE INDEX IF NOT EXISTS idx_ncm_ai_runbook_steps_endpoint_url ON ncm_ai_runbook_steps(endpoint_url) WHERE endpoint_url IS NOT NULL;
 

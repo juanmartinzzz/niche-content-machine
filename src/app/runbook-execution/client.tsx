@@ -35,7 +35,7 @@ interface StepExecution {
   execution_time_seconds: number | null
   step_name: string
   step_order: number
-  step_type: 'ai_operation' | 'endpoint_call'
+  step_type: 'ai_operation' | 'endpoint_call' | 'telegram_message'
 }
 
 export const RunbookExecutionClient: React.FC = () => {

@@ -137,39 +137,39 @@ export const Select = forwardRef<HTMLButtonElement, SelectProps>(
             {required && <span className={styles.required}>*</span>}
           </label>
         )}
-        <button
-          ref={ref}
-          id={selectId}
-          type="button"
-          onClick={handleToggle}
-          disabled={disabled}
-          className={`${styles.trigger} ${styles[size]} ${hasError ? styles.error : ''} ${className}`}
-          aria-expanded={isOpen}
-          aria-haspopup="listbox"
-          aria-describedby={hasError ? `${selectId}-error` : undefined}
-          aria-invalid={hasError}
-          {...props}
-        >
-          <span className={styles.triggerText}>
-            {selectedOption ? selectedOption.label : placeholder}
-          </span>
-          <div className={styles.triggerIcons}>
-            {value && !disabled && (
-              <button
-                type="button"
-                onClick={handleClear}
-                className={styles.clearButton}
-                aria-label="Clear selection"
-              >
-                <X size={16} />
-              </button>
-            )}
-            <ChevronDown
-              size={16}
-              className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
-            />
-          </div>
-        </button>
+        <div className={styles.triggerContainer}>
+          <button
+            ref={ref}
+            id={selectId}
+            type="button"
+            onClick={handleToggle}
+            disabled={disabled}
+            className={`${styles.trigger} ${styles[size]} ${hasError ? styles.error : ''} ${className}`}
+            aria-expanded={isOpen}
+            aria-haspopup="listbox"
+            aria-describedby={hasError ? `${selectId}-error` : undefined}
+            aria-invalid={hasError}
+            {...props}
+          >
+            <span className={styles.triggerText}>
+              {selectedOption ? selectedOption.label : placeholder}
+            </span>
+          </button>
+          {value && !disabled && (
+            <button
+              type="button"
+              onClick={handleClear}
+              className={styles.clearButton}
+              aria-label="Clear selection"
+            >
+              <X size={16} />
+            </button>
+          )}
+          <ChevronDown
+            size={16}
+            className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ''}`}
+          />
+        </div>
 
         {isOpen && (
           <div className={styles.dropdown}>

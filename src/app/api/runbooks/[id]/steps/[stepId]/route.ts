@@ -61,6 +61,8 @@ export async function PUT(
       timeout_seconds,
       retry_count,
       retry_delay_seconds,
+      // Telegram message configuration
+      user_telegram_chat_id,
       // Simple endpoint configuration (base method and URL)
       http_method,
       endpoint_url,
@@ -75,7 +77,7 @@ export async function PUT(
       }, { status: 400 })
     }
 
-    const validStepTypes = ['ai_operation', 'endpoint_call']
+    const validStepTypes = ['ai_operation', 'endpoint_call', 'telegram_message']
     const finalStepType = step_type || 'ai_operation'
 
     if (!validStepTypes.includes(finalStepType)) {
@@ -155,6 +157,12 @@ export async function PUT(
           }, { status: 400 })
         }
       }
+    } else if (finalStepType === 'telegram_message') {
+      if (!body.user_telegram_chat_id || typeof body.user_telegram_chat_id !== 'string' || body.user_telegram_chat_id.trim() === '') {
+        return NextResponse.json({
+          error: 'user_telegram_chat_id is required and must be a valid non-empty string for telegram_message steps'
+        }, { status: 400 })
+      }
     }
 
     const { data, error } = await supabaseAdmin
@@ -168,6 +176,8 @@ export async function PUT(
         timeout_seconds: timeout_seconds ?? 300,
         retry_count: retry_count ?? 0,
         retry_delay_seconds: retry_delay_seconds ?? 5,
+        // Telegram message configuration
+        user_telegram_chat_id: finalStepType === 'telegram_message' ? user_telegram_chat_id : null,
         // Simple endpoint configuration
         http_method: finalStepType === 'endpoint_call' && http_method ? http_method : null,
         endpoint_url: finalStepType === 'endpoint_call' && endpoint_url ? endpoint_url : null,
