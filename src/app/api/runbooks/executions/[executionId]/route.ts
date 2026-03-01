@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -15,8 +16,8 @@ export async function GET(
 
     const { executionId } = await params
 
-    const { data: execution, error } = await supabase
-      .from('ncm_ai_runbook_executions')
+    const { data: execution, error } = await supabaseAdmin
+      .from(getTableName('ai_runbook_executions'))
       .select('*')
       .eq('id', executionId)
       .single()

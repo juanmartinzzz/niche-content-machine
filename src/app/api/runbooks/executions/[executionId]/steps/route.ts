@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function GET(
@@ -15,11 +16,11 @@ export async function GET(
 
     const { executionId } = await params
 
-    const { data: stepExecutions, error } = await supabase
-      .from('ncm_ai_runbook_step_executions')
+    const { data: stepExecutions, error } = await supabaseAdmin
+      .from(getTableName('ai_runbook_step_executions'))
       .select(`
         *,
-        ncm_ai_runbook_steps!inner (
+        ${getTableName('ai_runbook_steps')}!inner (
           step_name,
           step_order,
           step_type
@@ -34,11 +35,12 @@ export async function GET(
     }
 
     // Transform the data to flatten the step information
-    const transformedSteps = stepExecutions.map(step => ({
+    const stepsTableName = getTableName('ai_runbook_steps')
+    const transformedSteps = stepExecutions.map((step: any) => ({
       ...step,
-      step_name: step.ncm_ai_runbook_steps.step_name,
-      step_order: step.ncm_ai_runbook_steps.step_order,
-      step_type: step.ncm_ai_runbook_steps.step_type
+      step_name: step[stepsTableName].step_name,
+      step_order: step[stepsTableName].step_order,
+      step_type: step[stepsTableName].step_type
     }))
 
     return NextResponse.json(transformedSteps)

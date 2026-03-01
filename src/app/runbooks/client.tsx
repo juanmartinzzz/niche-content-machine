@@ -458,6 +458,31 @@ export const RunbooksClient: React.FC = () => {
   const handleSaveStep = async () => {
     if (!currentRunbook) return
 
+    // Client-side validation
+    if (!stepFormData.step_name.trim()) {
+      alert('Step name is required')
+      return
+    }
+
+    if (stepFormData.step_type === 'ai_operation') {
+      if (!stepFormData.prompt_template_id.trim()) {
+        alert('Prompt template is required for AI operation steps')
+        return
+      }
+      if (!stepFormData.endpoint_id.trim()) {
+        alert('Endpoint is required for AI operation steps')
+        return
+      }
+    } else if (stepFormData.step_type === 'endpoint_call') {
+      const hasSimpleConfig = stepFormData.http_method.trim() && stepFormData.endpoint_url.trim()
+      const hasAdvancedConfig = stepFormData.endpoint_config
+
+      if (!hasSimpleConfig && !hasAdvancedConfig) {
+        alert('HTTP method and endpoint URL are required for endpoint call steps, or use advanced configuration')
+        return
+      }
+    }
+
     try {
       const method = editingStep ? 'PUT' : 'POST'
       const url = editingStep

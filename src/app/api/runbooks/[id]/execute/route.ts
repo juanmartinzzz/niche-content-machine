@@ -36,7 +36,7 @@ export async function POST(
     }
 
     // Execute runbook asynchronously
-    executeRunbook(runbookExecution.id, initial_input || {})
+    executeRunbook(runbookExecution.id, initial_input || {}, user.id)
 
     return NextResponse.json({
       execution_id: runbookExecution.id,
@@ -48,7 +48,7 @@ export async function POST(
   }
 }
 
-async function executeRunbook(executionId: string, initialInput: Record<string, unknown>) {
+async function executeRunbook(executionId: string, initialInput: Record<string, unknown>, userId: string) {
   try {
     // Get runbook steps
     const { data: steps, error: stepsError } = await supabaseAdmin
@@ -73,7 +73,7 @@ async function executeRunbook(executionId: string, initialInput: Record<string, 
     // Execute steps sequentially
     for (const step of steps || []) {
       try {
-        const stepResult = await executeStep(step, currentInput, executionId)
+        const stepResult = await executeStep(step, currentInput, executionId, userId)
         finalOutput = stepResult.output
         currentInput = stepResult.output // Pass output as input to next step
       } catch (error) {
@@ -92,7 +92,7 @@ async function executeRunbook(executionId: string, initialInput: Record<string, 
   }
 }
 
-async function executeStep(step: Record<string, unknown>, input: Record<string, unknown>, executionId: string) {
+async function executeStep(step: Record<string, unknown>, input: Record<string, unknown>, executionId: string, userId: string) {
   // Create step execution record
   const { data: stepExecution, error: stepError } = await supabaseAdmin
     .from(getTableName('ai_runbook_step_executions'))
@@ -114,9 +114,9 @@ async function executeStep(step: Record<string, unknown>, input: Record<string, 
     let output
 
     if (step.step_type === 'ai_operation') {
-      output = await executeAIOperation(step, input, stepExecution.id)
+      output = await executeAIOperation(step, input, stepExecution.id, userId)
     } else if (step.step_type === 'endpoint_call') {
-      output = await executeEndpointCall(step, input, stepExecution.id)
+      output = await executeEndpointCall(step, input, stepExecution.id, userId)
     } else {
       throw new Error(`Unknown step type: ${step.step_type}`)
     }
@@ -148,13 +148,13 @@ async function executeStep(step: Record<string, unknown>, input: Record<string, 
   }
 }
 
-async function executeAIOperation(_step: Record<string, unknown>, _input: Record<string, unknown>, _stepExecutionId: string) {
+async function executeAIOperation(_step: Record<string, unknown>, _input: Record<string, unknown>, _stepExecutionId: string, _userId: string) {
   // TODO: Implement AI operation execution
   // This should call the existing AI endpoint logic
   throw new Error('AI operation execution not yet implemented')
 }
 
-async function executeEndpointCall(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string) {
+async function executeEndpointCall(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {
   let method: string
   let url: string
   let headers: Record<string, string> = {}
@@ -166,7 +166,18 @@ async function executeEndpointCall(step: Record<string, unknown>, input: Record<
   const endpointUrl = step.endpoint_url as string
   if (httpMethod && endpointUrl) {
     method = httpMethod
-    url = endpointUrl
+    // Handle relative URLs by constructing full URL
+    if (endpointUrl.startsWith('/')) {
+      // For relative URLs, construct full URL using environment
+      const baseUrl = process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : process.env.NODE_ENV === 'development'
+        ? 'http://localhost:3000'
+        : 'http://localhost:3000' // fallback
+      url = `${baseUrl}${endpointUrl}`
+    } else {
+      url = endpointUrl
+    }
 
     // For POST/PUT/PATCH requests, use the input from previous step as JSON body
     if (['POST', 'PUT', 'PATCH'].includes(method.toUpperCase()) && input) {
@@ -197,11 +208,16 @@ async function executeEndpointCall(step: Record<string, unknown>, input: Record<
   }
 
   try {
+    const requestHeaders: Record<string, string> = { ...headers }
+
+    // Add internal user header for internal API calls
+    if (url.includes('/api/')) {
+      requestHeaders['x-internal-user-id'] = userId
+    }
+
     const response = await fetch(url, {
       method: method.toUpperCase(),
-      headers: {
-        ...headers
-      },
+      headers: requestHeaders,
       body: body
     })
 

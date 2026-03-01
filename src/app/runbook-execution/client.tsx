@@ -239,7 +239,9 @@ export const RunbookExecutionClient: React.FC = () => {
               value={initialInput}
               onChange={setInitialInput}
               placeholder="Enter initial input for the runbook..."
-              rows={4}
+              rows={2}
+              monospace={true}
+              autoResize={true}
             />
           </div>
 

@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase-server'
+import { supabaseAdmin } from '@/lib/supabase-admin'
+import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(
@@ -16,8 +17,8 @@ export async function POST(
     const { executionId } = await params
 
     // Update execution status to cancelled
-    const { error: updateError } = await supabase
-      .from('ncm_ai_runbook_executions')
+    const { error: updateError } = await supabaseAdmin
+      .from(getTableName('ai_runbook_executions'))
       .update({
         execution_status: 'cancelled',
         completed_at: new Date().toISOString()
@@ -30,8 +31,8 @@ export async function POST(
     }
 
     // Update any running step executions to cancelled
-    const { error: stepUpdateError } = await supabase
-      .from('ncm_ai_runbook_step_executions')
+    const { error: stepUpdateError } = await supabaseAdmin
+      .from(getTableName('ai_runbook_step_executions'))
       .update({
         step_status: 'skipped',
         completed_at: new Date().toISOString()

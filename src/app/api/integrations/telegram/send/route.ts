@@ -4,11 +4,26 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // Check for internal runbook execution header
+    const internalUserId = request.headers.get('x-internal-user-id')
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    let user
+    if (internalUserId) {
+      // Internal call from runbook execution - validate user exists
+      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(internalUserId)
+      if (userError || !userData.user) {
+        return NextResponse.json({ error: 'Invalid internal user' }, { status: 401 })
+      }
+      user = userData.user
+    } else {
+      // Normal authenticated request
+      const supabase = await createClient()
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+
+      if (!authUser) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      user = authUser
     }
 
     const body = await request.json()

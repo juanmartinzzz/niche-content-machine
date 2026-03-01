@@ -7,6 +7,14 @@ export async function PUT(
   { params }: { params: Promise<{ id: string; stepId: string }> }
 ) {
   try {
+    // Validate Content-Type header
+    const contentType = request.headers.get('content-type')
+    if (!contentType || !contentType.includes('application/json')) {
+      return NextResponse.json({
+        error: 'Content-Type must be application/json'
+      }, { status: 400 })
+    }
+
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -15,7 +23,35 @@ export async function PUT(
     }
 
     const { id, stepId } = await params
-    const body = await request.json()
+
+    // Validate IDs
+    if (!id || typeof id !== 'string' || id.trim() === '') {
+      return NextResponse.json({
+        error: 'Invalid runbook ID'
+      }, { status: 400 })
+    }
+    if (!stepId || typeof stepId !== 'string' || stepId.trim() === '') {
+      return NextResponse.json({
+        error: 'Invalid step ID'
+      }, { status: 400 })
+    }
+
+    // Parse and validate request body
+    let body
+    try {
+      body = await request.json()
+    } catch (parseError) {
+      console.error('Invalid JSON in request body:', parseError)
+      return NextResponse.json({
+        error: 'Invalid JSON in request body'
+      }, { status: 400 })
+    }
+
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({
+        error: 'Request body must be a valid JSON object'
+      }, { status: 400 })
+    }
     const {
       step_name,
       description,
@@ -32,9 +68,10 @@ export async function PUT(
       endpoint_config
     } = body
 
-    if (!step_name) {
+    // Validate step_name
+    if (!step_name || typeof step_name !== 'string' || step_name.trim() === '') {
       return NextResponse.json({
-        error: 'step_name is required'
+        error: 'step_name is required and must be a non-empty string'
       }, { status: 400 })
     }
 
@@ -49,14 +86,32 @@ export async function PUT(
 
     // Validate step type specific requirements
     if (finalStepType === 'ai_operation') {
-      if (!prompt_template_id || !endpoint_id) {
+      if (!prompt_template_id || typeof prompt_template_id !== 'string' || prompt_template_id.trim() === '') {
         return NextResponse.json({
-          error: 'prompt_template_id and endpoint_id are required for ai_operation steps'
+          error: 'prompt_template_id is required and must be a valid non-empty string for ai_operation steps'
+        }, { status: 400 })
+      }
+      if (!endpoint_id || typeof endpoint_id !== 'string' || endpoint_id.trim() === '') {
+        return NextResponse.json({
+          error: 'endpoint_id is required and must be a valid non-empty string for ai_operation steps'
+        }, { status: 400 })
+      }
+
+      // Validate UUID format for IDs
+      const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+      if (!uuidRegex.test(prompt_template_id)) {
+        return NextResponse.json({
+          error: 'prompt_template_id must be a valid UUID'
+        }, { status: 400 })
+      }
+      if (!uuidRegex.test(endpoint_id)) {
+        return NextResponse.json({
+          error: 'endpoint_id must be a valid UUID'
         }, { status: 400 })
       }
     } else if (finalStepType === 'endpoint_call') {
       // Check if using simple configuration
-      const hasSimpleConfig = http_method && endpoint_url
+      const hasSimpleConfig = http_method && endpoint_url && http_method.trim() !== '' && endpoint_url.trim() !== ''
       const hasAdvancedConfig = endpoint_config
 
       if (!hasSimpleConfig && !hasAdvancedConfig) {
@@ -131,8 +186,18 @@ export async function PUT(
 
     return NextResponse.json(data)
   } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('API error in PUT /api/runbooks/[id]/steps/[stepId]:', error)
+
+    // Ensure we always return a proper error response
+    if (error instanceof Error) {
+      return NextResponse.json({
+        error: `Server error: ${error.message}`
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      error: 'Internal server error occurred'
+    }, { status: 500 })
   }
 }
 
@@ -163,7 +228,17 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    console.error('API error:', error)
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+    console.error('API error in DELETE /api/runbooks/[id]/steps/[stepId]:', error)
+
+    // Ensure we always return a proper error response
+    if (error instanceof Error) {
+      return NextResponse.json({
+        error: `Server error: ${error.message}`
+      }, { status: 500 })
+    }
+
+    return NextResponse.json({
+      error: 'Internal server error occurred'
+    }, { status: 500 })
   }
 }
