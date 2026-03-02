@@ -16,6 +16,7 @@ export interface AIOperationResult {
     slug: string
     model: string
     provider: string
+    provider_id: string
   }
   prompt_template: {
     id: string
@@ -69,10 +70,20 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
 
   Object.entries(variables).forEach(([key, value]) => {
     const placeholder = `{{${key}}}`
-    if (systemPrompt) {
-      systemPrompt = systemPrompt.replace(new RegExp(placeholder, 'g'), String(value))
+    // Handle different value types appropriately
+    let stringValue: string
+    if (typeof value === 'string') {
+      stringValue = value
+    } else if (Array.isArray(value) || (typeof value === 'object' && value !== null)) {
+      stringValue = JSON.stringify(value)
+    } else {
+      stringValue = String(value)
     }
-    userPrompt = userPrompt.replace(new RegExp(placeholder, 'g'), String(value))
+
+    if (systemPrompt) {
+      systemPrompt = systemPrompt.replace(new RegExp(placeholder, 'g'), stringValue)
+    }
+    userPrompt = userPrompt.replace(new RegExp(placeholder, 'g'), stringValue)
   })
 
   // Append arbitrary input to the user prompt if provided
@@ -221,7 +232,8 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
       id: endpoint.id,
       slug: endpoint.slug,
       model: endpoint.ai_models.display_name,
-      provider: provider.name
+      provider: provider.name,
+      provider_id: provider.id
     },
     prompt_template: {
       id: promptTemplate.id,

@@ -159,6 +159,17 @@ async function executeAIOperationStep(step: Record<string, unknown>, input: Reco
     throw new Error('AI operation step requires both endpoint_id and prompt_template_id')
   }
 
+  // Fetch prompt template to check if it's a structured output
+  const { data: promptTemplate, error: templateError } = await supabaseAdmin
+    .from(getTableName('ai_prompt_templates'))
+    .select('use_structured_output')
+    .eq('id', promptTemplateId)
+    .single()
+
+  if (templateError) {
+    throw new Error(`Failed to fetch prompt template: ${templateError.message}`)
+  }
+
   // Execute the AI operation using the shared utility
   const result = await executeAIOperation({
     endpoint_id: endpointId,
@@ -166,6 +177,36 @@ async function executeAIOperationStep(step: Record<string, unknown>, input: Reco
     variables: input,
     user_id: userId
   })
+
+  // Check if this is a structured output and extract the JSON content
+  if (promptTemplate.use_structured_output) {
+    /*
+     * TODO: Future extensibility for structured output extraction
+     *
+     * Currently hardcoded for xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939)
+     * where structured JSON is located at: response.output[0].content[0].text
+     *
+     * In the future, we should support other AI providers and the location of
+     * structured JSON in responses should be configurable via:
+     * - Provider record in the database (add extraction_path column)
+     * - App configuration mapping
+     * - Or a provider-specific extraction strategy pattern
+     */
+
+
+    // For xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939), structured JSON is in output[0].content[0].text
+    if (result.endpoint.provider_id === 'ca208ff1-95e0-433b-b348-951b18262939' && result.response.output?.[0]?.content?.[0]?.text) {
+      try {
+        const jsonContent = result.response.output[0].content[0].text
+        return JSON.parse(jsonContent)
+      } catch (parseError) {
+        console.error('Failed to parse structured output JSON:', parseError)
+        throw new Error('AI returned invalid structured output JSON')
+      }
+    }
+    // For other providers, the structured output might be in different locations
+    // Add provider-specific handling here as needed
+  }
 
   // Return the AI response - for runbooks, we typically want the actual AI response content
   return result.response

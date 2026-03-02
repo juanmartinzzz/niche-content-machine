@@ -307,16 +307,15 @@ export const RunbookExecutionClient: React.FC = () => {
           </div>
 
           {/* Step Progress */}
-          <div style={{ border: '1px solid #e5e7eb', borderRadius: '8px', overflow: 'hidden' }}>
-            {stepExecutions.map((step, index) => (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            {stepExecutions.map((step) => (
               <div
                 key={step.id}
                 style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '8px',
                   padding: '1rem',
-                  borderBottom: index < stepExecutions.length - 1 ? '1px solid #e5e7eb' : 'none',
-                  backgroundColor: step.step_status === 'completed' ? '#f0fdf4' :
-                                   step.step_status === 'running' ? '#fefce8' :
-                                   step.step_status === 'failed' ? '#fef2f2' : 'white'
+                  backgroundColor: 'white'
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
