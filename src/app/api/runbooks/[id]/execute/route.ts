@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { executeAIOperation } from '@/lib/ai-utils'
 
 export async function POST(
   request: NextRequest,
@@ -114,7 +115,7 @@ async function executeStep(step: Record<string, unknown>, input: Record<string, 
     let output
 
     if (step.step_type === 'ai_operation') {
-      output = await executeAIOperation(step, input, stepExecution.id, userId)
+      output = await executeAIOperationStep(step, input, stepExecution.id, userId)
     } else if (step.step_type === 'endpoint_call') {
       output = await executeEndpointCall(step, input, stepExecution.id, userId)
     } else if (step.step_type === 'telegram_message') {
@@ -150,10 +151,24 @@ async function executeStep(step: Record<string, unknown>, input: Record<string, 
   }
 }
 
-async function executeAIOperation(_step: Record<string, unknown>, _input: Record<string, unknown>, _stepExecutionId: string, _userId: string) {
-  // TODO: Implement AI operation execution
-  // This should call the existing AI endpoint logic
-  throw new Error('AI operation execution not yet implemented')
+async function executeAIOperationStep(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {
+  const endpointId = step.endpoint_id as string
+  const promptTemplateId = step.prompt_template_id as string
+
+  if (!endpointId || !promptTemplateId) {
+    throw new Error('AI operation step requires both endpoint_id and prompt_template_id')
+  }
+
+  // Execute the AI operation using the shared utility
+  const result = await executeAIOperation({
+    endpoint_id: endpointId,
+    prompt_template_id: promptTemplateId,
+    variables: input,
+    user_id: userId
+  })
+
+  // Return the AI response - for runbooks, we typically want the actual AI response content
+  return result.response
 }
 
 async function executeTelegramMessage(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {

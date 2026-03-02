@@ -333,39 +333,37 @@ export const RunbookExecutionClient: React.FC = () => {
                   </span>
                 </div>
 
-                {step.step_input && (
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.25rem' }}>
-                      Input:
-                    </div>
-                    <pre style={{
-                      fontSize: '0.75rem',
-                      backgroundColor: '#f3f4f6',
-                      padding: '0.5rem',
-                      borderRadius: '4px',
-                      overflow: 'auto',
-                      maxHeight: '100px'
-                    }}>
-                      {JSON.stringify(step.step_input, null, 2)}
-                    </pre>
-                  </div>
-                )}
+                {(step.step_input || step.step_output) && (
+                  <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.5rem' }}>
+                    {step.step_input && (
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.25rem' }}>
+                          Input:
+                        </div>
+                        <Textarea
+                          value={JSON.stringify(step.step_input, null, 2)}
+                          rows={2}
+                          autoResize={true}
+                          monospace={true}
+                          readOnly={true}
+                        />
+                      </div>
+                    )}
 
-                {step.step_output && (
-                  <div style={{ marginBottom: '0.5rem' }}>
-                    <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.25rem' }}>
-                      Output:
-                    </div>
-                    <pre style={{
-                      fontSize: '0.75rem',
-                      backgroundColor: '#f0fdf4',
-                      padding: '0.5rem',
-                      borderRadius: '4px',
-                      overflow: 'auto',
-                      maxHeight: '150px'
-                    }}>
-                      {JSON.stringify(step.step_output, null, 2)}
-                    </pre>
+                    {step.step_output && (
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: '0.75rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.25rem' }}>
+                          Output:
+                        </div>
+                        <Textarea
+                          value={JSON.stringify(step.step_output, null, 2)}
+                          rows={2}
+                          autoResize={true}
+                          monospace={true}
+                          readOnly={true}
+                        />
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -383,24 +381,6 @@ export const RunbookExecutionClient: React.FC = () => {
             ))}
           </div>
 
-          {/* Final Output */}
-          {currentExecution.final_output && (
-            <div style={{ marginTop: '1rem' }}>
-              <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                Final Output
-              </h3>
-              <pre style={{
-                fontSize: '0.875rem',
-                backgroundColor: '#f0fdf4',
-                padding: '1rem',
-                borderRadius: '4px',
-                overflow: 'auto',
-                border: '1px solid #d1fae5'
-              }}>
-                {JSON.stringify(currentExecution.final_output, null, 2)}
-              </pre>
-            </div>
-          )}
         </div>
       )}
     </div>

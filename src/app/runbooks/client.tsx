@@ -81,7 +81,7 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
 
   return (
     <div style={{ padding: '0.5rem 0' }}>
-      <h4 style={{ margin: '0 0 0.5rem 0', fontSize: '1rem', fontWeight: '600', color: '#111827' }}>
+      <h4 style={{ margin: '0 0 0.75rem 0', fontSize: '1rem', fontWeight: '600', color: '#111827' }}>
         Steps ({steps.length})
       </h4>
       {steps.length === 0 ? (
@@ -89,25 +89,66 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
           No steps defined yet.
         </div>
       ) : (
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {steps
             .sort((a, b) => a.step_order - b.step_order)
             .map((step) => (
-              <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                <Pill
-                  label={`Step ${step.step_order}: ${step.step_name} (${step.step_type === 'ai_operation' ? 'AI' : 'HTTP'})`}
-                  size="sm"
-                  onClick={() => onEditStep(step, runbook)}
-                />
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={() => onDeleteStep(step, runbook)}
-                  aria-label={`Delete step ${step.step_name}`}
-                  className={`${styles.buttonDanger} ${styles.stepDeleteButton}`}
-                >
-                  <Trash2 size={14} />
-                </Button>
+              <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '2rem',
+                  height: '2rem',
+                  borderRadius: '50%',
+                  backgroundColor: '#222834',
+                  color: 'white',
+                  fontSize: '0.75rem',
+                  fontWeight: '600',
+                  flexShrink: 0
+                }}>
+                  {step.step_order}
+                </div>
+                <div style={{
+                  flex: 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  padding: '0.75rem',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  backgroundColor: '#fafafa'
+                }}>
+                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                    <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>
+                      {step.step_name}
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                      {step.step_type === 'ai_operation' ? 'AI Operation' :
+                       step.step_type === 'endpoint_call' ? 'Endpoint Call' : 'Telegram Message'}
+                      {step.description && ` • ${step.description}`}
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '0.25rem', marginLeft: '0.5rem' }}>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onEditStep(step, runbook)}
+                      aria-label={`Edit step ${step.step_name}`}
+                    >
+                      <Pencil size={14} />
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() => onDeleteStep(step, runbook)}
+                      aria-label={`Delete step ${step.step_name}`}
+                      className={`${styles.buttonDanger} ${styles.stepDeleteButton}`}
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </div>
+                </div>
               </div>
             ))}
         </div>
