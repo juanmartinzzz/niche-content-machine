@@ -53,6 +53,7 @@ export async function POST(request: NextRequest) {
       max_output_tokens,
       supports_vision,
       supports_tools,
+      supported_tools,
       input_cost_per_million_tokens,
       output_cost_per_million_tokens,
       is_enabled
@@ -74,6 +75,7 @@ export async function POST(request: NextRequest) {
         max_output_tokens,
         supports_vision: supports_vision ?? false,
         supports_tools: supports_tools ?? false,
+        supported_tools: supported_tools ?? [],
         input_cost_per_million_tokens,
         output_cost_per_million_tokens,
         is_enabled: is_enabled ?? true

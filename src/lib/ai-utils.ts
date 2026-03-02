@@ -7,10 +7,12 @@ export interface AIOperationParams {
   variables?: Record<string, unknown>
   arbitrary_input?: string
   user_id: string
+  enabled_tools?: Record<string, boolean>
 }
 
 export interface AIOperationResult {
   response: any
+  request_payload?: any
   endpoint: {
     id: string
     slug: string
@@ -26,7 +28,7 @@ export interface AIOperationResult {
 }
 
 export async function executeAIOperation(params: AIOperationParams): Promise<AIOperationResult> {
-  const { endpoint_id, prompt_template_id, variables = {}, arbitrary_input, user_id } = params
+  const { endpoint_id, prompt_template_id, variables = {}, arbitrary_input, user_id, enabled_tools } = params
 
   // Fetch endpoint details with model and provider info
   const { data: endpointData, error: endpointError } = await supabaseAdmin
@@ -110,6 +112,31 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
   }
   if (endpoint.default_top_p !== null && endpoint.default_top_p !== undefined) {
     requestBody.top_p = endpoint.default_top_p
+  }
+
+  // Add enabled tools if specified and supported by the model
+  if (enabled_tools && Object.keys(enabled_tools).length > 0) {
+    const supportedTools = endpoint.ai_models.supported_tools || []
+    const enabledToolNames = Object.entries(enabled_tools)
+      .filter(([tool, enabled]) => enabled && supportedTools.includes(tool))
+      .map(([tool]) => tool)
+
+    if (enabledToolNames.length > 0) {
+      // For xAI provider, create tool objects
+      if (provider.base_url.includes('api.x.ai')) {
+        requestBody.tools = enabledToolNames.map(toolName => {
+          switch (toolName) {
+            case 'web_search':
+              return { type: 'web_search' }
+            case 'x_search':
+              return { type: 'x_search' }
+            default:
+              return { type: toolName }
+          }
+        })
+      }
+      // For other providers, add tools support as needed
+    }
   }
 
   // Add messages/input based on the provider and endpoint
@@ -228,6 +255,7 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
 
   return {
     response: aiResponse,
+    request_payload: requestBody,
     endpoint: {
       id: endpoint.id,
       slug: endpoint.slug,

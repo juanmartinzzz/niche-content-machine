@@ -105,7 +105,9 @@ export async function POST(
       http_method,
       endpoint_url,
       // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
-      endpoint_config
+      endpoint_config,
+      // Tool configuration for AI operations
+      enabled_tools
     } = body
 
     // Validate step_name
@@ -244,7 +246,9 @@ export async function POST(
         http_method: finalStepType === 'endpoint_call' && http_method ? http_method : null,
         endpoint_url: finalStepType === 'endpoint_call' && endpoint_url ? endpoint_url : null,
         // Advanced endpoint configuration (for complex scenarios)
-        endpoint_config: finalStepType === 'endpoint_call' && endpoint_config ? endpoint_config : null
+        endpoint_config: finalStepType === 'endpoint_call' && endpoint_config ? endpoint_config : null,
+        // Tool configuration for AI operations
+        enabled_tools: finalStepType === 'ai_operation' && enabled_tools ? enabled_tools : null
       }])
       .select()
       .single()

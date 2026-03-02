@@ -25,6 +25,7 @@ export async function PUT(
       max_output_tokens,
       supports_vision,
       supports_tools,
+      supported_tools,
       input_cost_per_million_tokens,
       output_cost_per_million_tokens,
       is_enabled
@@ -46,6 +47,7 @@ export async function PUT(
         max_output_tokens,
         supports_vision,
         supports_tools,
+        supported_tools,
         input_cost_per_million_tokens,
         output_cost_per_million_tokens,
         is_enabled

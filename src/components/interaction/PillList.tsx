@@ -40,10 +40,17 @@ export const PillList: React.FC<PillListProps> = ({
   const visibleOptions = isExpanded ? options : options.slice(0, maxVisibleItems);
   const shouldShowExpandButton = options.length > maxVisibleItems;
 
-  const containerClasses = `flex flex-wrap gap-2 ${className}`;
-
   return (
-    <div className={containerClasses} role={variant === 'multiple' ? 'group' : 'radiogroup'} {...props}>
+    <div
+      className={className}
+      role={variant === 'multiple' ? 'group' : 'radiogroup'}
+      style={{
+        display: 'flex',
+        flexWrap: 'wrap',
+        gap: '0.5rem'
+      }}
+      {...props}
+    >
       {visibleOptions.map((option) => (
         <Pill
           key={option.id}

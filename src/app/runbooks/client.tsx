@@ -25,6 +25,8 @@ interface RunbookStep {
   endpoint_url: string | null
   // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
   endpoint_config: any | null
+  // Tool configuration for AI operations
+  enabled_tools: Record<string, boolean> | null
   created_at: string
   updated_at: string
 }
@@ -216,6 +218,7 @@ export const RunbooksClient: React.FC = () => {
   const [availableTemplates, setAvailableTemplates] = useState<Array<{id: string, name: string}>>([])
   const [availableEndpoints, setAvailableEndpoints] = useState<Array<{id: string, slug: string, ai_models?: {display_name: string, ai_providers?: {name: string}}}>>([])
   const [availableTelegramChats, setAvailableTelegramChats] = useState<Array<{id: string, chat_id: string, chat_title: string | null, is_default: boolean}>>([])
+  const [availableTools, setAvailableTools] = useState<Array<{id: string, name: string, description: string}>>([])
   const [stepFormData, setStepFormData] = useState({
     step_name: '',
     description: '',
@@ -231,7 +234,9 @@ export const RunbooksClient: React.FC = () => {
     http_method: '',
     endpoint_url: '',
     // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
-    endpoint_config: null as any
+    endpoint_config: null as any,
+    // Tool configuration for AI operations
+    enabled_tools: {} as Record<string, boolean>
   })
   const [formData, setFormData] = useState({
     name: '',
@@ -351,12 +356,58 @@ export const RunbooksClient: React.FC = () => {
     }
   }, [])
 
+  const fetchAvailableTools = useCallback(async (endpointId: string) => {
+    if (!endpointId) {
+      setAvailableTools([])
+      return
+    }
+
+    try {
+      const response = await fetch(`/api/ai-endpoints/${endpointId}/tools`)
+      if (response.ok) {
+        const { supports_tools, supported_tools } = await response.json()
+        if (supports_tools && supported_tools) {
+          // Convert tool names to a more user-friendly format
+          const tools = supported_tools.map((toolName: string) => ({
+            id: toolName,
+            name: toolName.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            description: getToolDescription(toolName)
+          }))
+          setAvailableTools(tools)
+        } else {
+          setAvailableTools([])
+        }
+      } else {
+        console.log('No tools available or API error')
+        setAvailableTools([])
+      }
+    } catch (error) {
+      console.error('Error fetching available tools:', error)
+      setAvailableTools([])
+    }
+  }, [])
+
+  const getToolDescription = (toolName: string): string => {
+    const descriptions: Record<string, string> = {
+      web_search: 'Search the web for current information and facts',
+      x_search: 'Search X (formerly Twitter) for recent posts and trends'
+    }
+    return descriptions[toolName] || `${toolName} tool`
+  }
+
   useEffect(() => {
     fetchRunbooks()
     fetchAvailableTemplates()
     fetchAvailableEndpoints()
     fetchAvailableTelegramChats()
   }, [fetchRunbooks, fetchAvailableTemplates, fetchAvailableEndpoints, fetchAvailableTelegramChats])
+
+  // Fetch available tools when endpoint changes
+  useEffect(() => {
+    if (stepFormData.endpoint_id && isStepDrawerOpen) {
+      fetchAvailableTools(stepFormData.endpoint_id)
+    }
+  }, [stepFormData.endpoint_id, isStepDrawerOpen, fetchAvailableTools])
 
   const handleCreateRunbook = () => {
     setEditingRunbook(null)
@@ -491,7 +542,9 @@ export const RunbooksClient: React.FC = () => {
       http_method: '',
       endpoint_url: '',
       // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
-      endpoint_config: null
+      endpoint_config: null,
+      // Tool configuration for AI operations
+      enabled_tools: {}
     })
 
     setIsStepDrawerOpen(true)
@@ -516,7 +569,9 @@ export const RunbooksClient: React.FC = () => {
       http_method: step.http_method || '',
       endpoint_url: step.endpoint_url || '',
       // Advanced endpoint configuration (enhancements like headers, body templates, response mapping)
-      endpoint_config: step.endpoint_config
+      endpoint_config: step.endpoint_config,
+      // Tool configuration for AI operations
+      enabled_tools: step.enabled_tools || {}
     })
 
     setIsStepDrawerOpen(true)
@@ -869,6 +924,45 @@ export const RunbooksClient: React.FC = () => {
               size="sm"
             />
           </div>
+          )}
+
+          {stepFormData.step_type === 'ai_operation' && availableTools.length > 0 && (
+            <div className={styles.formField}>
+              <label className={styles.formLabel}>Enabled Tools</label>
+              <div style={{ marginBottom: '0.5rem' }}>
+                <PillList
+                  options={availableTools.map(tool => ({
+                    id: tool.id,
+                    label: tool.name
+                  }))}
+                  selected={Object.keys(stepFormData.enabled_tools).filter(key => stepFormData.enabled_tools[key])}
+                  onChange={(selected) => {
+                    const newEnabledTools: Record<string, boolean> = {}
+                    selected.forEach(toolId => {
+                      newEnabledTools[toolId] = true
+                    })
+                    setStepFormData({ ...stepFormData, enabled_tools: newEnabledTools })
+                  }}
+                  variant="multiple"
+                  size="sm"
+                />
+              </div>
+              <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
+                Select which tools the AI can use during this step. Only tools supported by the selected model are shown.
+              </div>
+              {availableTools.length > 0 && (
+                <div style={{ padding: '12px', backgroundColor: '#f8fafc', borderRadius: '6px', border: '1px solid #e2e8f0' }}>
+                  <div style={{ fontSize: '12px', fontWeight: '500', color: '#374151', marginBottom: '6px' }}>Tool Descriptions:</div>
+                  <div style={{ display: 'grid', gap: '4px' }}>
+                    {availableTools.map((tool) => (
+                      <div key={tool.id} style={{ fontSize: '11px', color: '#6b7280' }}>
+                        <strong>{tool.name}:</strong> {tool.description}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
           )}
 
           {stepFormData.step_type === 'telegram_message' && (

@@ -344,7 +344,6 @@ export const RunbookExecutionClient: React.FC = () => {
                           rows={2}
                           autoResize={true}
                           monospace={true}
-                          readOnly={true}
                         />
                       </div>
                     )}
@@ -359,7 +358,6 @@ export const RunbookExecutionClient: React.FC = () => {
                           rows={2}
                           autoResize={true}
                           monospace={true}
-                          readOnly={true}
                         />
                       </div>
                     )}

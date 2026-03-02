@@ -175,33 +175,45 @@ async function executeAIOperationStep(step: Record<string, unknown>, input: Reco
     endpoint_id: endpointId,
     prompt_template_id: promptTemplateId,
     variables: input,
-    user_id: userId
+    user_id: userId,
+    enabled_tools: step.enabled_tools as Record<string, boolean> || {}
   })
 
   // Check if this is a structured output and extract the JSON content
   if (promptTemplate.use_structured_output) {
     /*
-     * TODO: Future extensibility for structured output extraction
+     * Handle structured output extraction for different response formats
      *
-     * Currently hardcoded for xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939)
-     * where structured JSON is located at: response.output[0].content[0].text
-     *
-     * In the future, we should support other AI providers and the location of
-     * structured JSON in responses should be configurable via:
-     * - Provider record in the database (add extraction_path column)
-     * - App configuration mapping
-     * - Or a provider-specific extraction strategy pattern
+     * xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939) response formats:
+     * - Without tools: direct structured JSON response
+     * - With tools: output array where final message contains JSON in content[0].text
      */
 
+    // For xAI provider, handle both tool and non-tool response formats
+    if (result.endpoint.provider_id === 'ca208ff1-95e0-433b-b348-951b18262939') {
+      let jsonContent: string | null = null
 
-    // For xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939), structured JSON is in output[0].content[0].text
-    if (result.endpoint.provider_id === 'ca208ff1-95e0-433b-b348-951b18262939' && result.response.output?.[0]?.content?.[0]?.text) {
-      try {
-        const jsonContent = result.response.output[0].content[0].text
-        return JSON.parse(jsonContent)
-      } catch (parseError) {
-        console.error('Failed to parse structured output JSON:', parseError)
-        throw new Error('AI returned invalid structured output JSON')
+      // Check if tools were used (output is array with tool calls + final message)
+      if (Array.isArray(result.response.output) && result.response.output.length > 0) {
+        // When tools are used, JSON is in the last message's content
+        const lastMessage = result.response.output[result.response.output.length - 1]
+        if (lastMessage?.content?.[0]?.text) {
+          jsonContent = lastMessage.content[0].text
+        }
+      }
+      // Check for direct structured output (no tools used)
+      else if (result.response.output?.[0]?.content?.[0]?.text) {
+        jsonContent = result.response.output[0].content[0].text
+      }
+
+      if (jsonContent) {
+        try {
+          return JSON.parse(jsonContent)
+        } catch (parseError) {
+          console.error('Failed to parse structured output JSON:', parseError)
+          console.error('Raw JSON content:', jsonContent)
+          throw new Error('AI returned invalid structured output JSON')
+        }
       }
     }
     // For other providers, the structured output might be in different locations

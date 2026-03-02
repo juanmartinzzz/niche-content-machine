@@ -27,6 +27,7 @@ interface Model {
   max_output_tokens: number | null
   supports_vision: boolean
   supports_tools: boolean
+  supported_tools: string[]
   input_cost_per_million_tokens: number | null
   output_cost_per_million_tokens: number | null
   is_enabled: boolean
@@ -70,7 +71,7 @@ function getModelExpandableContent(model: Model, index: number) {
           <h4 className={styles.sectionHeading}>Capabilities</h4>
           <div className={styles.detailsList}>
             <div><span className={styles.label}>Vision:</span> {model.supports_vision ? 'Yes' : 'No'}</div>
-            <div><span className={styles.label}>Tools:</span> {model.supports_tools ? 'Yes' : 'No'}</div>
+            <div><span className={styles.label}>Tools:</span> {model.supported_tools && model.supported_tools.length > 0 ? model.supported_tools.join(', ') : 'None'}</div>
             <div><span className={styles.label}>Status:</span> {model.is_enabled ? 'Enabled' : 'Disabled'}</div>
           </div>
         </div>
@@ -218,6 +219,7 @@ export function LLMModelsConfigClient() {
     max_output_tokens: number | null
     supports_vision: boolean
     supports_tools: boolean
+    supported_tools: string[]
     input_cost_per_million_tokens: number | null
     output_cost_per_million_tokens: number | null
     is_enabled: boolean
@@ -642,9 +644,12 @@ export function LLMModelsConfigClient() {
                         Vision
                       </span>
                     )}
-                    {model.supports_tools && (
+                    {model.supported_tools && model.supported_tools.length > 0 && (
                       <span className={styles.toolsBadge}>
-                        Tools
+                        {model.supported_tools.length === 1
+                          ? model.supported_tools[0].replace('_', ' ')
+                          : `${model.supported_tools.length} tools`
+                        }
                       </span>
                     )}
                   </div>
@@ -1040,6 +1045,7 @@ function ModelForm({
     max_output_tokens: number | null
     supports_vision: boolean
     supports_tools: boolean
+    supported_tools: string[]
     input_cost_per_million_tokens: number | null
     output_cost_per_million_tokens: number | null
     is_enabled: boolean
@@ -1055,6 +1061,7 @@ function ModelForm({
     max_output_tokens: model?.max_output_tokens || null,
     supports_vision: model?.supports_vision ?? false,
     supports_tools: model?.supports_tools ?? false,
+    supported_tools: model?.supported_tools || [],
     input_cost_per_million_tokens: model?.input_cost_per_million_tokens || null,
     output_cost_per_million_tokens: model?.output_cost_per_million_tokens || null,
     is_enabled: model?.is_enabled ?? true
@@ -1136,17 +1143,26 @@ function ModelForm({
             </label>
           </div>
 
-          <div className={styles.checkboxContainer}>
-            <input
-              type="checkbox"
-              id="supports_tools"
-              checked={formData.supports_tools}
-              onChange={(e) => setFormData(prev => ({ ...prev, supports_tools: e.target.checked }))}
-              className={styles.checkboxInput}
-            />
-            <label htmlFor="supports_tools" className={styles.formLabel}>
-              Supports Tools
+          <div style={{ marginBottom: '1rem' }}>
+            <label className={styles.formLabel} style={{ display: 'block', marginBottom: '0.5rem' }}>
+              Supported Tools
             </label>
+            <PillList
+              options={[
+                { id: 'web_search', label: 'Web Search' },
+                { id: 'x_search', label: 'X Search' },
+                { id: 'function_calling', label: 'Function Calling' },
+                { id: 'code_execution', label: 'Code Execution' }
+              ]}
+              selected={formData.supported_tools}
+              onChange={(selected) => setFormData(prev => ({
+                ...prev,
+                supported_tools: selected,
+                supports_tools: selected.length > 0
+              }))}
+              size="xs"
+              variant="multiple"
+            />
           </div>
 
           <div className={styles.checkboxContainer}>
