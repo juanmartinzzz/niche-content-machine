@@ -283,10 +283,10 @@ const templates: Record<VisualStyle, string> = {
     <html>
     <head>
       <style>
-        body { margin: 0; padding: 20px; background: #2d1b69; font-family: 'Times New Roman', serif; }
-        .container { width: 500px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); border-radius: 0; border: 8px solid #000; position: relative; padding: 30px; }
-        .container::before { content: ''; position: absolute; top: -4px; left: -4px; right: -4px; bottom: -4px; background: repeating-linear-gradient(45deg, #000, #000 10px, transparent 10px, transparent 20px); z-index: -1; }
-        .text { font-size: 32px; font-weight: bold; color: #000; text-align: center; line-height: 1.3; max-width: 400px; text-shadow: 2px 2px 0px #fff; transform: rotate(-1deg); margin-bottom: 20px; }
+        body { margin: 0; padding: 0; background: #2d1b69; font-family: 'Times New Roman', serif; }
+        .container { width: 1000px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff6b6b 0%, #4ecdc4 100%); border-radius: 0; border: 8px solid #000; position: relative; padding: 30px; box-sizing: border-box; }
+        .container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(45deg, #000, #000 10px, transparent 10px, transparent 20px); z-index: -1; }
+        .text { font-size: 32px; font-weight: bold; color: #000; text-align: center; line-height: 1.3; max-width: 800px; text-shadow: 2px 2px 0px #fff; transform: rotate(-1deg); margin-bottom: 20px; }
         .author { font-size: 18px; font-weight: normal; color: #000; text-align: center; margin-bottom: 10px; text-shadow: 1px 1px 0px #fff; }
         .topic { font-size: 16px; font-weight: bold; color: #000; text-align: center; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 0px #fff; }
       </style>
@@ -317,10 +317,10 @@ const templates: Record<VisualStyle, string> = {
     <html>
     <head>
       <style>
-        body { margin: 0; padding: 20px; background: #000000; font-family: Impact, 'Arial Black', sans-serif; }
-        .container { width: 500px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0080 0%, #8000ff 100%); border-radius: 0; position: relative; overflow: hidden; padding: 30px; }
+        body { margin: 0; padding: 0; background: #000000; font-family: Impact, 'Arial Black', sans-serif; }
+        .container { width: 1000px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff0080 0%, #8000ff 100%); border-radius: 0; position: relative; overflow: hidden; padding: 30px; box-sizing: border-box; }
         .container::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: repeating-linear-gradient(90deg, rgba(255,255,255,0.1) 0px, rgba(255,255,255,0.1) 2px, transparent 2px, transparent 4px); }
-        .text { font-size: 36px; font-weight: bold; color: #ffffff; text-align: center; line-height: 1.2; max-width: 400px; text-transform: uppercase; text-shadow: 3px 3px 0px #000; letter-spacing: 1px; margin-bottom: 20px; }
+        .text { font-size: 36px; font-weight: bold; color: #ffffff; text-align: center; line-height: 1.2; max-width: 800px; text-transform: uppercase; text-shadow: 3px 3px 0px #000; letter-spacing: 1px; margin-bottom: 20px; }
         .author { font-size: 20px; font-weight: normal; color: #ffffff; text-align: center; margin-bottom: 10px; text-shadow: 2px 2px 0px #000; }
         .topic { font-size: 18px; font-weight: bold; color: #ffffff; text-align: center; text-transform: uppercase; letter-spacing: 2px; text-shadow: 2px 2px 0px #000; }
       </style>
@@ -351,9 +351,9 @@ const templates: Record<VisualStyle, string> = {
     <html>
     <head>
       <style>
-        body { margin: 0; padding: 20px; background: #ffeb3b; font-family: 'Comic Sans MS', cursive; }
-        .container { width: 500px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff9800 0%, #e91e63 50%, #9c27b0 100%); border-radius: 50px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 30px; }
-        .text { font-size: 30px; font-weight: bold; color: #ffffff; text-align: center; line-height: 1.3; max-width: 400px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 15px; }
+        html, body { margin: 0; padding: 0; background: transparent; font-family: 'Comic Sans MS', cursive; }
+        .container { width: 1000px; height: 600px; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #ff9800 0%, #e91e63 50%, #9c27b0 100%); border-radius: 50px; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3); padding: 30px; box-sizing: border-box; }
+        .text { font-size: 30px; font-weight: bold; color: #ffffff; text-align: center; line-height: 1.3; max-width: 800px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 15px; }
         .emoji { font-size: 40px; display: block; margin-top: 10px; }
         .author { font-size: 18px; font-weight: normal; color: #ffffff; text-align: center; margin-bottom: 10px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
         .topic { font-size: 16px; font-weight: bold; color: #ffffff; text-align: center; text-transform: uppercase; letter-spacing: 1px; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
@@ -405,14 +405,14 @@ export async function generateHotTakeImages(input: ImageGeneratorInput): Promise
       executablePath,
       headless: true,
       args: isLocal
-        ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
-        : chromium.args,
+        ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor']
+        : [...chromium.args, '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor'],
     });
 
     const page = await browser.newPage();
 
     // Set viewport
-    await page.setViewport({ width: 540, height: 340 });
+    await page.setViewport({ width: 1000, height: 600 });
 
     // Load the template
     await page.setContent(templates[visualStyle]);
@@ -429,7 +429,8 @@ export async function generateHotTakeImages(input: ImageGeneratorInput): Promise
     const screenshot = await page.screenshot({
       type: 'png',
       encoding: 'base64',
-      fullPage: true
+      omitBackground: true,
+      deviceScaleFactor: 2
     });
 
     const base64Image = `data:image/png;base64,${screenshot}`;
