@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef, useState, useEffect, useRef } from 'react';
+import React, { forwardRef, useState, useEffect, useRef, useId } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 import { JsonTreeViewerProps } from './types';
 import styles from './JsonTreeViewer.module.css';
@@ -28,6 +28,8 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
     const [expandedNodes, setExpandedNodes] = useState<Set<string>>(new Set());
     const textareaRef = useRef<HTMLTextAreaElement>(null);
     const combinedRef = (ref as React.RefObject<HTMLTextAreaElement>) || textareaRef;
+    const textareaId = useId();
+    const errorId = useId();
 
     const parseJsonToTree = (jsonString: string): TreeNode[] => {
       if (!jsonString.trim()) return [];
@@ -122,7 +124,7 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
       <div className={`${styles.container} ${className}`}>
         {label && (
           <label
-            htmlFor={`json-tree-viewer-${Math.random()}`}
+            htmlFor={textareaId}
             className={styles.label}
           >
             {label}
@@ -131,6 +133,7 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
         )}
         <textarea
           ref={combinedRef}
+          id={textareaId}
           placeholder={placeholder}
           value={value}
           onChange={(event) => {
@@ -142,13 +145,13 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
           required={required}
           rows={2}
           className={`${styles.textarea} ${hasError ? styles.error : ''}`}
-          aria-describedby={hasError ? `json-error-${Math.random()}` : undefined}
+          aria-describedby={hasError ? errorId : undefined}
           aria-invalid={!!hasError}
           {...props}
         />
         {hasError && (
           <p
-            id={`json-error-${Math.random()}`}
+            id={errorId}
             className={styles.errorMessage}
             role="alert"
           >
