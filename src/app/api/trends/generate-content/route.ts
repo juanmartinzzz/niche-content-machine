@@ -8,31 +8,31 @@ import Ajv from 'ajv'
 const CONTENT_TYPE_CONFIG = {
   hotTakes: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-hot-takes-template"
+    prompt_template_slug: "content-type-hot-takes"
   },
   jobMarketState: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-job-market-template"
+    prompt_template_slug: "content-type-job-market"
   },
   workflowBreakdowns: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-workflow-template"
+    prompt_template_slug: "content-type-workflow-breakdowns"
   },
-  hiringMarketSignals: {
-    endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-hiring-template"
-  },
+  // hiringMarketSignals: {
+  //   endpoint_slug: "grok-4-1-fast-reasoning",
+  //   prompt_template_slug: "hiring"
+  // },
   designPmDiscourse: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-design-pm-template"
+    prompt_template_slug: "content-type-design-and-pm-discourse"
   },
   salaryTransparency: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-salary-template"
+    prompt_template_slug: "content-type-salary-transparency"
   },
   aiToolComparisons: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_id: "uuid-here-for-ai-tool-template"
+    prompt_template_slug: "content-type-ai-tool-comparisons"
   }
 }
 
@@ -392,7 +392,7 @@ export async function POST(request: NextRequest) {
       }, { status: 400 })
     }
 
-    const { trend, contentTypeScores } = body
+    const { trend, contentTypeScores } = body as { trend: any; contentTypeScores: any }
 
     // Get top 2 content types by finalScore
     const sortedContentTypes = Object.entries(contentTypeScores)
@@ -425,10 +425,24 @@ export async function POST(request: NextRequest) {
         throw new Error(`Endpoint not found for content type: ${contentType}`)
       }
 
+      // Lookup prompt template by slug (active version)
+      const { data: promptTemplate, error: templateError } = await supabaseAdmin
+        .from(getTableName('ai_prompt_templates'))
+        .select('id')
+        .eq('slug', config.prompt_template_slug)
+        .eq('is_active', true)
+        .order('version', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (templateError || !promptTemplate) {
+        throw new Error(`Prompt template not found for content type: ${contentType}`)
+      }
+
       // Execute AI operation
       const result = await executeAIOperation({
         endpoint_id: endpoint.id,
-        prompt_template_id: config.prompt_template_id,
+        prompt_template_id: promptTemplate.id,
         variables: { trend },
         user_id: user.id
       })
