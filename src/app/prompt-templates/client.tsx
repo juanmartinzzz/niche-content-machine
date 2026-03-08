@@ -4,10 +4,12 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, useToast, type TableColumn } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Braces, Copy } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
+import { generateSlug, validateSlug } from '@/utils/slug'
 import styles from './client.module.css'
 
 interface PromptTemplate {
   id: string
+  slug: string
   name: string
   system_prompt: string | null
   user_prompt_template: string
@@ -28,6 +30,7 @@ export const PromptTemplatesClient: React.FC = () => {
   const [editingTemplate, setEditingTemplate] = useState<PromptTemplate | null>(null)
   const { showToast } = useToast()
   const [formData, setFormData] = useState({
+    slug: '',
     name: '',
     system_prompt: '',
     user_prompt_template: '',
@@ -36,6 +39,7 @@ export const PromptTemplatesClient: React.FC = () => {
     structured_output_schema: '',
     structured_output_format: 'pydantic'
   })
+  const [slugError, setSlugError] = useState<string>('')
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -55,9 +59,29 @@ export const PromptTemplatesClient: React.FC = () => {
     fetchTemplates()
   }, [fetchTemplates])
 
+  // Auto-generate slug from name when creating new template
+  useEffect(() => {
+    if (!editingTemplate && formData.name && !formData.slug) {
+      const suggestedSlug = generateSlug(formData.name)
+      if (suggestedSlug) {
+        setFormData(prev => ({ ...prev, slug: suggestedSlug }))
+      }
+    }
+  }, [formData.name, editingTemplate, formData.slug])
+
+  // Validate slug format
+  useEffect(() => {
+    if (formData.slug && !validateSlug(formData.slug)) {
+      setSlugError('Slug must contain only lowercase letters, numbers, and dashes')
+    } else {
+      setSlugError('')
+    }
+  }, [formData.slug])
+
   const handleCreateTemplate = () => {
     setEditingTemplate(null)
     setFormData({
+      slug: '',
       name: '',
       system_prompt: '',
       user_prompt_template: '',
@@ -72,6 +96,7 @@ export const PromptTemplatesClient: React.FC = () => {
   const handleEditTemplate = (template: PromptTemplate) => {
     setEditingTemplate(template)
     setFormData({
+      slug: template.slug,
       name: template.name,
       system_prompt: template.system_prompt || '',
       user_prompt_template: template.user_prompt_template,
@@ -207,6 +232,13 @@ export const PromptTemplatesClient: React.FC = () => {
             <div className={styles.templateDescription}>{template.description}</div>
           )}
         </div>
+      )
+    },
+    {
+      key: 'slug',
+      header: 'Slug',
+      render: (template) => (
+        <code className={styles.slugCode}>{template.slug}</code>
       )
     },
     {
@@ -367,6 +399,21 @@ export const PromptTemplatesClient: React.FC = () => {
               onChange={(value) => setFormData({ ...formData, name: value })}
               placeholder="e.g., Blog Post Generator"
             />
+          </div>
+
+          <div className={styles.formField}>
+            <label className={styles.formLabel}>Slug</label>
+            <Input
+              value={formData.slug}
+              onChange={(value) => {
+                // Only allow lowercase letters, numbers, and dashes
+                const filteredValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+                setFormData({ ...formData, slug: filteredValue })
+              }}
+              placeholder="e.g., blog-post-generator"
+              className={slugError ? styles.inputError : ''}
+            />
+            {slugError && <div className={styles.fieldError}>{slugError}</div>}
           </div>
 
           <div className={styles.formField}>

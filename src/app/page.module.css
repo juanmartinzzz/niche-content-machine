@@ -49,7 +49,7 @@
 }
 
 .statIcon {
-  font-size: 32px;
+  font-size: var(--font-size-lg);
   width: 48px;
   height: 48px;
   display: flex;

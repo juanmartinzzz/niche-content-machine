@@ -3,6 +3,7 @@
 
 CREATE TABLE IF NOT EXISTS ncm_ai_prompt_templates (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  slug VARCHAR(100) UNIQUE NOT NULL, -- Code reference key (e.g. "hot-takes", "job-market", "workflow", "hiring", "design-pm", "salary", "ai-tool")
   
   -- Columns for prompt templates
   name VARCHAR(100) NOT NULL, -- Name of the prompt template

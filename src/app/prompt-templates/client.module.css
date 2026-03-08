@@ -7,17 +7,18 @@
 }
 
 .templateName {
-  font-size: 16px;
+  font-size: var(--font-size-sm);
   font-weight: 600;
   color: #111827;
   margin-bottom: 8px;
   display: flex;
   align-items: center;
   gap: 8px;
+  line-height: 1.2;
 }
 
 .templateDescription {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #6b7280;
   margin-bottom: 12px;
 }
@@ -25,7 +26,7 @@
 .templateMeta {
   display: flex;
   gap: 16px;
-  font-size: 12px;
+  font-size: var(--font-size-base);
   color: #9ca3af;
 }
 
@@ -38,7 +39,7 @@
   align-items: center;
   padding: 2px 8px;
   border-radius: 12px;
-  font-size: 11px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   background-color: #f3f4f6;
   color: #374151;
@@ -62,7 +63,7 @@
 
 .formLabel {
   display: block;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #374151;
   margin-bottom: 4px;
@@ -75,7 +76,7 @@
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   resize: vertical;
 }
 
@@ -103,7 +104,7 @@
 }
 
 .expandedSectionTitle {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #374151;
   margin-bottom: 8px;
@@ -116,7 +117,7 @@
   padding: 12px;
   border-radius: 6px;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 13px;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -126,7 +127,7 @@
 
 .expandedText {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #6b7280;
 }
 
@@ -141,4 +142,25 @@
 .buttonDanger:hover {
   background-color: #fef2f2;
   color: #b91c1c;
+}
+
+.slugCode {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: var(--font-size-xs);
+  background-color: #f3f4f6;
+  color: #374151;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.inputError {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.fieldError {
+  color: #dc2626;
+  font-size: var(--font-size-sm);
+  margin-top: 4px;
 }

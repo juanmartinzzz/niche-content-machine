@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useEffect } from 'react'
 import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Select, type TableColumn, type SelectOption } from '@/components/interaction'
 import { Pencil, Trash2 } from 'lucide-react'
+import { generateSlug } from '@/utils/slug'
 import styles from './client.module.css'
 
 interface Provider {
@@ -1266,13 +1267,7 @@ function EndpointForm({
     const model = models.find(m => m.id === modelId)
     if (!model) return ''
 
-    // Convert display name to URL-safe slug
-    return model.display_name
-      .toLowerCase()
-      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
-      .replace(/\s+/g, '-') // Replace spaces with hyphens
-      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-      .replace(/^-|-$/g, '') // Remove leading/trailing hyphens
+    return generateSlug(model.display_name)
   }
 
   // Auto-suggest slug when model changes (only for new endpoints)
@@ -1295,7 +1290,11 @@ function EndpointForm({
         <Input
           label="Slug"
           value={formData.slug}
-          onChange={(value) => setFormData(prev => ({ ...prev, slug: value }))}
+          onChange={(value) => {
+            // Only allow lowercase letters, numbers, and dashes
+            const filteredValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
+            setFormData(prev => ({ ...prev, slug: filteredValue }))
+          }}
           required
           placeholder={formData.model_id ? `Suggested: ${generateSlugFromModel(formData.model_id)}` : "Select a model first for auto-suggestion"}
         />

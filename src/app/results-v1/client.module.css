@@ -31,7 +31,7 @@
 
 .controlsCard h3 {
   margin: 0 0 1.5rem 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #1f2937;
 }
@@ -52,7 +52,7 @@
 .formField label {
   font-weight: 500;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 .select {
@@ -61,7 +61,7 @@
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
   background-color: white;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: #374151;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
 }
@@ -80,7 +80,7 @@
 
 .variablesSection h4 {
   margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #1f2937;
 }
@@ -91,7 +91,7 @@
   padding: 0.75rem;
   border: 1px solid #d1d5db;
   border-radius: 0.375rem;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   resize: vertical;
   transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
@@ -118,7 +118,7 @@
 .variableField label {
   font-weight: 500;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 .templatePreview {
@@ -131,7 +131,7 @@
 
 .templatePreview h4 {
   margin: 0 0 1rem 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #1f2937;
 }
@@ -144,7 +144,7 @@
   display: block;
   margin-bottom: 0.5rem;
   color: #374151;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
 }
 
 .promptText {
@@ -153,7 +153,7 @@
   border-radius: 0.375rem;
   border: 1px solid #d1d5db;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -198,7 +198,7 @@
 
 .resultHeader h3 {
   margin: 0;
-  font-size: 1.25rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #1f2937;
 }
@@ -215,7 +215,7 @@
 }
 
 .metaItem {
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   color: #374151;
 }
 
@@ -229,7 +229,7 @@
 
 .responseContent h4 {
   margin: 0 0 0.75rem 0;
-  font-size: 1.125rem;
+  font-size: var(--font-size-base);
   font-weight: 600;
   color: #1f2937;
 }
@@ -248,7 +248,7 @@
 .jsonNote {
   margin: 0 0 0.5rem 0;
   color: #059669;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -263,7 +263,7 @@
 
 .responseText {
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -276,7 +276,7 @@
   padding: 1rem;
   border-radius: 0.375rem;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   overflow-x: auto;
   white-space: pre-wrap;
@@ -290,7 +290,7 @@
   padding: 1rem;
   border-radius: 0.375rem;
   border: 1px solid #e5e7eb;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   line-height: 1.5;
   white-space: pre-wrap;
   word-wrap: break-word;
@@ -305,7 +305,7 @@
   border-radius: 0.375rem;
   border: 1px solid #fca5a5;
   font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: 0.875rem;
+  font-size: var(--font-size-base);
   white-space: pre-wrap;
   word-wrap: break-word;
 }

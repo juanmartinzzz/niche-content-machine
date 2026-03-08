@@ -40,13 +40,13 @@ interface StepExecution {
 
 export const RunbookExecutionClient: React.FC = () => {
   const [runbooks, setRunbooks] = useState<Runbook[]>([])
-  const [selectedRunbook, setSelectedRunbook] = useState<Runbook | null>(null)
-  const [initialInput, setInitialInput] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isExecuting, setIsExecuting] = useState(false)
   const [currentExecution, setCurrentExecution] = useState<RunbookExecution | null>(null)
   const [stepExecutions, setStepExecutions] = useState<StepExecution[]>([])
   const [executionHistory, setExecutionHistory] = useState<RunbookExecution[]>([])
+  const [inputModeRunbookId, setInputModeRunbookId] = useState<string | null>(null)
+  const [initialInputs, setInitialInputs] = useState<Record<string, string>>({})
 
   const fetchRunbooks = useCallback(async () => {
     try {
@@ -63,32 +63,42 @@ export const RunbookExecutionClient: React.FC = () => {
     }
   }, [])
 
-  const fetchExecutionHistory = useCallback(async () => {
-    if (!selectedRunbook) return
-
-    try {
-      // TODO: Create API endpoint to fetch execution history for a runbook
-      // For now, we'll implement basic functionality
-    } catch (error) {
-      console.error('Error fetching execution history:', error)
+  const handleExecuteClick = (runbook: Runbook) => {
+    if (inputModeRunbookId === runbook.id) {
+      // Already in input mode, execute the runbook
+      executeRunbook(runbook)
+    } else {
+      // Enter input mode for this runbook
+      setInputModeRunbookId(runbook.id)
     }
-  }, [selectedRunbook])
+  }
 
-  const executeRunbook = async () => {
-    if (!selectedRunbook) return
+  const handleInputChange = (runbookId: string, value: string) => {
+    setInitialInputs(prev => ({
+      ...prev,
+      [runbookId]: value
+    }))
+  }
 
+  const executeRunbook = async (runbook: Runbook) => {
+    // Reset input mode when starting execution
+    setInputModeRunbookId(null)
     setIsExecuting(true)
     try {
+      // Get initial input for this runbook
+      const inputValue = initialInputs[runbook.id] || ''
       let parsedInput = null
-      if (initialInput.trim()) {
+      if (inputValue.trim()) {
         try {
-          parsedInput = JSON.parse(initialInput)
+          parsedInput = JSON.parse(inputValue)
         } catch (e) {
-          parsedInput = initialInput
+          alert('Invalid JSON format. Please enter valid JSON or leave the input empty.')
+          setIsExecuting(false)
+          return
         }
       }
 
-      const response = await fetch(`/api/runbooks/${selectedRunbook.id}/execute`, {
+      const response = await fetch(`/api/runbooks/${runbook.id}/execute`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ initial_input: parsedInput })
@@ -162,18 +172,13 @@ export const RunbookExecutionClient: React.FC = () => {
   const resetExecution = () => {
     setCurrentExecution(null)
     setStepExecutions([])
-    setInitialInput('')
+    setInputModeRunbookId(null)
   }
 
   useEffect(() => {
     fetchRunbooks()
   }, [fetchRunbooks])
 
-  useEffect(() => {
-    if (selectedRunbook) {
-      fetchExecutionHistory()
-    }
-  }, [selectedRunbook, fetchExecutionHistory])
 
   if (isLoading) {
     return <div>Loading runbooks...</div>
@@ -183,22 +188,17 @@ export const RunbookExecutionClient: React.FC = () => {
     <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
       {/* Runbook Selection */}
       <div style={{ marginBottom: '2rem' }}>
-        <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>
-          Select Runbook
-        </h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1rem' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '1rem' }}>
           {runbooks.map(runbook => (
             <div
               key={runbook.id}
               style={{
-                border: selectedRunbook?.id === runbook.id ? '2px solid #3b82f6' : '1px solid #e5e7eb',
+                border: '1px solid #e5e7eb',
                 borderRadius: '8px',
                 padding: '1rem',
-                cursor: 'pointer',
-                backgroundColor: selectedRunbook?.id === runbook.id ? '#f0f9ff' : 'white',
+                backgroundColor: 'white',
                 transition: 'all 0.2s'
               }}
-              onClick={() => setSelectedRunbook(runbook)}
             >
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                 {runbook.name}
@@ -208,12 +208,39 @@ export const RunbookExecutionClient: React.FC = () => {
                   {runbook.description}
                 </p>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Pill label={`${runbook.steps} steps`} size="sm" />
-                <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                  Active
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Pill label={`${runbook.steps} steps`} size="sm" />
+                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                    Active
+                  </span>
+                </div>
               </div>
+
+              {inputModeRunbookId === runbook.id && (
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
+                    Initial Input (JSON, optional)
+                  </label>
+                  <Textarea
+                    value={initialInputs[runbook.id] || ''}
+                    onChange={(value) => handleInputChange(runbook.id, value)}
+                    placeholder="Enter initial input for the runbook..."
+                    rows={3}
+                    monospace={true}
+                    autoResize={true}
+                  />
+                </div>
+              )}
+
+              <Button
+                onClick={() => handleExecuteClick(runbook)}
+                disabled={isExecuting}
+                style={{ width: '100%' }}
+              >
+                {isExecuting ? <Loader2 size={16} className="animate-spin" style={{ marginRight: '8px' }} /> : <Play size={16} style={{ marginRight: '8px' }} />}
+                {isExecuting ? 'Executing...' : inputModeRunbookId === runbook.id ? 'Execute Runbook' : 'Execute'}
+              </Button>
             </div>
           ))}
         </div>
@@ -224,36 +251,6 @@ export const RunbookExecutionClient: React.FC = () => {
         )}
       </div>
 
-      {/* Execution Interface */}
-      {selectedRunbook && !currentExecution && (
-        <div style={{ marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>
-            Execute {selectedRunbook.name}
-          </h2>
-
-          <div style={{ marginBottom: '1rem' }}>
-            <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-              Initial Input (JSON or plain text, optional)
-            </label>
-            <Textarea
-              value={initialInput}
-              onChange={setInitialInput}
-              placeholder="Enter initial input for the runbook..."
-              rows={2}
-              monospace={true}
-              autoResize={true}
-            />
-          </div>
-
-          <Button
-            onClick={executeRunbook}
-            disabled={isExecuting}
-          >
-            {isExecuting ? <Loader2 size={16} className="animate-spin" /> : <Play size={16} />}
-            {isExecuting ? 'Starting Execution...' : 'Execute Runbook'}
-          </Button>
-        </div>
-      )}
 
       {/* Execution Progress */}
       {currentExecution && (

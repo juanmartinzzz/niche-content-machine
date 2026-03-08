@@ -16,7 +16,7 @@
   align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   background-color: #dbeafe;
   color: #1e40af;
@@ -27,25 +27,25 @@
   align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
   background-color: #ede9fe;
   color: #6b21a8;
 }
 
 .endpointDisplayName {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #111827;
 }
 
 .endpointPath {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #6b7280;
 }
 
 
 .drawerTitle {
-  font-size: 18px;
+  font-size: var(--font-size-lg);
   font-weight: 500;
   margin-bottom: 16px;
 }
@@ -69,7 +69,7 @@
 }
 
 .formLabel {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #374151;
   margin-bottom: 4px;
@@ -98,7 +98,7 @@
 }
 
 .sectionHeading {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #111827;
   margin-bottom: 8px;
@@ -108,7 +108,7 @@
   display: flex;
   flex-direction: 'column';
   gap: 4px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .label {
@@ -119,7 +119,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .deprecatedWarning {
@@ -130,12 +130,12 @@
 }
 
 .deprecatedText {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #92400e;
 }
 
 .timestamp {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: #6b7280;
 }
 
@@ -188,7 +188,7 @@
   cursor: pointer;
   border-bottom: 2px solid transparent;
   color: #6b7280;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
 }
 
@@ -210,20 +210,20 @@
 }
 
 .tableTitle {
-  font-size: 24px;
+  font-size: var(--font-size-xl);
   font-weight: 600;
   color: #14171f;
   margin: 0;
 }
 
 .providerName {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #111827;
 }
 
 .providerUrl {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #6b7280;
 }
 
@@ -232,7 +232,7 @@
   align-items: center;
   padding: 4px 8px;
   border-radius: 12px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   font-weight: 500;
 }
 
@@ -268,16 +268,16 @@
 }
 
 .detailItem {
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .modelsList {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #374151;
 }
 
 .modelsCount {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: #6b7280;
   margin-bottom: 4px;
 }
@@ -293,29 +293,29 @@
   align-items: center;
   padding: 2px 6px;
   border-radius: 4px;
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   background-color: #dbeafe;
   color: #1e40af;
 }
 
 .inactiveTag {
-  font-size: 12px;
+  font-size: var(--font-size-sm);
   color: #6b7280;
 }
 
 .notesSection {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #374151;
 }
 
 .modelDisplayName {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #111827;
 }
 
 .endpointName {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #111827;
 }
@@ -336,18 +336,18 @@
 }
 
 .configItem {
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .parametersList {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .descriptionText {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #374151;
 }
 
@@ -364,7 +364,7 @@
 }
 
 .formLabel {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   color: #111827;
 }
@@ -373,14 +373,14 @@
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
 }
 
 .formTextarea {
   padding: 8px 12px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   min-height: 80px;
   resize: vertical;
 }
@@ -399,7 +399,7 @@
 }
 
 .checkboxLabel {
-  font-size: 14px;
+  font-size: var(--font-size-base);
   color: #374151;
 }
 
@@ -409,7 +409,7 @@
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
   transition: all 150ms ease-in-out;
@@ -425,7 +425,7 @@
   color: #374151;
   border: 1px solid #d1d5db;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
   transition: all 150ms ease-in-out;
@@ -441,7 +441,7 @@
   color: #ffffff;
   border: none;
   border-radius: 6px;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   font-weight: 500;
   cursor: pointer;
   transition: all 150ms ease-in-out;
@@ -453,12 +453,12 @@
 
 .errorMessage {
   color: #dc2626;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   margin-top: 4px;
 }
 
 .successMessage {
   color: #059669;
-  font-size: 14px;
+  font-size: var(--font-size-base);
   margin-top: 4px;
 }

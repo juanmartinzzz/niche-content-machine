@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { validateSlug } from '@/utils/slug'
 
 export async function GET() {
   try {
@@ -60,6 +61,12 @@ export async function POST(request: NextRequest) {
     if (!slug || !model_id || !api_path) {
       return NextResponse.json({
         error: 'slug, model_id, and api_path are required'
+      }, { status: 400 })
+    }
+
+    if (!validateSlug(slug)) {
+      return NextResponse.json({
+        error: 'slug must contain only lowercase letters, numbers, and dashes'
       }, { status: 400 })
     }
 

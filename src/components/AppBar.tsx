@@ -154,12 +154,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             <div className={styles.signOutContainer}>
               <Button
                 variant="secondary"
-                size="sm"
+                size="xs"
                 onClick={handleSignOut}
                 className={styles.signOutButton}
               >
                 {!isCollapsed && 'Sign Out'}
-                {isCollapsed && <X size={16} />}
+                {isCollapsed && <X size={12} />}
               </Button>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { validateSlug } from '@/utils/slug'
 
 export async function GET() {
   try {
@@ -39,6 +40,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
     const {
+      slug,
       name,
       system_prompt,
       user_prompt_template,
@@ -48,9 +50,15 @@ export async function POST(request: NextRequest) {
       structured_output_format
     } = body
 
-    if (!name || !user_prompt_template) {
+    if (!slug || !name || !user_prompt_template) {
       return NextResponse.json({
-        error: 'name and user_prompt_template are required'
+        error: 'slug, name and user_prompt_template are required'
+      }, { status: 400 })
+    }
+
+    if (!validateSlug(slug)) {
+      return NextResponse.json({
+        error: 'slug must contain only lowercase letters, numbers, and dashes'
       }, { status: 400 })
     }
 
@@ -69,6 +77,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabaseAdmin
       .from(getTableName('ai_prompt_templates'))
       .insert([{
+        slug,
         name,
         system_prompt: system_prompt || null,
         user_prompt_template,
