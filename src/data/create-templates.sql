@@ -5,8 +5,13 @@ CREATE TABLE IF NOT EXISTS ncm_templates (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   slug VARCHAR(100) UNIQUE NOT NULL, -- Code reference key (e.g. "hot-takes", "job-market", "workflow")
   content_type_id UUID REFERENCES ncm_content_types(id) ON DELETE CASCADE, -- Template belongs to one content type
+  
   name VARCHAR(100) NOT NULL, -- Template name
   visual_style VARCHAR(20) NOT NULL CHECK (visual_style IN ('minimal', 'bold', 'modern', 'classic', 'clean')), -- Visual style label
+
+
+  html_template TEXT, -- Optional HTML template for the template
+
   description TEXT, -- Optional description of the template
   width_pixels INTEGER, -- Optional width in pixels for template dimensions
   height_pixels INTEGER, -- Optional height in pixels for template dimensions

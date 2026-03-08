@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings, Play, History } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings, Play, History, FileText } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -119,6 +119,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             >
               <Bot size={20} />
               {!isCollapsed && <span className={styles.navText}>Models & Endpoints</span>}
+            </Button>
+          </Link>
+          <Link href="/content-types-templates">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <FileText size={20} />
+              {!isCollapsed && <span className={styles.navText}>Content Types & Templates</span>}
             </Button>
           </Link>
           <div className={styles.navDivider} />
