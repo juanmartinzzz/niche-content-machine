@@ -83,7 +83,7 @@ export async function PUT(
         system_prompt: system_prompt || null,
         user_prompt_template,
         description: description || null,
-        is_active: is_active ?? false,
+        is_active: typeof is_active === 'boolean' ? is_active : false,
         use_structured_output: use_structured_output ?? false,
         structured_output_schema: structured_output_schema || null,
         structured_output_format: structured_output_format || null

@@ -46,6 +46,7 @@ export async function POST(request: NextRequest) {
       system_prompt,
       user_prompt_template,
       description,
+      is_active,
       use_structured_output,
       structured_output_schema,
       structured_output_format
@@ -79,7 +80,7 @@ export async function POST(request: NextRequest) {
         system_prompt: system_prompt || null,
         user_prompt_template,
         version: nextVersion,
-        is_active: nextVersion === 1, // First version is active by default
+        is_active: typeof is_active === 'boolean' ? is_active : true, // Default to active for new templates
         description: description || null,
         use_structured_output: use_structured_output || false,
         structured_output_schema: structured_output_schema || null,

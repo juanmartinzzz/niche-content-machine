@@ -1,17 +1,17 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
-import { executeAIOperation } from '@/lib/ai-utils'
+import { executeAIOperation, extractStructuredOutput } from '@/lib/ai-utils'
 
 // Content type mapping to AI endpoints and prompt templates
 const CONTENT_TYPE_CONFIG = {
   hotTakes: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_slug: "content-type-hot-takes"
+    prompt_template_slug: "content-type-software-hot-takes"
   },
   jobMarketState: {
     endpoint_slug: "grok-4-1-fast-reasoning",
-    prompt_template_slug: "content-type-job-market"
+    prompt_template_slug: "content-type-job-market-state"
   },
   workflowBreakdowns: {
     endpoint_slug: "grok-4-1-fast-reasoning",
@@ -77,11 +77,26 @@ interface GenerateContentRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    // Check for internal runbook execution header
+    const internalUserId = request.headers.get('x-internal-user-id')
 
-    if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    let user
+    if (internalUserId) {
+      // Internal call from runbook execution - validate user exists
+      const { data: userData, error: userError } = await supabaseAdmin.auth.admin.getUserById(internalUserId)
+      if (userError || !userData.user) {
+        return NextResponse.json({ error: 'Invalid internal user' }, { status: 401 })
+      }
+      user = userData.user
+    } else {
+      // Normal authenticated request
+      const supabase = await createClient()
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+
+      if (!authUser) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+      }
+      user = authUser
     }
 
     const body: GenerateContentRequest = await request.json()
@@ -106,6 +121,11 @@ export async function POST(request: NextRequest) {
         throw new Error(`No configuration found for content type: ${contentType}`)
       }
 
+      // Log the slugs being used for debugging
+      console.log(`Processing content type: ${contentType}`)
+      console.log(`Using endpoint_slug: ${config.endpoint_slug}`)
+      console.log(`Using prompt_template_slug: ${config.prompt_template_slug}`)
+
       // Lookup endpoint by slug
       const { data: endpoint, error: endpointError } = await supabaseAdmin
         .from(getTableName('ai_endpoints'))
@@ -121,7 +141,7 @@ export async function POST(request: NextRequest) {
       // Lookup prompt template by slug (active version)
       const { data: promptTemplate, error: templateError } = await supabaseAdmin
         .from(getTableName('ai_prompt_templates'))
-        .select('id')
+        .select('id, use_structured_output')
         .eq('slug', config.prompt_template_slug)
         .eq('is_active', true)
         .order('version', { ascending: false })
@@ -140,11 +160,7 @@ export async function POST(request: NextRequest) {
         user_id: user.id
       })
 
-      return {
-        contentType,
-        generatedContent: result.response,
-        scores
-      }
+      return extractStructuredOutput(result, promptTemplate)
     })
 
     // Wait for all content generation to complete

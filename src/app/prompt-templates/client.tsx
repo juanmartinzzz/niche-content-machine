@@ -35,6 +35,7 @@ export const PromptTemplatesClient: React.FC = () => {
     system_prompt: '',
     user_prompt_template: '',
     description: '',
+    is_active: true,
     use_structured_output: false,
     structured_output_schema: '',
     structured_output_format: 'pydantic'
@@ -86,6 +87,7 @@ export const PromptTemplatesClient: React.FC = () => {
       system_prompt: '',
       user_prompt_template: '',
       description: '',
+      is_active: true,
       use_structured_output: false,
       structured_output_schema: '',
       structured_output_format: 'pydantic'
@@ -101,6 +103,7 @@ export const PromptTemplatesClient: React.FC = () => {
       system_prompt: template.system_prompt || '',
       user_prompt_template: template.user_prompt_template,
       description: template.description || '',
+      is_active: template.is_active,
       use_structured_output: template.use_structured_output || false,
       structured_output_schema: template.structured_output_schema
         ? (typeof template.structured_output_schema === 'string'
@@ -110,6 +113,37 @@ export const PromptTemplatesClient: React.FC = () => {
       structured_output_format: template.structured_output_format || 'pydantic'
     })
     setIsDrawerOpen(true)
+  }
+
+  const handleToggleActive = async (template: PromptTemplate) => {
+    try {
+      const response = await fetch(`/api/prompt-templates/${template.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          slug: template.slug,
+          name: template.name,
+          system_prompt: template.system_prompt,
+          user_prompt_template: template.user_prompt_template,
+          description: template.description,
+          is_active: !template.is_active,
+          use_structured_output: template.use_structured_output,
+          structured_output_schema: template.structured_output_schema,
+          structured_output_format: template.structured_output_format
+        })
+      })
+
+      if (response.ok) {
+        fetchTemplates()
+        showToast(`Template ${!template.is_active ? 'activated' : 'deactivated'} successfully`, 'success')
+      } else {
+        const errorData = await response.json()
+        showToast(`Error updating template: ${errorData.error || 'Unknown error'}`, 'error')
+      }
+    } catch (error) {
+      console.error('Error toggling template active status:', error)
+      showToast('Error updating template status. Please try again.', 'error')
+    }
   }
 
   const handleSaveTemplate = async () => {
@@ -245,16 +279,32 @@ export const PromptTemplatesClient: React.FC = () => {
       key: 'version',
       header: 'Version',
       render: (template) => (
-        <span className={`${styles.versionBadge} ${template.is_active ? styles.activeBadge : ''}`}>
+        <span className={styles.versionBadge}>
           v{template.version}
-          {template.is_active && ' (Active)'}
+        </span>
+      )
+    },
+    {
+      key: 'status',
+      header: 'Status',
+      render: (template) => (
+        <span
+          className={`${styles.statusPill} ${template.is_active ? styles.statusActive : styles.statusInactive} ${styles.statusClickable}`}
+          onClick={() => handleToggleActive(template)}
+          title={`Click to ${template.is_active ? 'deactivate' : 'activate'} this template`}
+        >
+          {template.is_active ? 'Active' : 'Inactive'}
         </span>
       )
     },
     {
       key: 'created_at',
       header: 'Created',
-      render: (template) => formatHumanReadableDate(template.created_at)
+      render: (template) => (
+        <span className={styles.createdText}>
+          {formatHumanReadableDate(template.created_at)}
+        </span>
+      )
     },
     {
       key: 'actions',
@@ -423,6 +473,21 @@ export const PromptTemplatesClient: React.FC = () => {
               onChange={(value) => setFormData({ ...formData, description: value })}
               placeholder="Brief description of what this template does"
             />
+          </div>
+
+          <div className={styles.formField}>
+            <label className={styles.formLabel}>
+              <input
+                type="checkbox"
+                checked={formData.is_active}
+                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                style={{ marginRight: '8px' }}
+              />
+              Active
+            </label>
+            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
+              Active templates can be used in runbooks and content generation.
+            </div>
           </div>
 
           <div className={styles.formField}>

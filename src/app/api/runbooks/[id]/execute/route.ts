@@ -1,7 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
-import { executeAIOperation } from '@/lib/ai-utils'
+import { executeAIOperation, extractStructuredOutput } from '@/lib/ai-utils'
 
 export async function POST(
   request: NextRequest,
@@ -179,49 +179,8 @@ async function executeAIOperationStep(step: Record<string, unknown>, input: Reco
     enabled_tools: step.enabled_tools as Record<string, boolean> || {}
   })
 
-  // Check if this is a structured output and extract the JSON content
-  if (promptTemplate.use_structured_output) {
-    /*
-     * Handle structured output extraction for different response formats
-     *
-     * xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939) response formats:
-     * - Without tools: direct structured JSON response
-     * - With tools: output array where final message contains JSON in content[0].text
-     */
-
-    // For xAI provider, handle both tool and non-tool response formats
-    if (result.endpoint.provider_id === 'ca208ff1-95e0-433b-b348-951b18262939') {
-      let jsonContent: string | null = null
-
-      // Check if tools were used (output is array with tool calls + final message)
-      if (Array.isArray(result.response.output) && result.response.output.length > 0) {
-        // When tools are used, JSON is in the last message's content
-        const lastMessage = result.response.output[result.response.output.length - 1]
-        if (lastMessage?.content?.[0]?.text) {
-          jsonContent = lastMessage.content[0].text
-        }
-      }
-      // Check for direct structured output (no tools used)
-      else if (result.response.output?.[0]?.content?.[0]?.text) {
-        jsonContent = result.response.output[0].content[0].text
-      }
-
-      if (jsonContent) {
-        try {
-          return JSON.parse(jsonContent)
-        } catch (parseError) {
-          console.error('Failed to parse structured output JSON:', parseError)
-          console.error('Raw JSON content:', jsonContent)
-          throw new Error('AI returned invalid structured output JSON')
-        }
-      }
-    }
-    // For other providers, the structured output might be in different locations
-    // Add provider-specific handling here as needed
-  }
-
-  // Return the AI response - for runbooks, we typically want the actual AI response content
-  return result.response
+  // Extract structured output if enabled, otherwise return raw response
+  return extractStructuredOutput(result, promptTemplate)
 }
 
 async function executeTelegramMessage(step: Record<string, unknown>, input: Record<string, unknown>, _stepExecutionId: string, userId: string) {

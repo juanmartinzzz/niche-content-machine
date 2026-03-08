@@ -271,6 +271,58 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
   }
 }
 
+/**
+ * Extract structured output from AI operation result when structured output is enabled
+ * @param result - The result from executeAIOperation
+ * @param promptTemplate - The prompt template used for the operation
+ * @returns Parsed JSON for structured output, or the raw response for non-structured output
+ */
+export function extractStructuredOutput(result: AIOperationResult, promptTemplate: any): any {
+  // Check if this is a structured output and extract the JSON content
+  if (promptTemplate.use_structured_output) {
+    /*
+     * Handle structured output extraction for different response formats
+     *
+     * xAI provider (ID: ca208ff1-95e0-433b-b348-951b18262939) response formats:
+     * - Without tools: direct structured JSON response
+     * - With tools: output array where final message contains JSON in content[0].text
+     */
+
+    // For xAI provider, handle both tool and non-tool response formats
+    if (result.endpoint.provider_id === 'ca208ff1-95e0-433b-b348-951b18262939') {
+      let jsonContent: string | null = null
+
+      // Check if tools were used (output is array with tool calls + final message)
+      if (Array.isArray(result.response.output) && result.response.output.length > 0) {
+        // When tools are used, JSON is in the last message's content
+        const lastMessage = result.response.output[result.response.output.length - 1]
+        if (lastMessage?.content?.[0]?.text) {
+          jsonContent = lastMessage.content[0].text
+        }
+      }
+      // Check for direct structured output (no tools used)
+      else if (result.response.output?.[0]?.content?.[0]?.text) {
+        jsonContent = result.response.output[0].content[0].text
+      }
+
+      if (jsonContent) {
+        try {
+          return JSON.parse(jsonContent)
+        } catch (parseError) {
+          console.error('Failed to parse structured output JSON:', parseError)
+          console.error('Raw JSON content:', jsonContent)
+          throw new Error('AI returned invalid structured output JSON')
+        }
+      }
+    }
+    // For other providers, the structured output might be in different locations
+    // Add provider-specific handling here as needed
+  }
+
+  // Return the raw response for non-structured output
+  return result.response
+}
+
 // Helper function to calculate cost (simplified)
 function calculateCost(usage: { prompt_tokens?: number; completion_tokens?: number }, model: { input_cost_per_million_tokens?: number; output_cost_per_million_tokens?: number }) {
   if (!usage || !model) return null
