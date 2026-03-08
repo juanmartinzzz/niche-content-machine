@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function PUT(
   request: NextRequest,
@@ -20,7 +21,7 @@ export async function PUT(
     const { name, base_url, is_active, global_timeout_seconds, max_retries, notes } = body
 
     if (!name || !base_url) {
-      return NextResponse.json({ error: 'Name and base_url are required' }, { status: 400 })
+      return logAndReturnError('Name and base_url are required', 400, { name, base_url })
     }
 
     const { data, error } = await supabaseAdmin

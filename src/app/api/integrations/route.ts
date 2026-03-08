@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function GET() {
   try {
@@ -51,9 +52,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     if (!type || !name) {
-      return NextResponse.json({
-        error: 'type and name are required'
-      }, { status: 400 })
+      return logAndReturnError('type and name are required', 400, { type, name })
     }
 
     const { data, error } = await supabaseAdmin

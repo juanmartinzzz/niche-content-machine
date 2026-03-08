@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function PUT(
   request: NextRequest,
@@ -32,9 +33,7 @@ export async function PUT(
     } = body
 
     if (!provider_id || !model_identifier || !display_name) {
-      return NextResponse.json({
-        error: 'provider_id, model_identifier, and display_name are required'
-      }, { status: 400 })
+      return logAndReturnError('provider_id, model_identifier, and display_name are required', 400, { provider_id, model_identifier, display_name })
     }
 
     const { data, error } = await supabaseAdmin

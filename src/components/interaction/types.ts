@@ -129,3 +129,13 @@ export interface SelectProps extends CommonProps {
   size?: ComponentSize;
   numberOptionsToShowSearch?: number;
 }
+
+// JsonTreeViewer component types
+export interface JsonTreeViewerProps extends CommonProps {
+  placeholder?: string;
+  value?: string;
+  onChange?: (value: string) => void;
+  error?: string;
+  label?: string;
+  required?: boolean;
+}

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function GET(
   request: NextRequest,
@@ -52,9 +53,7 @@ export async function POST(
     // Validate Content-Type header
     const contentType = request.headers.get('content-type')
     if (!contentType || !contentType.includes('application/json')) {
-      return NextResponse.json({
-        error: 'Content-Type must be application/json'
-      }, { status: 400 })
+      return logAndReturnError('Content-Type must be application/json', 400)
     }
 
     const supabase = await createClient()
@@ -68,9 +67,7 @@ export async function POST(
 
     // Validate runbook ID format
     if (!id || typeof id !== 'string' || id.trim() === '') {
-      return NextResponse.json({
-        error: 'Invalid runbook ID'
-      }, { status: 400 })
+      return logAndReturnError('Invalid runbook ID', 400, { id })
     }
 
     // Parse and validate request body
@@ -78,16 +75,11 @@ export async function POST(
     try {
       body = await request.json()
     } catch (parseError) {
-      console.error('Invalid JSON in request body:', parseError)
-      return NextResponse.json({
-        error: 'Invalid JSON in request body'
-      }, { status: 400 })
+      return logAndReturnError('Invalid JSON in request body', 400, parseError)
     }
 
     if (!body || typeof body !== 'object') {
-      return NextResponse.json({
-        error: 'Request body must be a valid JSON object'
-      }, { status: 400 })
+      return logAndReturnError('Request body must be a valid JSON object', 400, { body })
     }
 
     const {
@@ -112,45 +104,33 @@ export async function POST(
 
     // Validate step_name
     if (!step_name || typeof step_name !== 'string' || step_name.trim() === '') {
-      return NextResponse.json({
-        error: 'step_name is required and must be a non-empty string'
-      }, { status: 400 })
+      return logAndReturnError('step_name is required and must be a non-empty string', 400, { step_name })
     }
 
     const validStepTypes = ['ai_operation', 'endpoint_call', 'telegram_message']
     const finalStepType = step_type || 'ai_operation'
 
     if (!validStepTypes.includes(finalStepType)) {
-      return NextResponse.json({
-        error: `Invalid step_type. Must be one of: ${validStepTypes.join(', ')}`
-      }, { status: 400 })
+      return logAndReturnError(`Invalid step_type. Must be one of: ${validStepTypes.join(', ')}`, 400, { step_type: finalStepType })
     }
 
     // Validate step type specific requirements
 
     if (finalStepType === 'ai_operation') {
       if (!prompt_template_id || typeof prompt_template_id !== 'string' || prompt_template_id.trim() === '') {
-        return NextResponse.json({
-          error: 'prompt_template_id is required and must be a valid non-empty string for ai_operation steps'
-        }, { status: 400 })
+        return logAndReturnError('prompt_template_id is required and must be a valid non-empty string for ai_operation steps', 400, { prompt_template_id })
       }
       if (!endpoint_id || typeof endpoint_id !== 'string' || endpoint_id.trim() === '') {
-        return NextResponse.json({
-          error: 'endpoint_id is required and must be a valid non-empty string for ai_operation steps'
-        }, { status: 400 })
+        return logAndReturnError('endpoint_id is required and must be a valid non-empty string for ai_operation steps', 400, { endpoint_id })
       }
 
       // Validate UUID format for IDs
       const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
       if (!uuidRegex.test(prompt_template_id)) {
-        return NextResponse.json({
-          error: 'prompt_template_id must be a valid UUID'
-        }, { status: 400 })
+        return logAndReturnError('prompt_template_id must be a valid UUID', 400, { prompt_template_id })
       }
       if (!uuidRegex.test(endpoint_id)) {
-        return NextResponse.json({
-          error: 'endpoint_id must be a valid UUID'
-        }, { status: 400 })
+        return logAndReturnError('endpoint_id must be a valid UUID', 400, { endpoint_id })
       }
     } else if (finalStepType === 'endpoint_call') {
       // Check if using simple configuration
@@ -158,18 +138,14 @@ export async function POST(
       const hasAdvancedConfig = endpoint_config
 
       if (!hasSimpleConfig && !hasAdvancedConfig) {
-        return NextResponse.json({
-          error: 'http_method + endpoint_url are required for endpoint_call steps. endpoint_config is optional for advanced features.'
-        }, { status: 400 })
+        return logAndReturnError('http_method + endpoint_url are required for endpoint_call steps. endpoint_config is optional for advanced features.', 400, { http_method, endpoint_url, endpoint_config })
       }
 
       // Validate simple configuration
       if (hasSimpleConfig) {
         const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS']
         if (!validMethods.includes(http_method.toUpperCase())) {
-          return NextResponse.json({
-            error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
-          }, { status: 400 })
+          return logAndReturnError(`Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`, 400, { http_method })
         }
 
         // Validate URL format - allow both absolute and relative URLs
@@ -185,9 +161,7 @@ export async function POST(
             throw new Error('URL must be absolute (http/https) or relative (starting with /)')
           }
         } catch (urlError) {
-          return NextResponse.json({
-            error: 'endpoint_url must be a valid absolute URL (starting with http:// or https://) or relative URL (starting with /)'
-          }, { status: 400 })
+          return logAndReturnError('endpoint_url must be a valid absolute URL (starting with http:// or https://) or relative URL (starting with /)', 400, { endpoint_url, urlError })
         }
       }
 
@@ -195,23 +169,17 @@ export async function POST(
       if (hasAdvancedConfig && !hasSimpleConfig) {
         const { method, url } = endpoint_config
         if (!method || !url) {
-          return NextResponse.json({
-            error: 'endpoint_config must include method and url for endpoint_call steps'
-          }, { status: 400 })
+          return logAndReturnError('endpoint_config must include method and url for endpoint_call steps', 400, { endpoint_config })
         }
 
         const validMethods = ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']
         if (!validMethods.includes(method.toUpperCase())) {
-          return NextResponse.json({
-            error: `Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`
-          }, { status: 400 })
+          return logAndReturnError(`Invalid HTTP method. Must be one of: ${validMethods.join(', ')}`, 400, { method })
         }
       }
     } else if (finalStepType === 'telegram_message') {
       if (!body.user_telegram_chat_id || typeof body.user_telegram_chat_id !== 'string' || body.user_telegram_chat_id.trim() === '') {
-        return NextResponse.json({
-          error: 'user_telegram_chat_id is required and must be a valid non-empty string for telegram_message steps'
-        }, { status: 400 })
+        return logAndReturnError('user_telegram_chat_id is required and must be a valid non-empty string for telegram_message steps', 400, { user_telegram_chat_id: body.user_telegram_chat_id })
       }
     }
 

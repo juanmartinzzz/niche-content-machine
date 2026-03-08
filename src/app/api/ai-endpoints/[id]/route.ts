@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateSlug } from '@/utils/slug'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function PUT(
   request: NextRequest,
@@ -32,15 +33,11 @@ export async function PUT(
     } = body
 
     if (!slug || !model_id || !api_path) {
-      return NextResponse.json({
-        error: 'slug, model_id, and api_path are required'
-      }, { status: 400 })
+      return logAndReturnError('slug, model_id, and api_path are required', 400, { slug, model_id, api_path })
     }
 
     if (!validateSlug(slug)) {
-      return NextResponse.json({
-        error: 'slug must contain only lowercase letters, numbers, and dashes'
-      }, { status: 400 })
+      return logAndReturnError('slug must contain only lowercase letters, numbers, and dashes', 400, { slug })
     }
 
     const { data, error } = await supabaseAdmin

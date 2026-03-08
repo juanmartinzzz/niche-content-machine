@@ -1,0 +1,132 @@
+/* JsonTreeViewer Styles - CSS Module */
+
+.container {
+  width: 100%;
+}
+
+/* Textarea styles - based on Textarea component */
+.textarea {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-background);
+  transition: all 200ms ease-in-out;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  box-sizing: border-box;
+  resize: vertical;
+  font-weight: 400;
+  padding: 12px 16px;
+  font-size: 14px;
+  min-height: 44px;
+}
+
+.textarea:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 0;
+  border-color: var(--color-accent);
+}
+
+.textarea:disabled {
+  background-color: var(--color-surface);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.textarea::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.7;
+}
+
+.textarea.error {
+  border-color: var(--color-error) !important;
+  background-color: rgba(239, 68, 68, 0.05) !important;
+}
+
+/* Label styles */
+.label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-bottom: 8px;
+}
+
+.required {
+  color: var(--color-error);
+  margin-left: 4px;
+}
+
+/* Error message styles */
+.errorMessage {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-error);
+}
+
+/* Tree container */
+.treeContainer {
+  margin-top: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius-md);
+  background-color: var(--color-surface);
+  padding: 12px;
+}
+
+.tree {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 13px;
+}
+
+/* Tree node styles */
+.treeNode {
+  margin-bottom: 2px;
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  min-height: 20px;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--border-radius-sm);
+  transition: all 150ms ease;
+}
+
+.expandButton:hover {
+  background-color: var(--color-background);
+  color: var(--color-text-primary);
+}
+
+.expandButton:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.chevron {
+  flex-shrink: 0;
+}
+
+.placeholder {
+  width: 18px;
+  height: 14px;
+}
+
+.nodeKey {
+  color: var(--color-text-primary);
+  font-weight: 500;
+  user-select: none;
+}
+
+.children {
+  margin-top: 4px;
+}

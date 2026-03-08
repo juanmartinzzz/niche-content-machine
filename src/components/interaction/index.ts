@@ -7,6 +7,7 @@ export { PillList } from './PillList';
 export { Drawer } from './Drawer';
 export { ExpandableTable } from './ExpandableTable';
 export { Select } from './Select';
+export { JsonTreeViewer } from './JsonTreeViewer';
 export { Toast } from './Toast';
 export { ToastContainer } from './ToastContainer';
 export { ToastProvider, useToast } from './ToastContext';
@@ -28,6 +29,7 @@ export type {
   DrawerPosition,
   SelectOption,
   SelectProps,
+  JsonTreeViewerProps,
   TableColumn,
   ExpandableTableProps,
   ToastProps,

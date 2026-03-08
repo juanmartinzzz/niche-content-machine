@@ -4,6 +4,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,9 +34,7 @@ export async function POST(request: NextRequest) {
     const { chat_id, message, parse_mode } = body
 
     if (!chat_id || !message) {
-      return NextResponse.json({
-        error: 'chat_id and message are required'
-      }, { status: 400 })
+      return logAndReturnError('chat_id and message are required', 400, { chat_id, message })
     }
 
     // Validate that the chat_id belongs to the authenticated user
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (!userChat.is_active) {
-      return NextResponse.json({ error: 'Chat is disabled' }, { status: 400 })
+      return logAndReturnError('Chat is disabled', 400, { chat_id, is_active: userChat.is_active })
     }
 
     // Fetch bot configuration

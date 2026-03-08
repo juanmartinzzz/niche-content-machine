@@ -2,6 +2,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
 import { validateSlug } from '@/utils/slug'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function GET(
   request: NextRequest,
@@ -67,15 +68,11 @@ export async function PUT(
     } = body
 
     if (!slug || !name || !user_prompt_template) {
-      return NextResponse.json({
-        error: 'slug, name and user_prompt_template are required'
-      }, { status: 400 })
+      return logAndReturnError('slug, name and user_prompt_template are required', 400, { slug, name, user_prompt_template })
     }
 
     if (!validateSlug(slug)) {
-      return NextResponse.json({
-        error: 'slug must contain only lowercase letters, numbers, and dashes'
-      }, { status: 400 })
+      return logAndReturnError('slug must contain only lowercase letters, numbers, and dashes', 400, { slug })
     }
 
     const { data, error } = await supabaseAdmin

@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function GET() {
   try {
@@ -63,9 +64,7 @@ export async function POST(request: NextRequest) {
     } = body
 
     if (!name) {
-      return NextResponse.json({
-        error: 'name is required'
-      }, { status: 400 })
+      return logAndReturnError('name is required', 400, { name })
     }
 
     const { data, error } = await supabaseAdmin

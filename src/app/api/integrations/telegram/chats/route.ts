@@ -1,6 +1,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import { createClient, getTableName } from '@/lib/supabase-server'
 import { NextRequest, NextResponse } from 'next/server'
+import { logAndReturnError } from '@/lib/api-errors'
 
 export async function GET() {
   try {
@@ -43,9 +44,7 @@ export async function POST(request: NextRequest) {
     const { chat_id, chat_title } = body
 
     if (!chat_id) {
-      return NextResponse.json({
-        error: 'chat_id is required'
-      }, { status: 400 })
+      return logAndReturnError('chat_id is required', 400, { chat_id })
     }
 
     // Check if chat already exists for this user

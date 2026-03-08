@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, Pill } from '@/components/interaction'
+import { Button, Input, Textarea, Pill, JsonTreeViewer } from '@/components/interaction'
 import { Play, Square, Loader2, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react'
 
 interface Runbook {
@@ -219,16 +219,11 @@ export const RunbookExecutionClient: React.FC = () => {
 
               {inputModeRunbookId === runbook.id && (
                 <div style={{ marginBottom: '1rem' }}>
-                  <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.5rem' }}>
-                    Initial Input (JSON, optional)
-                  </label>
-                  <Textarea
+                  <JsonTreeViewer
                     value={initialInputs[runbook.id] || ''}
                     onChange={(value) => handleInputChange(runbook.id, value)}
                     placeholder="Enter initial input for the runbook..."
-                    rows={3}
-                    monospace={true}
-                    autoResize={true}
+                    label="Initial Input (JSON, optional)"
                   />
                 </div>
               )}
