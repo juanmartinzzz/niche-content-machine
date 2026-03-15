@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { Button, Input, Textarea, Drawer, useToast, PillList } from '@/components/interaction'
-import { Plus, Pencil, Trash2, FileText, Eye } from 'lucide-react'
+import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { generateSlug, validateSlug } from '@/utils/slug'
 import styles from './client.module.css'
 
@@ -49,17 +49,11 @@ const VISUAL_STYLE_OPTIONS = [
 ]
 
 interface ContentTypesTemplatesClientProps {
-  showAddButtonInline?: boolean
-  title?: string
   subtitle?: string
-  onAddContentType?: () => void
 }
 
 export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientProps> = ({
-  showAddButtonInline = false,
-  title,
   subtitle,
-  onAddContentType
 }) => {
   const [contentTypes, setContentTypes] = useState<ContentTypeWithTemplates[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -317,34 +311,22 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
 
   return (
     <>
-      {showAddButtonInline && (
-        <>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
-              {title || 'Content Types & Templates'}
-            </h1>
-            <Button onClick={onAddContentType || handleCreateContentType}>
-              <Plus size={16} />
-              Add Content Type
-            </Button>
-          </div>
-          {subtitle && (
-            <p style={{ color: '#666', marginBottom: '2rem' }}>
-              {subtitle}
-            </p>
-          )}
-        </>
-      )}
-
-      {!showAddButtonInline && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
-          <div></div>
+      <div style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+          <h1 style={{ fontSize: '2rem', fontWeight: 'bold', margin: 0 }}>
+            Content Types & Templates
+          </h1>
           <Button onClick={handleCreateContentType}>
             <Plus size={16} />
             Add Content Type
           </Button>
         </div>
-      )}
+        {subtitle && (
+          <p style={{ color: '#666', marginBottom: '2rem' }}>
+            {subtitle}
+          </p>
+        )}
+      </div>
 
       <div className={styles.contentTypesGrid}>
         {contentTypes.map((contentType) => (
@@ -363,7 +345,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
                   size="sm"
                   variant="ghost"
                   onClick={() => handleDeleteContentType(contentType)}
-                  style={{ color: '#dc2626' }}
+                  className={styles.dangerButton}
                 >
                   <Trash2 size={16} />
                 </Button>
@@ -398,7 +380,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
                           size="xs"
                           variant="ghost"
                           onClick={() => handleDeleteTemplate(template)}
-                          style={{ color: '#dc2626' }}
+                  className={styles.dangerButton}
                         >
                           <Trash2 size={12} />
                         </Button>
@@ -430,7 +412,6 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
       <Drawer
         isOpen={isTemplateDrawerOpen}
         onClose={closeTemplateDrawer}
-        title={editingTemplate ? 'Edit Template' : 'Create Template'}
       >
         <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
           {editingTemplate ? 'Edit Template' : 'Create Template'}
@@ -438,10 +419,9 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
         <div className={styles.form}>
           <div className={styles.formGrid}>
             <div className={styles.formField}>
-              <label htmlFor="templateName">Name</label>
+              <label>Name</label>
               <Input
                 size="sm"
-                id="templateName"
                 value={templateForm.name}
                 onChange={(value) => setTemplateForm(prev => ({ ...prev, name: value }))}
                 placeholder="Template name"
@@ -449,10 +429,9 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="templateSlug">Slug</label>
+              <label>Slug</label>
               <Input
                 size="sm"
-                id="templateSlug"
                 value={templateForm.slug}
                 onChange={(value) => {
                   // Only allow lowercase letters, numbers, and dashes
@@ -466,12 +445,10 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="templateWidth">Width (px)</label>
+              <label>Width (px)</label>
               <Input
                 size="sm"
-                id="templateWidth"
                 type="number"
-                min={0}
                 value={templateForm.width_pixels}
                 onChange={(value) => setTemplateForm(prev => ({ ...prev, width_pixels: value }))}
                 placeholder="Width in px"
@@ -479,12 +456,10 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="templateHeight">Height (px)</label>
+              <label>Height (px)</label>
               <Input
                 size="sm"
-                id="templateHeight"
                 type="number"
-                min={0}
                 value={templateForm.height_pixels}
                 onChange={(value) => setTemplateForm(prev => ({ ...prev, height_pixels: value }))}
                 placeholder="Height in px"
@@ -493,7 +468,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="templateVisualStyle">Visual Style</label>
+            <label>Visual Style</label>
             <PillList
               options={VISUAL_STYLE_OPTIONS}
               selected={[templateForm.visual_style]}
@@ -506,24 +481,20 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="description">Description</label>
+            <label>Description</label>
             <Textarea size="sm"
-              id="description"
               value={templateForm.description}
               onChange={(value) => setTemplateForm(prev => ({ ...prev, description: value }))}
               placeholder="Template description"
-              rows={4}
             />
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="html_template">HTML Template</label>
+            <label>HTML Template</label>
             <Textarea size="sm"
-              id="html_template"
               value={templateForm.html_template}
               onChange={(value) => setTemplateForm(prev => ({ ...prev, html_template: value }))}
               placeholder="Enter HTML template..."
-              rows={10}
               monospace
             />
           </div>
@@ -542,16 +513,14 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
       <Drawer
         isOpen={isContentTypeDrawerOpen}
         onClose={closeContentTypeDrawer}
-        title={editingContentType ? 'Edit Content Type' : 'Create Content Type'}
       >
         <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
           {editingContentType ? 'Edit Content Type' : 'Create Content Type'}
         </h3>
         <div className={styles.form}>
           <div className={styles.formField}>
-            <label htmlFor="contentTypeSlug">Slug</label>
+            <label>Slug</label>
             <Input size="sm"
-              id="contentTypeSlug"
               value={contentTypeForm.slug}
               onChange={(value) => setContentTypeForm(prev => ({ ...prev, slug: value }))}
               placeholder="content-type-slug"
@@ -559,9 +528,8 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
           </div>
 
           <div className={styles.formField}>
-            <label htmlFor="contentTypeName">Name</label>
+            <label>Name</label>
             <Input size="sm"
-              id="contentTypeName"
               value={contentTypeForm.name}
               onChange={(value) => setContentTypeForm(prev => ({ ...prev, name: value }))}
               placeholder="Content Type Name"

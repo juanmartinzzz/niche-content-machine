@@ -163,6 +163,10 @@
   margin-top: 4px;
 }
 
+.dangerButton {
+  color: #dc2626;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
   .templatesGrid {

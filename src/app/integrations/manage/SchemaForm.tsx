@@ -97,7 +97,6 @@ function SchemaField({ name, schema, value, onChange, required, path }: SchemaFi
             onChange={(val) => onChange(val)}
             placeholder={placeholder}
             required={required}
-            rows={4}
           />
         )
       }

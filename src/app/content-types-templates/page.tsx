@@ -15,7 +15,6 @@ export default async function ContentTypesTemplatesPage() {
       <main>
         <div style={{ padding: '2rem' }}>
           <ContentTypesTemplatesClient
-            showAddButtonInline={true}
             subtitle="Manage content types and their associated templates for your content generation workflows."
           />
         </div>

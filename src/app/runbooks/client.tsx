@@ -905,7 +905,6 @@ export const RunbooksClient: React.FC = () => {
                   id: template.id,
                   label: template.name
                 }))}
-                size="sm"
               />
           </div>
           )}
@@ -921,7 +920,6 @@ export const RunbooksClient: React.FC = () => {
                 id: endpoint.id,
                 label: `${endpoint.slug} (${endpoint.ai_models?.display_name} - ${endpoint.ai_models?.ai_providers?.name})`
               }))}
-              size="sm"
             />
           </div>
           )}
@@ -976,7 +974,6 @@ export const RunbooksClient: React.FC = () => {
                   id: chat.id,
                   label: chat.chat_title ? `${chat.chat_title} (${chat.chat_id})` : chat.chat_id + (chat.is_default ? ' (Default)' : '')
                 }))}
-                size="sm"
               />
               <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
                 Select the Telegram chat where the message will be sent.
@@ -1071,7 +1068,6 @@ export const RunbooksClient: React.FC = () => {
   }
 }`}
                     className={styles.formTextarea}
-                    rows={10}
                   />
                   <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
                     Advanced configuration for custom headers, body templates, and response mapping. Use {"{{input}}"} to reference step input.
