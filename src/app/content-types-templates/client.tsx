@@ -336,6 +336,13 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
               <div className={styles.contentTypeActions}>
                 <Button
                   size="sm"
+                  onClick={() => handleCreateTemplate(contentType.id)}
+                >
+                  <Plus size={14} />
+                  Add Template
+                </Button>
+                <Button
+                  size="sm"
                   variant="ghost"
                   onClick={() => handleEditContentType(contentType)}
                 >
@@ -353,21 +360,19 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             </div>
 
             <div className={styles.templatesSection}>
-              <div className={styles.templatesHeader}>
-                <Button
-                  size="sm"
-                  onClick={() => handleCreateTemplate(contentType.id)}
-                >
-                  <Plus size={14} />
-                  Add Template
-                </Button>
-              </div>
-
               <div className={styles.templatesGrid}>
                 {contentType.templates.map((template) => (
                   <div key={template.id} className={styles.templateCard}>
                     <div className={styles.templateHeader}>
-                      <h4 className={styles.templateTitle}>{template.name}</h4>
+                      <div className={styles.templateTitleLine}>
+                        <h4 className={styles.templateTitle}>{template.name}</h4>
+                        <div
+                          className={styles.visualStylePill}
+                          style={{ backgroundColor: VISUAL_STYLE_COLORS[template.visual_style] }}
+                        >
+                          {template.visual_style}
+                        </div>
+                      </div>
                       <div className={styles.templateActions}>
                         <Button
                           size="xs"
@@ -385,13 +390,6 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
                           <Trash2 size={12} />
                         </Button>
                       </div>
-                    </div>
-
-                    <div
-                      className={styles.visualStylePill}
-                      style={{ backgroundColor: VISUAL_STYLE_COLORS[template.visual_style] }}
-                    >
-                      {template.visual_style}
                     </div>
 
                     {template.description && (

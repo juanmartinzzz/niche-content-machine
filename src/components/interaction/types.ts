@@ -138,4 +138,5 @@ export interface JsonTreeViewerProps extends CommonProps {
   error?: string;
   label?: string;
   required?: boolean;
+  rows?: number;
 }

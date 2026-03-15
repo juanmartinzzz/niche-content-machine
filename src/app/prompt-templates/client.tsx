@@ -329,17 +329,6 @@ export const PromptTemplatesClient: React.FC = () => {
     return (
       <div className={styles.expandedContent}>
         <div className={styles.expandedPromptGrid}>
-          <div className={styles.expandedSection}>
-            <h4 className={styles.expandedSectionTitle}>User Prompt Template</h4>
-            <Textarea
-              size="sm"
-              value={template.user_prompt_template}
-              onChange={() => {}}
-              className={styles.expandedPromptTextarea}
-              monospace
-            />
-          </div>
-
           {template.system_prompt && (
             <div className={styles.expandedSection}>
               <h4 className={styles.expandedSectionTitle}>System Prompt</h4>
@@ -352,6 +341,17 @@ export const PromptTemplatesClient: React.FC = () => {
               />
             </div>
           )}
+
+          <div className={styles.expandedSection}>
+            <h4 className={styles.expandedSectionTitle}>User Prompt Template</h4>
+            <Textarea
+              size="sm"
+              value={template.user_prompt_template}
+              onChange={() => {}}
+              className={styles.expandedPromptTextarea}
+              monospace
+            />
+          </div>
 
           {template.use_structured_output && template.structured_output_schema && (
             <div className={styles.expandedSection}>

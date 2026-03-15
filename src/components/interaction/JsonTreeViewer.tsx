@@ -19,6 +19,7 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
     error: externalError,
     label,
     required = false,
+    rows = 2,
     className = '',
     disabled = false,
     ...props
@@ -136,6 +137,7 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
           id={textareaId}
           placeholder={placeholder}
           value={value}
+          rows={rows}
           onChange={(event) => {
             if (onChange) {
               onChange(event.target.value);
