@@ -1,8 +1,8 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, Pill, JsonTreeViewer } from '@/components/interaction'
-import { Play, Square, Loader2, CheckCircle, XCircle, Clock, AlertCircle } from 'lucide-react'
+import { Button, Textarea, Pill, JsonTreeViewer } from '@/components/interaction'
+import { Play, Square, Loader2, CheckCircle, XCircle, Clock } from 'lucide-react'
 
 interface Runbook {
   id: string
@@ -10,6 +10,7 @@ interface Runbook {
   description: string | null
   is_active: boolean
   steps: number
+  step_names: string[]
 }
 
 interface RunbookExecution {
@@ -54,7 +55,26 @@ export const RunbookExecutionClient: React.FC = () => {
       if (response.ok) {
         const data = await response.json()
         const activeRunbooks = data.filter((r: Runbook) => r.is_active)
-        setRunbooks(activeRunbooks)
+        const runbooksWithStepNames = await Promise.all(
+          activeRunbooks.map(async (runbook: Runbook) => {
+            let stepNames: string[] = []
+            try {
+              const stepsResponse = await fetch(`/api/runbooks/${runbook.id}/steps`)
+              if (stepsResponse.ok) {
+                const steps = await stepsResponse.json()
+                if (Array.isArray(steps)) {
+                  stepNames = steps
+                    .map((step: { step_name?: string }) => step.step_name)
+                    .filter((name): name is string => Boolean(name && name.trim()))
+                }
+              }
+            } catch (error) {
+              console.error('Error fetching step names:', error)
+            }
+            return { ...runbook, step_names: stepNames }
+          })
+        )
+        setRunbooks(runbooksWithStepNames)
       }
     } catch (error) {
       console.error('Error fetching runbooks:', error)
@@ -197,9 +217,20 @@ export const RunbookExecutionClient: React.FC = () => {
                 borderRadius: '8px',
                 padding: '1rem',
                 backgroundColor: 'white',
-                transition: 'all 0.2s'
+                transition: 'all 0.2s',
+                position: 'relative'
               }}
             >
+              <div
+                style={{
+                  position: 'absolute',
+                  top: '0.75rem',
+                  right: '0.75rem',
+                  pointerEvents: 'none'
+                }}
+              >
+                <Pill label="Active" size="xs" selected />
+              </div>
               <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                 {runbook.name}
               </h3>
@@ -208,15 +239,28 @@ export const RunbookExecutionClient: React.FC = () => {
                   {runbook.description}
                 </p>
               )}
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <Pill label={`${runbook.steps} steps`} size="sm" />
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                    Active
-                  </span>
+              <div style={{ marginBottom: '0.75rem' }}>
+                <div style={{ fontSize: '0.625rem', fontWeight: '500', color: '#6b7280', marginBottom: '0.35rem', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
+                  Steps
                 </div>
+                <ol
+                  style={{
+                    margin: 0,
+                    paddingLeft: '1rem',
+                    display: 'grid',
+                    gap: '0.2rem',
+                    color: '#4b5563',
+                    fontSize: '0.68rem',
+                    lineHeight: 1.25
+                  }}
+                >
+                  {runbook.step_names.map((stepName, idx) => (
+                    <li key={`${runbook.id}-${idx}`} title={stepName} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {idx + 1}. {stepName}
+                    </li>
+                  ))}
+                </ol>
               </div>
-
               {inputModeRunbookId === runbook.id && (
                 <div style={{ marginBottom: '1rem' }}>
                   <JsonTreeViewer
@@ -231,6 +275,7 @@ export const RunbookExecutionClient: React.FC = () => {
               <Button
                 onClick={() => handleExecuteClick(runbook)}
                 disabled={isExecuting}
+                size="sm"
                 style={{ width: '100%' }}
               >
                 {isExecuting ? <Loader2 size={16} className="animate-spin" style={{ marginRight: '8px' }} /> : <Play size={16} style={{ marginRight: '8px' }} />}

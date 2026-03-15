@@ -22,6 +22,8 @@ interface Template {
   visual_style: 'minimal' | 'bold' | 'modern' | 'classic' | 'clean'
   description: string | null
   html_template: string | null
+  width_pixels: number | null
+  height_pixels: number | null
   created_at: string
   updated_at: string
 }
@@ -61,7 +63,8 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
 }) => {
   const [contentTypes, setContentTypes] = useState<ContentTypeWithTemplates[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
+  const [isContentTypeDrawerOpen, setIsContentTypeDrawerOpen] = useState(false)
+  const [isTemplateDrawerOpen, setIsTemplateDrawerOpen] = useState(false)
   const [editingContentType, setEditingContentType] = useState<ContentType | null>(null)
   const [editingTemplate, setEditingTemplate] = useState<Template | null>(null)
   const [selectedContentTypeId, setSelectedContentTypeId] = useState<string | null>(null)
@@ -77,10 +80,41 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
     name: '',
     visual_style: 'minimal' as Template['visual_style'],
     description: '',
-    html_template: ''
+    html_template: '',
+    width_pixels: '1920',
+    height_pixels: '1080'
   })
 
   const [slugError, setSlugError] = useState('')
+
+  const resetContentTypeForm = () => {
+    setContentTypeForm({ slug: '', name: '' })
+  }
+
+  const resetTemplateForm = () => {
+    setTemplateForm({
+      slug: '',
+      name: '',
+      visual_style: 'minimal',
+      description: '',
+      html_template: '',
+      width_pixels: '1920',
+      height_pixels: '1080'
+    })
+  }
+
+  const closeContentTypeDrawer = () => {
+    setEditingContentType(null)
+    resetContentTypeForm()
+    setIsContentTypeDrawerOpen(false)
+  }
+
+  const closeTemplateDrawer = () => {
+    setEditingTemplate(null)
+    setSelectedContentTypeId(null)
+    resetTemplateForm()
+    setIsTemplateDrawerOpen(false)
+  }
 
   const fetchData = useCallback(async () => {
     try {
@@ -133,27 +167,31 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
   }, [templateForm.slug])
 
   const handleCreateContentType = () => {
+    closeTemplateDrawer()
     setEditingContentType(null)
     setSelectedContentTypeId(null)
-    setContentTypeForm({ slug: '', name: '' })
-    setIsDrawerOpen(true)
+    resetContentTypeForm()
+    setIsContentTypeDrawerOpen(true)
   }
 
   const handleEditContentType = (contentType: ContentType) => {
+    closeTemplateDrawer()
     setEditingContentType(contentType)
     setSelectedContentTypeId(null)
     setContentTypeForm({ slug: contentType.slug, name: contentType.name })
-    setIsDrawerOpen(true)
+    setIsContentTypeDrawerOpen(true)
   }
 
   const handleCreateTemplate = (contentTypeId: string) => {
+    closeContentTypeDrawer()
     setEditingTemplate(null)
     setSelectedContentTypeId(contentTypeId)
-    setTemplateForm({ slug: '', name: '', visual_style: 'minimal', description: '', html_template: '' })
-    setIsDrawerOpen(true)
+    resetTemplateForm()
+    setIsTemplateDrawerOpen(true)
   }
 
   const handleEditTemplate = (template: Template) => {
+    closeContentTypeDrawer()
     setEditingTemplate(template)
     setSelectedContentTypeId(template.content_type_id)
     setTemplateForm({
@@ -161,9 +199,11 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
       name: template.name,
       visual_style: template.visual_style,
       description: template.description || '',
-      html_template: template.html_template || ''
+      html_template: template.html_template || '',
+      width_pixels: template.width_pixels?.toString() || '',
+      height_pixels: template.height_pixels?.toString() || ''
     })
-    setIsDrawerOpen(true)
+    setIsTemplateDrawerOpen(true)
   }
 
   const handleSaveContentType = async () => {
@@ -182,7 +222,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
 
       if (response.ok) {
         showToast(`Content type ${editingContentType ? 'updated' : 'created'} successfully`, 'success')
-        setIsDrawerOpen(false)
+        closeContentTypeDrawer()
         fetchData()
       } else {
         showToast('Error saving content type', 'error')
@@ -200,19 +240,23 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
         : '/api/templates'
 
       const method = editingTemplate ? 'PUT' : 'POST'
+      const widthPixels = templateForm.width_pixels === '' ? null : Number(templateForm.width_pixels)
+      const heightPixels = templateForm.height_pixels === '' ? null : Number(templateForm.height_pixels)
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...templateForm,
-          content_type_id: selectedContentTypeId
+          content_type_id: selectedContentTypeId,
+          width_pixels: Number.isFinite(widthPixels) ? widthPixels : null,
+          height_pixels: Number.isFinite(heightPixels) ? heightPixels : null
         })
       })
 
       if (response.ok) {
         showToast(`Template ${editingTemplate ? 'updated' : 'created'} successfully`, 'success')
-        setIsDrawerOpen(false)
+        closeTemplateDrawer()
         fetchData()
       } else {
         showToast('Error saving template', 'error')
@@ -384,20 +428,19 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
       </div>
 
       <Drawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        title={editingContentType ? 'Edit Content Type' : editingTemplate ? 'Edit Template' : selectedContentTypeId ? 'Create Template' : 'Create Content Type'}
+        isOpen={isTemplateDrawerOpen}
+        onClose={closeTemplateDrawer}
+        title={editingTemplate ? 'Edit Template' : 'Create Template'}
       >
-        {selectedContentTypeId || editingTemplate ? (
-          // Template form
-          <>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-              {editingTemplate ? 'Edit Template' : 'Create Template'}
-            </h3>
-            <div className={styles.form}>
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+          {editingTemplate ? 'Edit Template' : 'Create Template'}
+        </h3>
+        <div className={styles.form}>
+          <div className={styles.formGrid}>
             <div className={styles.formField}>
               <label htmlFor="templateName">Name</label>
-              <Input size="sm"
+              <Input
+                size="sm"
                 id="templateName"
                 value={templateForm.name}
                 onChange={(value) => setTemplateForm(prev => ({ ...prev, name: value }))}
@@ -407,7 +450,8 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
 
             <div className={styles.formField}>
               <label htmlFor="templateSlug">Slug</label>
-              <Input size="sm"
+              <Input
+                size="sm"
                 id="templateSlug"
                 value={templateForm.slug}
                 onChange={(value) => {
@@ -422,89 +466,117 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="visualStyle">Visual Style</label>
-              <PillList
-                options={VISUAL_STYLE_OPTIONS}
-                selected={[templateForm.visual_style]}
-                onChange={(selected) => setTemplateForm(prev => ({
-                  ...prev,
-                  visual_style: selected[0] as Template['visual_style']
-                }))}
-                size="xs"
+              <label htmlFor="templateWidth">Width (px)</label>
+              <Input
+                size="sm"
+                id="templateWidth"
+                type="number"
+                min={0}
+                value={templateForm.width_pixels}
+                onChange={(value) => setTemplateForm(prev => ({ ...prev, width_pixels: value }))}
+                placeholder="Width in px"
               />
             </div>
 
             <div className={styles.formField}>
-              <label htmlFor="description">Description</label>
-              <Textarea size="sm"
-                id="description"
-                value={templateForm.description}
-                onChange={(value) => setTemplateForm(prev => ({ ...prev, description: value }))}
-                placeholder="Template description"
-                rows={4}
+              <label htmlFor="templateHeight">Height (px)</label>
+              <Input
+                size="sm"
+                id="templateHeight"
+                type="number"
+                min={0}
+                value={templateForm.height_pixels}
+                onChange={(value) => setTemplateForm(prev => ({ ...prev, height_pixels: value }))}
+                placeholder="Height in px"
               />
-            </div>
-
-            <div className={styles.formField}>
-              <label htmlFor="html_template">HTML Template</label>
-              <Textarea size="sm"
-                id="html_template"
-                value={templateForm.html_template}
-                onChange={(value) => setTemplateForm(prev => ({ ...prev, html_template: value }))}
-                placeholder="Enter HTML template..."
-                rows={10}
-                monospace
-              />
-            </div>
-
-            <div className={styles.formActions}>
-              <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleSaveTemplate}>
-                {editingTemplate ? 'Update' : 'Create'} Template
-              </Button>
             </div>
           </div>
-          </>
-        ) : (
-          // Content type form
-          <>
-            <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-              {editingContentType ? 'Edit Content Type' : 'Create Content Type'}
-            </h3>
-            <div className={styles.form}>
-            <div className={styles.formField}>
-              <label htmlFor="contentTypeSlug">Slug</label>
-              <Input size="sm"
-                id="contentTypeSlug"
-                value={contentTypeForm.slug}
-                onChange={(value) => setContentTypeForm(prev => ({ ...prev, slug: value }))}
-                placeholder="content-type-slug"
-              />
-            </div>
 
-            <div className={styles.formField}>
-              <label htmlFor="contentTypeName">Name</label>
-              <Input size="sm"
-                id="contentTypeName"
-                value={contentTypeForm.name}
-                onChange={(value) => setContentTypeForm(prev => ({ ...prev, name: value }))}
-                placeholder="Content Type Name"
-              />
-            </div>
-
-            <div className={styles.formActions}>
-              <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
-                Cancel
-              </Button>
-              <Button size="sm" onClick={handleSaveContentType}>
-                {editingContentType ? 'Update' : 'Create'} Content Type
-              </Button>
-            </div>
+          <div className={styles.formField}>
+            <label htmlFor="templateVisualStyle">Visual Style</label>
+            <PillList
+              options={VISUAL_STYLE_OPTIONS}
+              selected={[templateForm.visual_style]}
+              onChange={(selected) => setTemplateForm(prev => ({
+                ...prev,
+                visual_style: selected[0] as Template['visual_style']
+              }))}
+              size="xs"
+            />
           </div>
-          </>
-        )}
+
+          <div className={styles.formField}>
+            <label htmlFor="description">Description</label>
+            <Textarea size="sm"
+              id="description"
+              value={templateForm.description}
+              onChange={(value) => setTemplateForm(prev => ({ ...prev, description: value }))}
+              placeholder="Template description"
+              rows={4}
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <label htmlFor="html_template">HTML Template</label>
+            <Textarea size="sm"
+              id="html_template"
+              value={templateForm.html_template}
+              onChange={(value) => setTemplateForm(prev => ({ ...prev, html_template: value }))}
+              placeholder="Enter HTML template..."
+              rows={10}
+              monospace
+            />
+          </div>
+
+          <div className={styles.formActions}>
+            <Button size="sm" variant="secondary" onClick={closeTemplateDrawer}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={handleSaveTemplate}>
+              {editingTemplate ? 'Update' : 'Create'} Template
+            </Button>
+          </div>
+        </div>
+      </Drawer>
+
+      <Drawer
+        isOpen={isContentTypeDrawerOpen}
+        onClose={closeContentTypeDrawer}
+        title={editingContentType ? 'Edit Content Type' : 'Create Content Type'}
+      >
+        <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
+          {editingContentType ? 'Edit Content Type' : 'Create Content Type'}
+        </h3>
+        <div className={styles.form}>
+          <div className={styles.formField}>
+            <label htmlFor="contentTypeSlug">Slug</label>
+            <Input size="sm"
+              id="contentTypeSlug"
+              value={contentTypeForm.slug}
+              onChange={(value) => setContentTypeForm(prev => ({ ...prev, slug: value }))}
+              placeholder="content-type-slug"
+            />
+          </div>
+
+          <div className={styles.formField}>
+            <label htmlFor="contentTypeName">Name</label>
+            <Input size="sm"
+              id="contentTypeName"
+              value={contentTypeForm.name}
+              onChange={(value) => setContentTypeForm(prev => ({ ...prev, name: value }))}
+              placeholder="Content Type Name"
+            />
+          </div>
+
+          <div className={styles.formActions}>
+            <Button size="sm" variant="secondary" onClick={closeContentTypeDrawer}>
+              Cancel
+            </Button>
+            <Button size="sm" onClick={handleSaveContentType}>
+              {editingContentType ? 'Update' : 'Create'} Content Type
+            </Button>
+          </div>
+        </div>
       </Drawer>
     </>
   )

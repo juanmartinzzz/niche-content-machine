@@ -113,6 +113,12 @@
   gap: 1.5rem;
 }
 
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
 .formField {
   display: flex;
   flex-direction: column;
@@ -175,6 +181,10 @@
 
   .contentTypeActions {
     align-self: flex-end;
+  }
+
+  .formGrid {
+    grid-template-columns: 1fr;
   }
 }
 

@@ -38,7 +38,24 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { content_type_id, slug, name, visual_style, description, html_template } = body
+    const {
+      content_type_id,
+      slug,
+      name,
+      visual_style,
+      description,
+      html_template,
+      width_pixels,
+      height_pixels
+    } = body
+
+    const parsedWidthPixels = width_pixels === null || width_pixels === undefined || width_pixels === ''
+      ? null
+      : Number(width_pixels)
+
+    const parsedHeightPixels = height_pixels === null || height_pixels === undefined || height_pixels === ''
+      ? null
+      : Number(height_pixels)
 
     // Validate required fields
     if (!content_type_id || !slug || !name || !visual_style) {
@@ -59,7 +76,9 @@ export async function POST(request: NextRequest) {
         name,
         visual_style,
         description: description || null,
-        html_template: html_template || null
+        html_template: html_template || null,
+        width_pixels: Number.isFinite(parsedWidthPixels) ? parsedWidthPixels : null,
+        height_pixels: Number.isFinite(parsedHeightPixels) ? parsedHeightPixels : null
       })
       .select()
       .single()

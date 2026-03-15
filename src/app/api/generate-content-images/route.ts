@@ -3,6 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createClient, getTableName } from '@/lib/supabase-server';
 import { generateImageFromTemplate, DatabaseTemplate } from '@/lib/imageGenerator';
 import { logAndReturnError } from '@/lib/api-errors';
+import { applyTemplateMacros } from '@/utils/templateMacros';
 
 // Types matching the temp.json structure
 interface Trend {
@@ -15,9 +16,10 @@ interface Trend {
   technicalDifficultyFactor: number;
 }
 
-// Generated content can be an array of strings per content type
+type GeneratedContentValues = Record<string, unknown>;
+
 interface GeneratedContentItem {
-  [contentTypeSlug: string]: string[];
+  [contentTypeSlug: string]: GeneratedContentValues[];
 }
 
 interface GenerateContentImagesRequest {
@@ -43,6 +45,14 @@ interface GenerateContentImagesResponse {
   imagesByContentType: ContentTypeImages[];
   totalImagesGenerated: number;
   errors?: string[];
+}
+
+function isPlainObject(value: unknown): value is GeneratedContentValues {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    !Array.isArray(value)
+  );
 }
 
 export async function POST(request: NextRequest) {
@@ -172,10 +182,10 @@ export async function POST(request: NextRequest) {
       console.log(`[generate-content-images] Processing content item with types: ${contentTypeSlugs.join(', ')}`);
 
       for (const contentTypeSlug of contentTypeSlugs) {
-        const contentStrings = contentItem[contentTypeSlug];
-        console.log(`[generate-content-images] Content type '${contentTypeSlug}' has ${contentStrings?.length || 0} items`);
+        const contentValues = contentItem[contentTypeSlug];
+        console.log(`[generate-content-images] Content type '${contentTypeSlug}' has ${contentValues?.length || 0} items`);
 
-        if (!Array.isArray(contentStrings)) {
+        if (!Array.isArray(contentValues)) {
           const errorMsg = `Invalid content for type ${contentTypeSlug}: expected array`;
           console.log(`[generate-content-images] ${errorMsg}`);
           errors.push(errorMsg);
@@ -204,7 +214,9 @@ export async function POST(request: NextRequest) {
         }
 
         // Filter templates that have HTML templates
-        const validTemplates = templatesForType.filter(t => t.html_template);
+        const validTemplates = templatesForType.filter(
+          (t): t is DatabaseTemplate & { html_template: string } => Boolean(t.html_template)
+        );
         console.log(`[generate-content-images] ${validTemplates.length} templates have HTML content`);
 
         if (validTemplates.length === 0) {
@@ -217,31 +229,33 @@ export async function POST(request: NextRequest) {
         // Generate images for each content string using available templates
         const contentTypeImages: GeneratedImage[] = [];
 
-        for (let contentIndex = 0; contentIndex < contentStrings.length; contentIndex++) {
-          const contentText = contentStrings[contentIndex];
-          console.log(`[generate-content-images] Generating image ${contentIndex + 1}/${contentStrings.length} for ${contentTypeSlug}`);
+        for (let contentIndex = 0; contentIndex < contentValues.length; contentIndex++) {
+          const contentData = contentValues[contentIndex];
+          console.log(`[generate-content-images] Generating image ${contentIndex + 1}/${contentValues.length} for ${contentTypeSlug}`);
+
+          if (!isPlainObject(contentData)) {
+            const errorMsg = `Invalid content item for type ${contentTypeSlug} at index ${contentIndex}: expected object`;
+            console.log(`[generate-content-images] ${errorMsg}`);
+            errors.push(errorMsg);
+            continue;
+          }
 
           // Cycle through templates if there are more content items than templates
           const template = validTemplates[contentIndex % validTemplates.length];
           console.log(`[generate-content-images] Using template: ${template.name} (${template.slug})`);
 
           try {
-            // Prepare template data
-            const templateData = {
-              text: contentText,
-              topic: body.trend?.categoryName || '',
-              trendName: body.trend?.name || '',
-              trendDescription: body.trend?.description || '',
-              // Allow templates to access all content for this type
-              allContent: contentStrings,
-              contentIndex: contentIndex
+            // Replace macros in the template using the root-level generated content values
+            const renderedTemplate = {
+              ...template,
+              html_template: applyTemplateMacros(template.html_template, contentData)
             };
 
             console.log(`[generate-content-images] Calling generateImageFromTemplate...`);
             // Generate image
             const imageBase64 = await generateImageFromTemplate({
-              template,
-              templateData
+              template: renderedTemplate,
+              templateData: contentData
             });
             console.log(`[generate-content-images] Image generated successfully (${imageBase64.length} chars)`);
 
@@ -298,7 +312,7 @@ export async function POST(request: NextRequest) {
 export async function GET() {
   return NextResponse.json({
     message: 'Generate Content Images API',
-    usage: 'POST with { "trend": {...}, "generatedContent": [{ "contentTypeSlug": ["content1", "content2"] }] }',
+    usage: 'POST with { "trend": {...}, "generatedContent": [{ "contentTypeSlug": [{ "property1": "value1" }] }] }',
     example: {
       trend: {
         name: "Example Trend",
@@ -307,13 +321,21 @@ export async function GET() {
       generatedContent: [
         {
           hotTakes: [
-            "AI agents sound revolutionary until they spend 45 minutes reasoning...",
-            "Venture capital is pouring billions into agents..."
+            {
+              statement: "AI agents sound revolutionary until they spend 45 minutes reasoning...",
+              source: "Industry commentary"
+            },
+            {
+              statement: "Venture capital is pouring billions into agent frameworks.",
+              source: "Funding update"
+            }
           ]
         },
         {
           aiToolComparisons: [
-            "Groq LPU vs NVIDIA H100: 10x throughput..."
+            {
+              statement: "Groq LPU vs NVIDIA H100: 10x throughput."
+            }
           ]
         }
       ]
