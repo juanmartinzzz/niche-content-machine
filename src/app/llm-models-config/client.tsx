@@ -958,7 +958,7 @@ function ProviderForm({
       </h3>
 
       <form onSubmit={handleSubmit} className={styles.drawerForm}>
-        <Input
+        <Input size="sm"
           label="Name"
           value={formData.name}
           onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
@@ -966,7 +966,7 @@ function ProviderForm({
           placeholder="e.g. xAI Grok"
         />
 
-        <Input
+        <Input size="sm"
           label="Base URL"
           value={formData.base_url}
           onChange={(value) => setFormData(prev => ({ ...prev, base_url: value }))}
@@ -987,7 +987,7 @@ function ProviderForm({
           </label>
         </div>
 
-        <Input
+        <Input size="sm"
           label="Global Timeout (seconds)"
           type="number"
           value={formData.global_timeout_seconds.toString()}
@@ -997,7 +997,7 @@ function ProviderForm({
           }))}
         />
 
-        <Input
+        <Input size="sm"
           label="Max Retries"
           type="number"
           value={formData.max_retries.toString()}
@@ -1007,7 +1007,7 @@ function ProviderForm({
           }))}
         />
 
-        <Textarea
+        <Textarea size="sm"
           label="Notes"
           value={formData.notes}
           onChange={(value) => setFormData(prev => ({ ...prev, notes: value }))}
@@ -1016,10 +1016,10 @@ function ProviderForm({
         />
 
         <div className={styles.formActions}>
-          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+          <Button size="sm" variant="ghost" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button size="sm" type="submit" disabled={isLoading}>
             {isLoading ? 'Saving...' : (provider ? 'Update' : 'Create')}
           </Button>
         </div>
@@ -1080,7 +1080,7 @@ function ModelForm({
       </h3>
 
       <form onSubmit={handleSubmit} className={styles.drawerForm}>
-        <Select
+        <Select size="sm"
           label="Provider"
           value={formData.provider_id}
           onChange={(value) => setFormData(prev => ({ ...prev, provider_id: value }))}
@@ -1092,7 +1092,7 @@ function ModelForm({
           required
         />
 
-        <Input
+        <Input size="sm"
           label="Model Identifier"
           value={formData.model_identifier}
           onChange={(value) => setFormData(prev => ({ ...prev, model_identifier: value }))}
@@ -1100,7 +1100,7 @@ function ModelForm({
           placeholder="e.g. grok-3"
         />
 
-        <Input
+        <Input size="sm"
           label="Display Name"
           value={formData.display_name}
           onChange={(value) => setFormData(prev => ({ ...prev, display_name: value }))}
@@ -1108,7 +1108,7 @@ function ModelForm({
           placeholder="e.g. Grok 3"
         />
 
-        <Input
+        <Input size="sm"
           label="Context Window (tokens)"
           type="number"
           value={formData.context_window_tokens?.toString() || ''}
@@ -1119,7 +1119,7 @@ function ModelForm({
           placeholder="e.g. 131072"
         />
 
-        <Input
+        <Input size="sm"
           label="Max Output Tokens"
           type="number"
           value={formData.max_output_tokens?.toString() || ''}
@@ -1180,7 +1180,7 @@ function ModelForm({
           </div>
         </div>
 
-        <Input
+        <Input size="sm"
           label="Input Cost (per million tokens)"
           type="number"
           value={formData.input_cost_per_million_tokens?.toString() || ''}
@@ -1191,7 +1191,7 @@ function ModelForm({
           placeholder="e.g. 0.000005"
         />
 
-        <Input
+        <Input size="sm"
           label="Output Cost (per million tokens)"
           type="number"
           value={formData.output_cost_per_million_tokens?.toString() || ''}
@@ -1203,10 +1203,10 @@ function ModelForm({
         />
 
         <div className={styles.formActions}>
-          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+          <Button size="sm" variant="ghost" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button size="sm" type="submit" disabled={isLoading}>
             {isLoading ? 'Saving...' : (model ? 'Update' : 'Create')}
           </Button>
         </div>
@@ -1287,7 +1287,7 @@ function EndpointForm({
       </h3>
 
       <form onSubmit={handleSubmit} className={styles.drawerForm}>
-        <Input
+        <Input size="sm"
           label="Slug"
           value={formData.slug}
           onChange={(value) => {
@@ -1318,7 +1318,7 @@ function EndpointForm({
           />
         </div>
 
-        <Input
+        <Input size="sm"
           label="API Path"
           value={formData.api_path}
           onChange={(value) => setFormData(prev => ({ ...prev, api_path: value }))}
@@ -1326,7 +1326,7 @@ function EndpointForm({
           placeholder="e.g. /chat/completions"
         />
 
-        <Select
+        <Select size="sm"
           label="HTTP Method"
           value={formData.http_method}
           onChange={(value) => setFormData(prev => ({ ...prev, http_method: value }))}
@@ -1338,7 +1338,7 @@ function EndpointForm({
           ]}
         />
 
-        <Input
+        <Input size="sm"
           label="Default Temperature"
           type="number"
           value={formData.default_temperature?.toString() || ''}
@@ -1349,7 +1349,7 @@ function EndpointForm({
           placeholder="e.g. 0.7"
         />
 
-        <Input
+        <Input size="sm"
           label="Default Max Tokens"
           type="number"
           value={formData.default_max_tokens?.toString() || ''}
@@ -1360,7 +1360,7 @@ function EndpointForm({
           placeholder="e.g. 4096"
         />
 
-        <Input
+        <Input size="sm"
           label="Default Top-P"
           type="number"
           value={formData.default_top_p?.toString() || ''}
@@ -1399,7 +1399,7 @@ function EndpointForm({
           </div>
         </div>
 
-        <Textarea
+        <Textarea size="sm"
           label="Description"
           value={formData.description}
           onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
@@ -1408,10 +1408,10 @@ function EndpointForm({
         />
 
         <div className={styles.formActions}>
-          <Button variant="ghost" onClick={onCancel} disabled={isLoading}>
+          <Button size="sm" variant="ghost" onClick={onCancel} disabled={isLoading}>
             Cancel
           </Button>
-          <Button type="submit" disabled={isLoading}>
+          <Button size="sm" type="submit" disabled={isLoading}>
             {isLoading ? 'Saving...' : (endpoint ? 'Update' : 'Create')}
           </Button>
         </div>

@@ -21,6 +21,7 @@ interface Template {
   name: string
   visual_style: 'minimal' | 'bold' | 'modern' | 'classic' | 'clean'
   description: string | null
+  html_template: string | null
   created_at: string
   updated_at: string
 }
@@ -75,7 +76,8 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
     slug: '',
     name: '',
     visual_style: 'minimal' as Template['visual_style'],
-    description: ''
+    description: '',
+    html_template: ''
   })
 
   const [slugError, setSlugError] = useState('')
@@ -147,7 +149,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
   const handleCreateTemplate = (contentTypeId: string) => {
     setEditingTemplate(null)
     setSelectedContentTypeId(contentTypeId)
-    setTemplateForm({ slug: '', name: '', visual_style: 'minimal', description: '' })
+    setTemplateForm({ slug: '', name: '', visual_style: 'minimal', description: '', html_template: '' })
     setIsDrawerOpen(true)
   }
 
@@ -158,7 +160,8 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
       slug: template.slug,
       name: template.name,
       visual_style: template.visual_style,
-      description: template.description || ''
+      description: template.description || '',
+      html_template: template.html_template || ''
     })
     setIsDrawerOpen(true)
   }
@@ -394,7 +397,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             <div className={styles.form}>
             <div className={styles.formField}>
               <label htmlFor="templateName">Name</label>
-              <Input
+              <Input size="sm"
                 id="templateName"
                 value={templateForm.name}
                 onChange={(value) => setTemplateForm(prev => ({ ...prev, name: value }))}
@@ -404,7 +407,7 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
 
             <div className={styles.formField}>
               <label htmlFor="templateSlug">Slug</label>
-              <Input
+              <Input size="sm"
                 id="templateSlug"
                 value={templateForm.slug}
                 onChange={(value) => {
@@ -427,26 +430,38 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
                   ...prev,
                   visual_style: selected[0] as Template['visual_style']
                 }))}
-                size="sm"
+                size="xs"
               />
             </div>
 
             <div className={styles.formField}>
               <label htmlFor="description">Description</label>
-              <Textarea
+              <Textarea size="sm"
                 id="description"
                 value={templateForm.description}
-                onChange={(e) => setTemplateForm(prev => ({ ...prev, description: e.target.value }))}
+                onChange={(value) => setTemplateForm(prev => ({ ...prev, description: value }))}
                 placeholder="Template description"
                 rows={4}
               />
             </div>
 
+            <div className={styles.formField}>
+              <label htmlFor="html_template">HTML Template</label>
+              <Textarea size="sm"
+                id="html_template"
+                value={templateForm.html_template}
+                onChange={(value) => setTemplateForm(prev => ({ ...prev, html_template: value }))}
+                placeholder="Enter HTML template..."
+                rows={10}
+                monospace
+              />
+            </div>
+
             <div className={styles.formActions}>
-              <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+              <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveTemplate}>
+              <Button size="sm" onClick={handleSaveTemplate}>
                 {editingTemplate ? 'Update' : 'Create'} Template
               </Button>
             </div>
@@ -461,29 +476,29 @@ export const ContentTypesTemplatesClient: React.FC<ContentTypesTemplatesClientPr
             <div className={styles.form}>
             <div className={styles.formField}>
               <label htmlFor="contentTypeSlug">Slug</label>
-              <Input
+              <Input size="sm"
                 id="contentTypeSlug"
                 value={contentTypeForm.slug}
-                onChange={(e) => setContentTypeForm(prev => ({ ...prev, slug: e.target.value }))}
+                onChange={(value) => setContentTypeForm(prev => ({ ...prev, slug: value }))}
                 placeholder="content-type-slug"
               />
             </div>
 
             <div className={styles.formField}>
               <label htmlFor="contentTypeName">Name</label>
-              <Input
+              <Input size="sm"
                 id="contentTypeName"
                 value={contentTypeForm.name}
-                onChange={(e) => setContentTypeForm(prev => ({ ...prev, name: e.target.value }))}
+                onChange={(value) => setContentTypeForm(prev => ({ ...prev, name: value }))}
                 placeholder="Content Type Name"
               />
             </div>
 
             <div className={styles.formActions}>
-              <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+              <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
                 Cancel
               </Button>
-              <Button onClick={handleSaveContentType}>
+              <Button size="sm" onClick={handleSaveContentType}>
                 {editingContentType ? 'Update' : 'Create'} Content Type
               </Button>
             </div>

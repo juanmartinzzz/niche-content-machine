@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { content_type_id, slug, name, visual_style, description } = body
+    const { content_type_id, slug, name, visual_style, description, html_template } = body
 
     // Validate required fields
     if (!content_type_id || !slug || !name || !visual_style) {
@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
         slug,
         name,
         visual_style,
-        description: description || null
+        description: description || null,
+        html_template: html_template || null
       })
       .select()
       .single()

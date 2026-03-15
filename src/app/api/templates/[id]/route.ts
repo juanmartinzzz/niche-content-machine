@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server'
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -14,9 +14,9 @@ export async function PUT(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
-    const { content_type_id, slug, name, visual_style, description } = body
+    const { content_type_id, slug, name, visual_style, description, html_template } = body
 
     // Validate required fields
     if (!content_type_id || !slug || !name || !visual_style) {
@@ -36,7 +36,8 @@ export async function PUT(
         slug,
         name,
         visual_style,
-        description: description || null
+        description: description || null,
+        html_template: html_template || null
       })
       .eq('id', id)
       .select()
@@ -60,7 +61,7 @@ export async function PUT(
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
@@ -70,7 +71,7 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    const { id } = params
+    const { id } = await params
 
     const { error } = await supabaseAdmin
       .from(getTableName('templates'))

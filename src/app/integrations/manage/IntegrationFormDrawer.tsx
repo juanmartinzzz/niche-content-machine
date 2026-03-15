@@ -120,7 +120,7 @@ export function IntegrationFormDrawer({
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
+          <Input size="sm"
             label="Type"
             value={formData.type}
             onChange={(value) => setFormData(prev => ({ ...prev, type: value }))}
@@ -128,7 +128,7 @@ export function IntegrationFormDrawer({
             required
           />
 
-          <Input
+          <Input size="sm"
             label="Name"
             value={formData.name}
             onChange={(value) => setFormData(prev => ({ ...prev, name: value }))}
@@ -136,7 +136,7 @@ export function IntegrationFormDrawer({
             required
           />
 
-          <Textarea
+          <Textarea size="sm"
             label="Description"
             value={formData.description}
             onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
@@ -145,7 +145,7 @@ export function IntegrationFormDrawer({
             autoResize={true}
           />
 
-          <Textarea
+          <Textarea size="sm"
             label="Configuration Schema (JSON)"
             value={formData.config_schema}
             onChange={handleConfigSchemaChange}
@@ -183,6 +183,7 @@ export function IntegrationFormDrawer({
 
           <div className={styles.formButtons}>
             <Button
+              size="sm"
               type="button"
               variant="secondary"
               onClick={onClose}
@@ -191,6 +192,7 @@ export function IntegrationFormDrawer({
               Cancel
             </Button>
             <Button
+              size="sm"
               type="submit"
               disabled={loading}
               className={styles.formButton}

@@ -782,7 +782,7 @@ export const RunbooksClient: React.FC = () => {
           </h3>
           <div className={styles.formField}>
             <label className={styles.formLabel}>Runbook Name</label>
-            <Input
+            <Input size="sm"
               value={formData.name}
               onChange={(value) => setFormData({ ...formData, name: value })}
               placeholder="e.g., Blog Post Creation Workflow"
@@ -791,7 +791,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Description (Optional)</label>
-            <Textarea
+            <Textarea size="sm"
               value={formData.description}
               onChange={(value) => setFormData({ ...formData, description: value })}
               placeholder="Brief description of what this runbook does"
@@ -801,7 +801,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Max Execution Time (minutes)</label>
-            <Input
+            <Input size="sm"
               type="number"
               value={formData.max_execution_time_minutes.toString()}
               onChange={(value) => setFormData({ ...formData, max_execution_time_minutes: parseInt(value) || 30 })}
@@ -819,7 +819,7 @@ export const RunbooksClient: React.FC = () => {
               selected={[formData.on_error_behavior]}
               onChange={(selected) => setFormData({ ...formData, on_error_behavior: selected[0] as 'stop' | 'continue' })}
               variant="single"
-              size="sm"
+              size="xs"
             />
           </div>
 
@@ -839,10 +839,10 @@ export const RunbooksClient: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '2rem' }}>
-            <Button onClick={handleSaveRunbook}>
+            <Button size="sm" onClick={handleSaveRunbook}>
               {editingRunbook ? 'Update Runbook' : 'Create Runbook'}
             </Button>
-            <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+            <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
               Cancel
             </Button>
           </div>
@@ -862,7 +862,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Step Name</label>
-            <Input
+            <Input size="sm"
               value={stepFormData.step_name}
               onChange={(value) => setStepFormData({ ...stepFormData, step_name: value })}
               placeholder="e.g., Generate blog outline"
@@ -871,7 +871,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Description (Optional)</label>
-            <Textarea
+            <Textarea size="sm"
               value={stepFormData.description}
               onChange={(value) => setStepFormData({ ...stepFormData, description: value })}
               placeholder="Brief description of what this step does"
@@ -896,7 +896,7 @@ export const RunbooksClient: React.FC = () => {
 
           {stepFormData.step_type === 'ai_operation' && (
             <div className={styles.formField}>
-              <Select
+              <Select size="sm"
                 label="Prompt Template"
                 value={stepFormData.prompt_template_id}
                 onChange={(value) => setStepFormData({ ...stepFormData, prompt_template_id: value })}
@@ -912,7 +912,7 @@ export const RunbooksClient: React.FC = () => {
 
           {stepFormData.step_type === 'ai_operation' && (
           <div className={styles.formField}>
-            <Select
+            <Select size="sm"
               label="Endpoint"
               value={stepFormData.endpoint_id}
               onChange={(value) => setStepFormData({ ...stepFormData, endpoint_id: value })}
@@ -944,7 +944,7 @@ export const RunbooksClient: React.FC = () => {
                     setStepFormData({ ...stepFormData, enabled_tools: newEnabledTools })
                   }}
                   variant="multiple"
-                  size="sm"
+                  size="xs"
                 />
               </div>
               <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '12px' }}>
@@ -967,7 +967,7 @@ export const RunbooksClient: React.FC = () => {
 
           {stepFormData.step_type === 'telegram_message' && (
             <div className={styles.formField}>
-              <Select
+              <Select size="sm"
                 label="Telegram Chat"
                 value={stepFormData.user_telegram_chat_id}
                 onChange={(value) => setStepFormData({ ...stepFormData, user_telegram_chat_id: value })}
@@ -1001,14 +1001,14 @@ export const RunbooksClient: React.FC = () => {
                   selected={stepFormData.http_method ? [stepFormData.http_method] : []}
                   onChange={(selected) => setStepFormData({ ...stepFormData, http_method: selected[0] || '' })}
                   variant="single"
-                  size="sm"
+                  size="xs"
                   maxVisibleItems={2}
                 />
               </div>
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Endpoint URL</label>
-                <Input
+                <Input size="sm"
                   value={stepFormData.endpoint_url}
                   onChange={(value) => setStepFormData({ ...stepFormData, endpoint_url: value })}
                   placeholder="https://api.example.com/endpoint"
@@ -1049,7 +1049,7 @@ export const RunbooksClient: React.FC = () => {
               {stepFormData.endpoint_config && (
                 <div className={styles.formField}>
                   <label className={styles.formLabel}>Advanced Endpoint Configuration</label>
-                  <Textarea
+                  <Textarea size="sm"
                     value={stepFormData.endpoint_config ? JSON.stringify(stepFormData.endpoint_config, null, 2) : ''}
                     onChange={(value) => {
                       try {
@@ -1084,7 +1084,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Timeout (seconds)</label>
-            <Input
+            <Input size="sm"
               type="number"
               value={stepFormData.timeout_seconds.toString()}
               onChange={(value) => setStepFormData({ ...stepFormData, timeout_seconds: parseInt(value) || 300 })}
@@ -1094,7 +1094,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Retry Count</label>
-            <Input
+            <Input size="sm"
               type="number"
               value={stepFormData.retry_count.toString()}
               onChange={(value) => setStepFormData({ ...stepFormData, retry_count: parseInt(value) || 0 })}
@@ -1104,7 +1104,7 @@ export const RunbooksClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Retry Delay (seconds)</label>
-            <Input
+            <Input size="sm"
               type="number"
               value={stepFormData.retry_delay_seconds.toString()}
               onChange={(value) => setStepFormData({ ...stepFormData, retry_delay_seconds: parseInt(value) || 5 })}
@@ -1113,10 +1113,10 @@ export const RunbooksClient: React.FC = () => {
           </div>
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '2rem' }}>
-            <Button onClick={handleSaveStep}>
+            <Button size="sm" onClick={handleSaveStep}>
               {editingStep ? 'Update Step' : 'Add Step'}
             </Button>
-            <Button variant="secondary" onClick={() => setIsStepDrawerOpen(false)}>
+            <Button size="sm" variant="secondary" onClick={() => setIsStepDrawerOpen(false)}>
               Cancel
             </Button>
           </div>

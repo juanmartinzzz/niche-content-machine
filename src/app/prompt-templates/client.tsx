@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, useToast, type TableColumn } from '@/components/interaction'
+import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, JsonTreeViewer, useToast, type TableColumn } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Braces, Copy } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import { generateSlug, validateSlug } from '@/utils/slug'
@@ -444,7 +444,7 @@ export const PromptTemplatesClient: React.FC = () => {
           </h3>
           <div className={styles.formField}>
             <label className={styles.formLabel}>Template Name</label>
-            <Input
+            <Input size="sm"
               value={formData.name}
               onChange={(value) => setFormData({ ...formData, name: value })}
               placeholder="e.g., Blog Post Generator"
@@ -453,7 +453,7 @@ export const PromptTemplatesClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Slug</label>
-            <Input
+            <Input size="sm"
               value={formData.slug}
               onChange={(value) => {
                 // Only allow lowercase letters, numbers, and dashes
@@ -468,7 +468,7 @@ export const PromptTemplatesClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>Description (Optional)</label>
-            <Input
+            <Input size="sm"
               value={formData.description}
               onChange={(value) => setFormData({ ...formData, description: value })}
               placeholder="Brief description of what this template does"
@@ -492,7 +492,7 @@ export const PromptTemplatesClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>System Prompt (Optional)</label>
-            <Textarea
+            <Textarea size="sm"
               value={formData.system_prompt}
               onChange={(value) => setFormData({ ...formData, system_prompt: value })}
               placeholder="System instructions for the AI..."
@@ -502,7 +502,7 @@ export const PromptTemplatesClient: React.FC = () => {
 
           <div className={styles.formField}>
             <label className={styles.formLabel}>User Prompt Template</label>
-            <Textarea
+            <Textarea size="sm"
               value={formData.user_prompt_template}
               onChange={(value) => setFormData({ ...formData, user_prompt_template: value })}
               placeholder="User prompt template with {{variables}}..."
@@ -538,13 +538,13 @@ export const PromptTemplatesClient: React.FC = () => {
                   selected={[formData.structured_output_format]}
                   onChange={(selected) => setFormData({ ...formData, structured_output_format: selected[0] || 'pydantic' })}
                   variant="single"
-                  size="sm"
+                  size="xs"
                 />
               </div>
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>Output Schema</label>
-                <Textarea
+                <JsonTreeViewer
                   value={formData.structured_output_schema}
                   onChange={(value) => setFormData({ ...formData, structured_output_schema: value })}
                   placeholder={`Define your schema here. For example:
@@ -573,17 +573,16 @@ JSON Schema:
   "required": ["title", "summary"]
 }`}
                   className={styles.formTextarea}
-                  rows={12}
                 />
               </div>
             </>
           )}
 
           <div style={{ display: 'flex', gap: '12px', marginTop: '2rem' }}>
-            <Button onClick={handleSaveTemplate}>
+            <Button size="sm" onClick={handleSaveTemplate}>
               {editingTemplate ? 'Update Template' : 'Create Template'}
             </Button>
-            <Button variant="secondary" onClick={() => setIsDrawerOpen(false)}>
+            <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
               Cancel
             </Button>
           </div>

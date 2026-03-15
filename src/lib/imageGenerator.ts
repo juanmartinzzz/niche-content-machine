@@ -50,6 +50,22 @@ export interface ImageGeneratorOutput {
   images: string[]; // Array of base64 data URLs
 }
 
+export interface DatabaseTemplate {
+  id: string;
+  slug: string;
+  name: string;
+  visual_style: 'minimal' | 'bold' | 'modern' | 'classic' | 'clean';
+  html_template: string | null;
+  width_pixels: number | null;
+  height_pixels: number | null;
+  content_type_id: string;
+}
+
+export interface ImageFromTemplateInput {
+  template: DatabaseTemplate;
+  templateData: TemplateData;
+}
+
 // HTML templates for each visual style
 const templates: Record<VisualStyle, string> = {
   minimal: `<!DOCTYPE html>
@@ -384,6 +400,19 @@ const templates: Record<VisualStyle, string> = {
   `,
 };
 
+async function launchBrowser() {
+  const executablePath = await getExecutablePath();
+  const isLocal = process.env.NODE_ENV !== 'production';
+
+  return puppeteer.launch({
+    executablePath,
+    headless: true,
+    args: isLocal
+      ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor']
+      : [...chromium.args, '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor'],
+  });
+}
+
 export async function generateHotTakeImages(input: ImageGeneratorInput): Promise<ImageGeneratorOutput> {
   const { template_json, visualStyle } = input;
 
@@ -397,18 +426,7 @@ export async function generateHotTakeImages(input: ImageGeneratorInput): Promise
 
   let browser;
   try {
-    // Launch browser with executable path detection
-    const executablePath = await getExecutablePath();
-    const isLocal = process.env.NODE_ENV !== 'production';
-
-    browser = await puppeteer.launch({
-      executablePath,
-      headless: true,
-      args: isLocal
-        ? ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage', '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor']
-        : [...chromium.args, '--font-render-hinting=none', '--disable-web-security', '--disable-features=VizDisplayCompositor'],
-    });
-
+    browser = await launchBrowser();
     const page = await browser.newPage();
 
     // Set viewport
@@ -442,6 +460,67 @@ export async function generateHotTakeImages(input: ImageGeneratorInput): Promise
   } catch (error) {
     console.error('Error generating image:', error);
     throw new Error(`Failed to generate image: ${error.message}`);
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
+  }
+}
+
+export async function generateImageFromTemplate(input: ImageFromTemplateInput): Promise<string> {
+  const { template, templateData } = input;
+
+  if (!template.html_template) {
+    throw new Error(`Template ${template.slug} has no HTML template`);
+  }
+
+  // Use template dimensions or fall back to defaults
+  const width = template.width_pixels || 1000;
+  const height = template.height_pixels || 600;
+
+  let browser;
+  try {
+    browser = await launchBrowser();
+    const page = await browser.newPage();
+
+    // Set viewport to template dimensions
+    await page.setViewport({ width, height });
+
+    // Load the HTML template
+    await page.setContent(template.html_template);
+
+    // Inject the template data - the HTML template should have a renderText function
+    await page.evaluate((data) => {
+      if (typeof (window as any).renderText === 'function') {
+        (window as any).renderText(data);
+      } else {
+        // Fallback: try to find common element IDs and set text content
+        const textEl = document.getElementById('text') || document.getElementById('hotTakeText') || document.getElementById('content');
+        const authorEl = document.getElementById('author') || document.getElementById('authorText');
+        const topicEl = document.getElementById('topic') || document.getElementById('topicText');
+
+        if (textEl && data.text) textEl.textContent = data.text;
+        if (authorEl && data.author) authorEl.textContent = data.author;
+        if (topicEl && data.topic) topicEl.textContent = data.topic;
+      }
+    }, templateData);
+
+    // Wait for fonts and rendering
+    await new Promise(resolve => setTimeout(resolve, 300));
+
+    // Take screenshot
+    const screenshot = await page.screenshot({
+      type: 'png',
+      encoding: 'base64',
+      omitBackground: true,
+      deviceScaleFactor: 2
+    });
+
+    return `data:image/png;base64,${screenshot}`;
+
+  } catch (error) {
+    console.error('Error generating image from template:', error);
+    throw new Error(`Failed to generate image from template ${template.slug}: ${error.message}`);
   } finally {
     if (browser) {
       await browser.close();

@@ -357,7 +357,7 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
                   Telegram Chat ID
                 </label>
-                <Input
+                <Input size="sm"
                   value={editChatId}
                   onChange={(value) => setEditChatId(value.startsWith('+') ? value.slice(1) : value)}
                   placeholder="e.g., 123456789 or @username"
@@ -370,7 +370,7 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
                 <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
                   Chat Title
                 </label>
-                <Input
+                <Input size="sm"
                   value={editTitle}
                   onChange={setEditTitle}
                   placeholder="Enter a custom title for this chat"
@@ -380,10 +380,10 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
                 </p>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <Button onClick={handleSaveEdit}>
+                <Button size="sm" onClick={handleSaveEdit}>
                   Save Changes
                 </Button>
-                <Button variant="ghost" onClick={handleCancelEdit}>
+                <Button size="sm" variant="ghost" onClick={handleCancelEdit}>
                   Cancel
                 </Button>
               </div>
@@ -407,7 +407,7 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
                 Chat ID *
               </label>
-              <Input
+              <Input size="sm"
                 value={formData.chat_id}
                 onChange={(value) => setFormData({ ...formData, chat_id: value })}
                 placeholder="e.g., 123456789 or @username"
@@ -420,7 +420,7 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
               <label style={{ display: 'block', fontSize: '0.875rem', fontWeight: '500', marginBottom: '0.25rem' }}>
                 Chat Title (Optional)
               </label>
-              <Input
+              <Input size="sm"
                 value={formData.chat_title}
                 onChange={(value) => setFormData({ ...formData, chat_title: value })}
                 placeholder="e.g., My Personal Chat"
@@ -428,13 +428,14 @@ export const TelegramClient: React.FC<TelegramClientProps> = ({ showHeaderButton
             </div>
             <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
               <Button
+                size="sm"
                 onClick={handleAddChat}
                 disabled={!formData.chat_id.trim() || isSubmitting}
               >
                 <Plus size={16} style={{ marginRight: '8px' }} />
                 {isSubmitting ? 'Adding...' : 'Add Chat'}
               </Button>
-              <Button variant="ghost" onClick={handleCloseAddDrawer}>
+              <Button size="sm" variant="ghost" onClick={handleCloseAddDrawer}>
                 Cancel
               </Button>
             </div>

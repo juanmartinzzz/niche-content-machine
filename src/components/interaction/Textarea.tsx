@@ -1,6 +1,6 @@
 'use client';
 
-import React, { forwardRef, useId, useEffect, useRef, useState } from 'react';
+import React, { forwardRef, useEffect, useId, useRef, useState } from 'react';
 import { TextareaProps, ComponentSize } from './types';
 import styles from './Textarea.module.css';
 
@@ -14,7 +14,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
     required = false,
     size = 'md',
     rows = 2,
-    autoResize = false,
+    autoResize = true,
     monospace = false,
     className = '',
     disabled = false,
@@ -71,7 +71,7 @@ export const Textarea = forwardRef<HTMLTextAreaElement, TextareaProps>(
           onBlur={() => setIsFocused(false)}
           disabled={disabled}
           required={required}
-          rows={autoResize ? 1 : rows}
+          rows={rows}
           className={`${styles.base} ${styles[size]} ${hasError ? styles.error : ''} ${monospace ? styles.monospace : ''} ${className}`}
           aria-describedby={hasError ? `${textareaId}-error` : undefined}
           aria-invalid={hasError}
