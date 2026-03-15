@@ -1,8 +1,8 @@
 'use client'
 
-import React, { useState, useEffect, useCallback } from 'react'
-import { Button, ExpandableTable, PillList, Select, Textarea, type TableColumn, type SelectOption } from '@/components/interaction'
-import { CheckCircle, XCircle, Clock, Loader2, AlertCircle, Play, ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
+import { Button, ExpandableTable, PillList, Textarea, type TableColumn, type SelectOption } from '@/components/interaction'
+import { CheckCircle, XCircle, Clock, Loader2, AlertCircle, ChevronLeft, ChevronRight } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 
 interface Runbook {
@@ -56,16 +56,19 @@ interface ApiResponse {
 }
 
 export const PastExecutionsClient: React.FC = () => {
+  const ALL_FILTER_VALUE = 'all'
+
   const [executions, setExecutions] = useState<Execution[]>([])
   const [runbooks, setRunbooks] = useState<Runbook[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState<PaginationInfo | null>(null)
 
   // Filters
-  const [selectedRunbook, setSelectedRunbook] = useState<string>('')
-  const [selectedStatus, setSelectedStatus] = useState<string>('')
+  const [selectedRunbook, setSelectedRunbook] = useState<string>(ALL_FILTER_VALUE)
+  const [selectedStatus, setSelectedStatus] = useState<string>(ALL_FILTER_VALUE)
   const [currentPage, setCurrentPage] = useState(1)
   const [pageSize, setPageSize] = useState(20)
+  const executionRequestId = useRef(0)
 
   const fetchRunbooks = useCallback(async () => {
     try {
@@ -80,6 +83,9 @@ export const PastExecutionsClient: React.FC = () => {
   }, [])
 
   const fetchExecutions = useCallback(async () => {
+    const requestId = ++executionRequestId.current
+    setExecutions([])
+    setPagination(null)
     setIsLoading(true)
     try {
       const params = new URLSearchParams({
@@ -89,15 +95,16 @@ export const PastExecutionsClient: React.FC = () => {
         sort_order: 'desc'
       })
 
-      if (selectedRunbook) {
+      if (selectedRunbook && selectedRunbook !== ALL_FILTER_VALUE) {
         params.set('runbook_id', selectedRunbook)
       }
 
-      if (selectedStatus) {
+      if (selectedStatus && selectedStatus !== ALL_FILTER_VALUE) {
         params.set('status', selectedStatus)
       }
 
       const response = await fetch(`/api/runbooks/executions?${params}`)
+      if (requestId !== executionRequestId.current) return
       if (response.ok) {
         const data: ApiResponse = await response.json()
         setExecutions(data.executions)
@@ -106,7 +113,9 @@ export const PastExecutionsClient: React.FC = () => {
     } catch (error) {
       console.error('Error fetching executions:', error)
     } finally {
-      setIsLoading(false)
+      if (requestId === executionRequestId.current) {
+        setIsLoading(false)
+      }
     }
   }, [currentPage, pageSize, selectedRunbook, selectedStatus])
 
@@ -185,7 +194,7 @@ export const PastExecutionsClient: React.FC = () => {
   }, [fetchExecutions])
 
   const runbookOptions: SelectOption[] = [
-    { id: '', label: 'All Runbooks' },
+    { id: ALL_FILTER_VALUE, label: 'All Runbooks' },
     ...runbooks.map(runbook => ({
       id: runbook.id,
       label: runbook.name
@@ -193,7 +202,7 @@ export const PastExecutionsClient: React.FC = () => {
   ]
 
   const statusOptions: SelectOption[] = [
-    { id: '', label: 'All Statuses' },
+    { id: ALL_FILTER_VALUE, label: 'All Statuses' },
     { id: 'completed', label: 'Completed' },
     { id: 'failed', label: 'Failed' },
     { id: 'running', label: 'Running' },
@@ -348,7 +357,6 @@ export const PastExecutionsClient: React.FC = () => {
                               value={JSON.stringify(step.step_input, null, 2)}
                               monospace={true}
                               autoResize={true}
-                              rows={4}
                               size="sm"
                             />
                           </div>
@@ -361,7 +369,6 @@ export const PastExecutionsClient: React.FC = () => {
                               value={JSON.stringify(step.step_output, null, 2)}
                               monospace={true}
                               autoResize={true}
-                              rows={4}
                               size="sm"
                             />
                           </div>
@@ -399,46 +406,60 @@ export const PastExecutionsClient: React.FC = () => {
   return (
     <div>
       {/* Filters */}
-      <div style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <div style={{ minWidth: '200px' }}>
-          <Select
-            label="Filter by Runbook"
-            value={selectedRunbook}
-            onChange={setSelectedRunbook}
+      <div style={{ marginBottom: '1.5rem', display: 'grid', gap: '1rem' }}>
+        <div>
+          <div style={{ fontSize: '12px', color: '#374151', fontWeight: '600', marginBottom: '0.5rem' }}>Filter by Runbook</div>
+          <PillList
             options={runbookOptions}
+            selected={[selectedRunbook]}
+            onChange={(value) => {
+              const nextValue = value[0] || ALL_FILTER_VALUE
+              setSelectedRunbook(nextValue)
+              setCurrentPage(1)
+            }}
+            variant="single"
             size="sm"
+            maxVisibleItems={6}
           />
         </div>
 
-        <div style={{ minWidth: '150px' }}>
-          <Select
-            label="Filter by Status"
-            value={selectedStatus}
-            onChange={setSelectedStatus}
+        <div>
+          <div style={{ fontSize: '12px', color: '#374151', fontWeight: '600', marginBottom: '0.5rem' }}>Filter by Status</div>
+          <PillList
             options={statusOptions}
+            selected={[selectedStatus]}
+            onChange={(value) => {
+              const nextValue = (value[0] || ALL_FILTER_VALUE).trim().toLowerCase()
+              setSelectedStatus(nextValue)
+              setCurrentPage(1)
+            }}
+            variant="single"
             size="sm"
+            maxVisibleItems={6}
           />
         </div>
 
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => {
-            setSelectedRunbook('')
-            setSelectedStatus('')
-            setCurrentPage(1)
-          }}
-        >
-          Clear Filters
-        </Button>
+        <div>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              setSelectedRunbook(ALL_FILTER_VALUE)
+              setSelectedStatus(ALL_FILTER_VALUE)
+              setCurrentPage(1)
+            }}
+          >
+            Clear Filters
+          </Button>
+        </div>
       </div>
 
       {/* Results Summary */}
       {pagination && (
         <div style={{ marginBottom: '1rem', fontSize: '14px', color: '#6b7280' }}>
           Showing {executions.length} of {pagination.total} executions
-          {selectedRunbook && ` for selected runbook`}
-          {selectedStatus && ` with status "${selectedStatus}"`}
+          {selectedRunbook !== ALL_FILTER_VALUE && ` for selected runbook`}
+          {selectedStatus !== ALL_FILTER_VALUE && ` with status "${selectedStatus}"`}
         </div>
       )}
 

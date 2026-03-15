@@ -496,7 +496,6 @@ export const PromptTemplatesClient: React.FC = () => {
               value={formData.system_prompt}
               onChange={(value) => setFormData({ ...formData, system_prompt: value })}
               placeholder="System instructions for the AI..."
-              className={styles.formTextarea}
             />
           </div>
 
@@ -506,7 +505,6 @@ export const PromptTemplatesClient: React.FC = () => {
               value={formData.user_prompt_template}
               onChange={(value) => setFormData({ ...formData, user_prompt_template: value })}
               placeholder="User prompt template with {{variables}}..."
-              className={styles.formTextarea}
             />
           </div>
 

@@ -143,7 +143,6 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
           }}
           disabled={disabled}
           required={required}
-          rows={2}
           className={`${styles.textarea} ${hasError ? styles.error : ''}`}
           aria-describedby={hasError ? errorId : undefined}
           aria-invalid={!!hasError}

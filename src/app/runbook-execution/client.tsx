@@ -378,7 +378,6 @@ export const RunbookExecutionClient: React.FC = () => {
                         </div>
                         <Textarea
                           value={JSON.stringify(step.step_input, null, 2)}
-                          rows={2}
                           autoResize={true}
                           monospace={true}
                         />
@@ -392,7 +391,6 @@ export const RunbookExecutionClient: React.FC = () => {
                         </div>
                         <Textarea
                           value={JSON.stringify(step.step_output, null, 2)}
-                          rows={2}
                           autoResize={true}
                           monospace={true}
                         />

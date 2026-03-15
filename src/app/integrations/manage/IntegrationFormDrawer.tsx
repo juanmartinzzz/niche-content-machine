@@ -141,7 +141,6 @@ export function IntegrationFormDrawer({
             value={formData.description}
             onChange={(value) => setFormData(prev => ({ ...prev, description: value }))}
             placeholder="Optional description"
-            rows={2}
             autoResize={true}
           />
 
@@ -150,7 +149,6 @@ export function IntegrationFormDrawer({
             value={formData.config_schema}
             onChange={handleConfigSchemaChange}
             placeholder='{"type": "object", "properties": {...}}'
-            rows={2}
             autoResize={true}
             monospace={true}
           />

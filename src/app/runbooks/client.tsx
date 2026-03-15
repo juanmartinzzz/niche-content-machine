@@ -795,7 +795,6 @@ export const RunbooksClient: React.FC = () => {
               value={formData.description}
               onChange={(value) => setFormData({ ...formData, description: value })}
               placeholder="Brief description of what this runbook does"
-              className={styles.formTextarea}
             />
           </div>
 
@@ -875,7 +874,6 @@ export const RunbooksClient: React.FC = () => {
               value={stepFormData.description}
               onChange={(value) => setStepFormData({ ...stepFormData, description: value })}
               placeholder="Brief description of what this step does"
-              className={styles.formTextarea}
             />
           </div>
 

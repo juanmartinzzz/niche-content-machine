@@ -15,7 +15,9 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get('page') || '1')
     const limit = parseInt(searchParams.get('limit') || '20')
     const runbookId = searchParams.get('runbook_id')
-    const status = searchParams.get('status')
+    const requestedStatus = searchParams.get('status')?.trim().toLowerCase() || searchParams.get('execution_status')?.trim().toLowerCase() || ''
+    const normalizedStatus = ['error', 'errored', 'fail'].includes(requestedStatus) ? 'failed' : requestedStatus
+    const status = ['pending', 'running', 'completed', 'failed', 'cancelled'].includes(normalizedStatus || '') ? normalizedStatus : ''
     const sortBy = searchParams.get('sort_by') || 'started_at'
     const sortOrder = searchParams.get('sort_order') || 'desc'
 
@@ -51,26 +53,30 @@ export async function GET(request: NextRequest) {
       query = query.eq('runbook_id', runbookId)
     }
 
-    if (status) {
-      query = query.eq('execution_status', status)
+    if (status === 'failed') {
+      query = query.in('execution_status', ['failed', 'error'])
+    } else if (status) {
+      query = query.ilike('execution_status', status)
     }
 
     // Create count query (without select fields for proper counting)
     let countQuery = supabaseAdmin
       .from(getTableName('ai_runbook_executions'))
+      .select('id', { count: 'exact', head: true })
 
     // Apply filters to count query
     if (runbookId) {
       countQuery = countQuery.eq('runbook_id', runbookId)
     }
 
-    if (status) {
-      countQuery = countQuery.eq('execution_status', status)
+    if (status === 'failed') {
+      countQuery = countQuery.in('execution_status', ['failed', 'error'])
+    } else if (status) {
+      countQuery = countQuery.ilike('execution_status', status)
     }
 
     // Get total count for pagination
     const { count, error: countError } = await countQuery
-      .select('id', { count: 'exact', head: true })
 
     if (countError) {
       console.error('Error getting count:', countError)
