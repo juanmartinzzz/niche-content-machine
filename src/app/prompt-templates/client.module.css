@@ -140,6 +140,16 @@
   margin-top: 0;
 }
 
+.expandedPromptGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.expandedPromptTextarea {
+  width: 100%;
+}
+
 .expandedCodeBlock {
   background-color: #1f2937;
   color: #f9fafb;
@@ -197,4 +207,10 @@
 .createdText {
   font-size: var(--font-size-xs);
   color: #6b7280;
+}
+
+@media (max-width: 900px) {
+  .expandedPromptGrid {
+    grid-template-columns: 1fr;
+  }
 }

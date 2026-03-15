@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, JsonTreeViewer, useToast, type TableColumn } from '@/components/interaction'
-import { Plus, Pencil, Trash2, Braces, Copy } from 'lucide-react'
+import { Plus, Pencil, Trash2, Braces } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import { generateSlug, validateSlug } from '@/utils/slug'
 import styles from './client.module.css'
@@ -233,21 +233,6 @@ export const PromptTemplatesClient: React.FC = () => {
     }
   }
 
-  const copyToClipboard = async (text: string) => {
-    try {
-      await navigator.clipboard.writeText(text)
-    } catch (err) {
-      // Fallback for browsers that don't support clipboard API
-      const textArea = document.createElement('textarea')
-      textArea.value = text
-      document.body.appendChild(textArea)
-      textArea.select()
-      document.execCommand('copy')
-      document.body.removeChild(textArea)
-    }
-  }
-
-
   const columns: TableColumn<PromptTemplate>[] = [
     {
       key: 'name',
@@ -339,62 +324,49 @@ export const PromptTemplatesClient: React.FC = () => {
           ? template.structured_output_schema
           : JSON.stringify(template.structured_output_schema, null, 2))
       : ''
+    const isJsonSchema = template.structured_output_format === 'json_schema'
 
     return (
       <div className={styles.expandedContent}>
-        <div className={styles.expandedSection}>
-          <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>User Prompt Template</span>
-            <Button
+        <div className={styles.expandedPromptGrid}>
+          <div className={styles.expandedSection}>
+            <h4 className={styles.expandedSectionTitle}>User Prompt Template</h4>
+            <Textarea
               size="sm"
-              variant="ghost"
-              onClick={() => copyToClipboard(template.user_prompt_template)}
-              aria-label="Copy User Prompt Template"
-              className={styles.copyButton}
-            >
-              <Copy size={14} />
-            </Button>
-          </h4>
-          <pre className={styles.expandedCodeBlock}>{template.user_prompt_template}</pre>
+              value={template.user_prompt_template}
+              onChange={() => {}}
+              className={styles.expandedPromptTextarea}
+              monospace
+            />
+          </div>
+
+          {template.system_prompt && (
+            <div className={styles.expandedSection}>
+              <h4 className={styles.expandedSectionTitle}>System Prompt</h4>
+              <Textarea
+                size="sm"
+                value={template.system_prompt}
+                onChange={() => {}}
+                className={styles.expandedPromptTextarea}
+                monospace
+              />
+            </div>
+          )}
+
+          {template.use_structured_output && template.structured_output_schema && (
+            <div className={styles.expandedSection}>
+              <h4 className={styles.expandedSectionTitle}>Structured Output Schema ({template.structured_output_format})</h4>
+              {isJsonSchema ? (
+                <JsonTreeViewer
+                  value={structuredOutputSchemaText}
+                  className={styles.expandedPromptTextarea}
+                />
+              ) : (
+                <pre className={styles.expandedCodeBlock}>{structuredOutputSchemaText}</pre>
+              )}
+            </div>
+          )}
         </div>
-
-        {template.system_prompt && (
-          <div className={styles.expandedSection}>
-            <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>System Prompt</span>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => copyToClipboard(template.system_prompt)}
-                aria-label="Copy System Prompt"
-                className={styles.copyButton}
-              >
-                <Copy size={14} />
-              </Button>
-            </h4>
-            <pre className={styles.expandedCodeBlock}>{template.system_prompt}</pre>
-          </div>
-        )}
-
-        {template.use_structured_output && template.structured_output_schema && (
-          <div className={styles.expandedSection}>
-            <h4 className={styles.expandedSectionTitle} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span>Structured Output Schema ({template.structured_output_format})</span>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => copyToClipboard(structuredOutputSchemaText)}
-                aria-label="Copy Structured Output Schema"
-                className={styles.copyButton}
-              >
-                <Copy size={14} />
-              </Button>
-            </h4>
-            <pre className={styles.expandedCodeBlock}>
-              {structuredOutputSchemaText}
-            </pre>
-          </div>
-        )}
 
         <div className={styles.expandedSection}>
           <h4 className={styles.expandedSectionTitle}>Last Updated</h4>
