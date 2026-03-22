@@ -276,7 +276,7 @@ export const RunbookExecutionClient: React.FC = () => {
                 onClick={() => handleExecuteClick(runbook)}
                 disabled={isExecuting}
                 size="sm"
-                style={{ width: '100%' }}
+                className="w-full"
               >
                 {isExecuting ? <Loader2 size={16} className="animate-spin" style={{ marginRight: '8px' }} /> : <Play size={16} style={{ marginRight: '8px' }} />}
                 {isExecuting ? 'Executing...' : inputModeRunbookId === runbook.id ? 'Execute Runbook' : 'Execute'}
