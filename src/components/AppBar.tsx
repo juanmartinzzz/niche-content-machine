@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings, Play, History, Image } from 'lucide-react'
+import { Menu, X, ChevronLeft, ChevronRight, Bot, MessageCircle, TestTube, Workflow, Settings, Play, History, Image, TrendingUp } from 'lucide-react'
 import { Button } from '@/components/interaction'
 import styles from './AppSidebar.module.css'
 
@@ -87,6 +87,16 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
             >
               <TestTube size={20} />
               {!isCollapsed && <span className={styles.navText}>Results V1</span>}
+            </Button>
+          </Link>
+          <Link href="/find-trend">
+            <Button
+              variant="ghost"
+              size="sm"
+              className={styles.navItem}
+            >
+              <TrendingUp size={20} />
+            {!isCollapsed && <span className={styles.navText}>Pick Trend</span>}
             </Button>
           </Link>
           <div className={styles.navDivider} />

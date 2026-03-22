@@ -39,6 +39,14 @@
   display: flex;
 }
 
+.iconActionDanger {
+  color: #dc2626;
+}
+
+.iconActionDanger:hover {
+  background-color: #fef2f2;
+}
+
 .stepCount {
   display: inline-flex;
   align-items: center;
@@ -225,20 +233,6 @@
     bottom: 0;
     height: 1px;
   }
-}
-
-.buttonDanger {
-  color: #dc2626;
-}
-
-.buttonDanger:hover {
-  background-color: #fef2f2;
-}
-
-.stepDeleteButton {
-  padding: 6px;
-  min-width: auto;
-  height: 32px;
 }
 
 .operationInfoCard {

@@ -97,7 +97,6 @@ export const ExpandableTable = forwardRef<HTMLDivElement, ExpandableTableProps>(
                               onClick={() => toggleRowExpansion(rowKey)}
                               onKeyDown={(e) => handleKeyDown(e, rowKey)}
                               aria-expanded={isExpanded}
-                              className={styles.expandButton}
                               ariaLabel={isExpanded ? 'Collapse row' : 'Expand row'}
                             />
                           ) : (

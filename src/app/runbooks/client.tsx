@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useEffect } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Select, type TableColumn, type SelectOption } from '@/components/interaction'
+import { Button, IconAction, Input, Textarea, ExpandableTable, Drawer, PillList, Select, Switch, type TableColumn, type SelectOption } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Copy, CircleDot } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import styles from './client.module.css'
@@ -238,23 +238,21 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
                     <div className={styles.stepGridCell}>
                       <div className={styles.stepGridLabel}>Actions</div>
                       <div className={styles.stepGridActionButtons}>
-                        <Button
-                          size="sm"
+                        <IconAction
+                          icon={Pencil}
+                          size="xs"
                           variant="ghost"
                           onClick={() => onEditStep(step, runbook)}
-                          aria-label={`Edit step ${step.step_name}`}
-                        >
-                          <Pencil size={14} />
-                        </Button>
-                        <Button
-                          size="sm"
+                          ariaLabel={`Edit step ${step.step_name}`}
+                        />
+                        <IconAction
+                          icon={Trash2}
+                          size="xs"
                           variant="ghost"
                           onClick={() => onDeleteStep(step, runbook)}
-                          aria-label={`Delete step ${step.step_name}`}
-                          className={`${styles.buttonDanger} ${styles.stepDeleteButton}`}
-                        >
-                          <Trash2 size={14} />
-                        </Button>
+                          ariaLabel={`Delete step ${step.step_name}`}
+                          className={styles.iconActionDanger}
+                        />
                       </div>
                     </div>
                   </div>
@@ -306,7 +304,7 @@ const DeleteConfirmationModal: React.FC<{
           <Button variant="secondary" onClick={onClose}>
             Cancel
           </Button>
-          <Button variant="primary" onClick={onConfirm} className={styles.buttonDanger}>
+          <Button variant="primary" onClick={onConfirm}>
             Delete
           </Button>
         </div>
@@ -863,39 +861,35 @@ export const RunbooksClient: React.FC = () => {
       header: 'Actions',
       render: (runbook) => (
         <div className={styles.runbookActions}>
-          <Button
-            size="sm"
+          <IconAction
+            icon={CircleDot}
+            size="xs"
             variant="ghost"
             onClick={() => handleCreateStepForRunbook(runbook)}
-            aria-label="Add step"
-          >
-            <CircleDot size={16} />
-          </Button>
-          <Button
-            size="sm"
+            ariaLabel="Add step"
+          />
+          <IconAction
+            icon={Pencil}
+            size="xs"
             variant="ghost"
             onClick={() => handleEditRunbook(runbook)}
-            aria-label="Edit runbook"
-          >
-            <Pencil size={16} />
-          </Button>
-          <Button
-            size="sm"
+            ariaLabel="Edit runbook"
+          />
+          <IconAction
+            icon={Copy}
+            size="xs"
             variant="ghost"
             onClick={() => handleDuplicateRunbook(runbook)}
-            aria-label="Duplicate runbook"
-          >
-            <Copy size={16} />
-          </Button>
-          <Button
-            size="sm"
+            ariaLabel="Duplicate runbook"
+          />
+          <IconAction
+            icon={Trash2}
+            size="xs"
             variant="ghost"
             onClick={() => handleDeleteRunbook(runbook)}
-            aria-label="Delete runbook"
-            className={styles.buttonDanger}
-          >
-            <Trash2 size={16} />
-          </Button>
+            ariaLabel="Delete runbook"
+            className={styles.iconActionDanger}
+          />
         </div>
       )
     }
@@ -926,6 +920,7 @@ export const RunbooksClient: React.FC = () => {
         data={runbooks}
         columns={columns}
         getRowKey={(runbook) => runbook.id}
+        size="xs"
         emptyMessage="No runbooks found. Create your first runbook to get started."
         expandableContent={(runbook) => (
           <RunbookStepsContent
@@ -991,15 +986,12 @@ export const RunbooksClient: React.FC = () => {
           </div>
 
           <div className={styles.formField}>
-            <label className={styles.formLabel}>
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                style={{ marginRight: '8px' }}
-              />
-              Active Runbook
-            </label>
+            <Switch
+              label="Active Runbook"
+              checked={formData.is_active}
+              onChange={(checked) => setFormData({ ...formData, is_active: checked })}
+              size="sm"
+            />
             <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
               Active runbooks can be executed. Inactive runbooks are kept for reference.
             </div>

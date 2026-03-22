@@ -200,7 +200,6 @@ export const PromptTemplatesClient: React.FC = () => {
             variant="ghost"
             onClick={() => handleDeleteTemplate(template)}
             ariaLabel="Delete template"
-            className={styles.iconActionDanger}
           />
         </div>
       )
@@ -242,7 +241,11 @@ export const PromptTemplatesClient: React.FC = () => {
             <div className={styles.expandedSection}>
               <h4 className={styles.expandedSectionTitle}>Structured Output Schema ({template.structured_output_format})</h4>
               {isJsonSchema ? (
-                <JsonTreeViewer value={structuredOutputSchemaText} disabled rows={2} />
+                <JsonTreeViewer
+                  value={structuredOutputSchemaText}
+                  rows={2}
+                  onChange={() => {}}
+                />
               ) : (
                 <pre>{structuredOutputSchemaText}</pre>
               )}
