@@ -67,9 +67,8 @@
 
 .cardHeader {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  gap: 2px;
 }
 
 .trendName {
@@ -93,6 +92,7 @@
   color: var(--color-text-secondary);
   background: var(--color-surface);
   white-space: nowrap;
+  width: fit-content;
 }
 
 .trendDescription {
@@ -103,28 +103,31 @@
 }
 
 .factorGrid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--spacing-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .factorItem {
-  border-radius: var(--border-radius-sm);
+  border-radius: var(--border-radius-full);
   border: 1px solid var(--color-border-light);
   background-color: var(--color-surface);
-  padding: var(--spacing-xs);
+  padding: 3px 8px;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
 }
 
 .factorLabel {
-  font-size: var(--font-size-xs);
+  font-size: 8px;
   color: var(--color-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .factorValue {
-  font-size: var(--font-size-sm);
+  font-size: 9px;
   font-weight: var(--font-weight-bold);
 }
 

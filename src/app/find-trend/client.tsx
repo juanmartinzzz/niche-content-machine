@@ -15,7 +15,7 @@ import styles from './client.module.css'
 
 const TREND_TEMPLATE_ID = '03fdb2a4-be25-4bf3-a3ef-01bba5aeb97f'
 const TREND_ENDPOINT_ID = '4edd9172-43d1-4b5e-8a89-7bcaa31d55c0'
-const TREND_RUNBOOK_ID = 'mock-runbook-uuid'
+const TREND_RUNBOOK_ID = 'e5b4ad09-e2c2-4231-ba86-23b1a65f55bf'
 
 type RawTrendResponse = Record<string, unknown>
 
@@ -378,8 +378,8 @@ export const FindTrendClient: React.FC = () => {
                 <div>
                   <h2 className={styles.trendName}>{trend.name}</h2>
                   <p className={styles.trendCategory}>{trend.categoryName}</p>
+                  <span className={styles.datePill}>{trend.firstAppearedDate}</span>
                 </div>
-                <span className={styles.datePill}>{trend.firstAppearedDate}</span>
               </div>
 
               <p className={styles.trendDescription}>{limitWords(trend.description, 24)}</p>
@@ -414,7 +414,7 @@ export const FindTrendClient: React.FC = () => {
                   onClick={() => toggleExpanded(trend.id)}
                 >
                   {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                  <span>{isExpanded ? 'Less info' : 'More info'}</span>
+                  <span>{isExpanded ? 'Less' : 'More'}</span>
                 </Button>
 
                 <Button
@@ -423,7 +423,7 @@ export const FindTrendClient: React.FC = () => {
                   disabled={state.status === 'running'}
                 >
                   {state.status === 'running' ? <Loader2 size={14} className={styles.spinner} /> : <Play size={14} />}
-                  {state.status === 'running' ? 'Starting…' : 'Run runbook'}
+                  {state.status === 'running' ? 'Starting…' : 'Run'}
                 </Button>
               </div>
 
