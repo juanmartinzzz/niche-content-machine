@@ -4,3 +4,4 @@ import { handleGenerateContentPOST } from '@/lib/operations/generateContent'
 export async function POST(request: NextRequest) {
   return handleGenerateContentPOST(request)
 }
+

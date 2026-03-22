@@ -104,6 +104,129 @@
   box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
+.stepCard {
+  flex: 1;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  background-color: #fafafa;
+  overflow: hidden;
+}
+
+.stepGrid {
+  display: grid;
+  grid-template-columns: minmax(210px, 2fr) minmax(140px, 1fr) minmax(260px, 2fr) minmax(120px, 0.9fr);
+  align-items: stretch;
+}
+
+.stepGridCell {
+  padding: 0.75rem 0.85rem;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.35rem;
+}
+
+.stepGridCell:not(:last-child)::after {
+  content: "";
+  position: absolute;
+  top: 0.45rem;
+  bottom: 0.45rem;
+  right: 0;
+  width: 1px;
+  background-color: #e5e7eb;
+  pointer-events: none;
+}
+
+.stepGridLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #6b7280;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+}
+
+.stepGridTitle {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.stepGridDescription {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.35;
+}
+
+.stepGridValue {
+  font-size: 0.8125rem;
+  color: #111827;
+  font-weight: 500;
+}
+
+.stepDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.stepDetailRow {
+  display: inline-flex;
+  gap: 0.35rem;
+  align-items: baseline;
+  font-size: 0.8125rem;
+  color: #374151;
+  line-height: 1.2;
+  min-width: 0;
+}
+
+.stepDetailLabel {
+  flex-shrink: 0;
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.stepDetailValue {
+  min-width: 0;
+  color: #111827;
+  word-break: break-word;
+}
+
+.stepGridActionButtons {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.35rem;
+}
+
+@media (max-width: 960px) {
+  .stepGrid {
+    grid-template-columns: minmax(150px, 2fr) minmax(110px, 1fr) minmax(150px, 2fr) minmax(100px, 0.8fr);
+  }
+}
+
+@media (max-width: 700px) {
+  .stepGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .stepGridCell {
+    border-bottom: none;
+    position: relative;
+  }
+
+  .stepGridCell:not(:last-child)::after {
+    right: auto;
+    left: 0.85rem;
+    width: calc(100% - 1.7rem);
+    top: auto;
+    bottom: 0;
+    height: 1px;
+  }
+}
+
 .buttonDanger {
   color: #dc2626;
 }
@@ -116,4 +239,78 @@
   padding: 6px;
   min-width: auto;
   height: 32px;
+}
+
+.operationInfoCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background-color: #f9fafb;
+  padding: 12px;
+}
+
+.operationInfoGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.operationInfoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.operationInfoLabel {
+  font-size: 11px;
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: #6b7280;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.operationInfoValue {
+  font-size: 13px;
+  line-height: 1.35;
+  color: #111827;
+  word-break: break-word;
+}
+
+.operationInfoFullWidth {
+  grid-column: 1 / -1;
+}
+
+.operationParamsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.operationParamCard {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background-color: #ffffff;
+  padding: 8px 10px;
+}
+
+.operationParamName {
+  font-size: 12px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 2px;
+}
+
+.operationParamMeta {
+  font-size: 11px;
+  line-height: 1.2;
+  color: #6b7280;
+}
+
+@media (max-width: 700px) {
+  .operationInfoGrid,
+  .operationParamsGrid {
+    grid-template-columns: 1fr;
+  }
 }

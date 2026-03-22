@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Pill, Select, type TableColumn, type SelectOption } from '@/components/interaction'
+import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Select, type TableColumn, type SelectOption } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Copy, CircleDot } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
 import styles from './client.module.css'
@@ -43,9 +43,48 @@ interface Runbook {
   steps: number
 }
 
+interface RunbookTemplate {
+  id: string
+  name: string
+}
+
+interface RunbookOperationParam {
+  name: string
+  in: 'body' | 'query' | 'path' | 'header'
+  required: boolean
+  type: string
+}
+
+interface RunbookOperation {
+  id: string
+  path: string
+  method: string
+  description: string
+  requestParams?: RunbookOperationParam[]
+  auth?: {
+    required: boolean
+    mechanisms: string[]
+  }
+}
+
+interface RunbookEndpoint {
+  id: string
+  slug: string
+  ai_models?: { display_name: string, ai_providers?: { name: string } }
+}
+
+interface TelegramChat {
+  id: string
+  chat_id: string
+  chat_title: string | null
+  is_default: boolean
+}
+
 interface RunbookStepsContentProps {
   runbook: Runbook
-  availableTemplates: Array<{id: string, name: string}>
+  availableTemplates: RunbookTemplate[]
+  availableEndpoints: RunbookEndpoint[]
+  availableTelegramChats: TelegramChat[]
   onEditStep: (step: RunbookStep, runbook: Runbook) => void
   onDeleteStep: (step: RunbookStep, runbook: Runbook) => void
 }
@@ -53,11 +92,67 @@ interface RunbookStepsContentProps {
 const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
   runbook,
   availableTemplates,
+  availableEndpoints,
+  availableTelegramChats,
   onEditStep,
   onDeleteStep
 }) => {
   const [steps, setSteps] = useState<RunbookStep[]>([])
   const [isLoading, setIsLoading] = useState(true)
+
+  const getStepTypeLabel = (stepType: RunbookStep['step_type']) => {
+    if (stepType === 'ai_operation') {
+      return 'AI Operation'
+    }
+    if (stepType === 'endpoint_call') {
+      return 'Endpoint Call'
+    }
+    return 'Telegram Message'
+  }
+
+  const getTemplateName = (templateId: string | null) => {
+    if (!templateId) return '—'
+    const template = availableTemplates.find((candidate) => candidate.id === templateId)
+    return template?.name || templateId
+  }
+
+  const getEndpointLabel = (endpointId: string | null) => {
+    if (!endpointId) return '—'
+    const endpoint = availableEndpoints.find((candidate) => candidate.id === endpointId)
+    return endpoint?.slug || endpointId
+  }
+
+  const getTelegramChatLabel = (chatId: string | null) => {
+    if (!chatId) return '—'
+    const chat = availableTelegramChats.find((candidate) => candidate.id === chatId)
+    if (!chat) return chatId
+
+    if (chat.chat_title) {
+      return `${chat.chat_title} (${chat.chat_id})`
+    }
+
+    return `${chat.chat_id}${chat.is_default ? ' (Default)' : ''}`
+  }
+
+  const getStepDetails = (step: RunbookStep) => {
+    if (step.step_type === 'ai_operation') {
+      return [
+        { label: 'Operation', value: getTemplateName(step.prompt_template_id) },
+        { label: 'Endpoint', value: getEndpointLabel(step.endpoint_id) }
+      ]
+    }
+
+    if (step.step_type === 'endpoint_call') {
+      return [
+        { label: 'HTTP Method', value: step.http_method || '—' },
+        { label: 'Endpoint', value: step.endpoint_url || '—' }
+      ]
+    }
+
+    return [
+      { label: 'Telegram Chat', value: getTelegramChatLabel(step.user_telegram_chat_id) }
+    ]
+  }
 
   useEffect(() => {
     const loadSteps = async () => {
@@ -94,7 +189,9 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
           {steps
             .sort((a, b) => a.step_order - b.step_order)
-            .map((step) => (
+            .map((step) => {
+              const stepDetails = getStepDetails(step)
+              return (
               <div key={step.id} style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                 <div style={{
                   display: 'flex',
@@ -111,48 +208,58 @@ const RunbookStepsContent: React.FC<RunbookStepsContentProps> = ({
                 }}>
                   {step.step_order}
                 </div>
-                <div style={{
-                  flex: 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  padding: '0.75rem',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  backgroundColor: '#fafafa'
-                }}>
-                  <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
-                    <div style={{ fontSize: '0.875rem', fontWeight: '500', color: '#111827' }}>
-                      {step.step_name}
+                <div className={styles.stepCard}>
+                  <div className={styles.stepGrid}>
+                    <div className={styles.stepGridCell}>
+                      <div className={styles.stepGridLabel}>Step</div>
+                      <div className={styles.stepGridTitle}>{step.step_name}</div>
+                      {step.description && (
+                        <div className={styles.stepGridDescription}>
+                          {step.description}
+                        </div>
+                      )}
                     </div>
-                    <div style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                      {step.step_type === 'ai_operation' ? 'AI Operation' :
-                       step.step_type === 'endpoint_call' ? 'Endpoint Call' : 'Telegram Message'}
-                      {step.description && ` • ${step.description}`}
+                    <div className={styles.stepGridCell}>
+                      <div className={styles.stepGridLabel}>Type</div>
+                      <div className={styles.stepGridValue}>{getStepTypeLabel(step.step_type)}</div>
                     </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '0.25rem', marginLeft: '0.5rem' }}>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onEditStep(step, runbook)}
-                      aria-label={`Edit step ${step.step_name}`}
-                    >
-                      <Pencil size={14} />
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      onClick={() => onDeleteStep(step, runbook)}
-                      aria-label={`Delete step ${step.step_name}`}
-                      className={`${styles.buttonDanger} ${styles.stepDeleteButton}`}
-                    >
-                      <Trash2 size={14} />
-                    </Button>
+                    <div className={styles.stepGridCell}>
+                      <div className={styles.stepGridLabel}>Details</div>
+                      <div className={styles.stepDetails}>
+                        {stepDetails.map((detail, detailIndex) => (
+                          <div className={styles.stepDetailRow} key={`${step.id}-${detailIndex}`}>
+                            <span className={styles.stepDetailLabel}>{detail.label}:</span>
+                            <span className={styles.stepDetailValue}>{detail.value}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className={styles.stepGridCell}>
+                      <div className={styles.stepGridLabel}>Actions</div>
+                      <div className={styles.stepGridActionButtons}>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => onEditStep(step, runbook)}
+                          aria-label={`Edit step ${step.step_name}`}
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => onDeleteStep(step, runbook)}
+                          aria-label={`Delete step ${step.step_name}`}
+                          className={`${styles.buttonDanger} ${styles.stepDeleteButton}`}
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            ))}
+            )})}
         </div>
       )}
     </div>
@@ -215,10 +322,12 @@ export const RunbooksClient: React.FC = () => {
   const [isStepDrawerOpen, setIsStepDrawerOpen] = useState(false)
   const [editingStep, setEditingStep] = useState<RunbookStep | null>(null)
   const [currentRunbook, setCurrentRunbook] = useState<Runbook | null>(null)
-  const [availableTemplates, setAvailableTemplates] = useState<Array<{id: string, name: string}>>([])
-  const [availableEndpoints, setAvailableEndpoints] = useState<Array<{id: string, slug: string, ai_models?: {display_name: string, ai_providers?: {name: string}}}>>([])
-  const [availableTelegramChats, setAvailableTelegramChats] = useState<Array<{id: string, chat_id: string, chat_title: string | null, is_default: boolean}>>([])
+  const [availableTemplates, setAvailableTemplates] = useState<RunbookTemplate[]>([])
+  const [availableEndpoints, setAvailableEndpoints] = useState<RunbookEndpoint[]>([])
+  const [availableTelegramChats, setAvailableTelegramChats] = useState<TelegramChat[]>([])
   const [availableTools, setAvailableTools] = useState<Array<{id: string, name: string, description: string}>>([])
+  const [availableOperations, setAvailableOperations] = useState<RunbookOperation[]>([])
+  const [isOperationsLoading, setIsOperationsLoading] = useState(false)
   const [stepFormData, setStepFormData] = useState({
     step_name: '',
     description: '',
@@ -387,6 +496,37 @@ export const RunbooksClient: React.FC = () => {
     }
   }, [])
 
+  const fetchAvailableOperations = useCallback(async () => {
+    try {
+      setIsOperationsLoading(true)
+      const response = await fetch('/api/operations')
+      if (response.ok) {
+        const { operations } = await response.json()
+        const parsedOperations = Array.isArray(operations)
+          ? operations
+              .map((operation: any) => ({
+                id: operation?.id || `${operation?.method || 'GET'}:${operation?.path || ''}`,
+                path: operation?.path || '',
+                method: String(operation?.method || '').toUpperCase(),
+                description: operation?.description || '',
+                requestParams: operation?.requestParams || [],
+                auth: operation?.auth
+              }))
+              .filter((operation: RunbookOperation) => operation.path && operation.method)
+          : []
+
+        setAvailableOperations(parsedOperations)
+      } else {
+        setAvailableOperations([])
+      }
+    } catch (error) {
+      console.error('Error fetching operations:', error)
+      setAvailableOperations([])
+    } finally {
+      setIsOperationsLoading(false)
+    }
+  }, [])
+
   const getToolDescription = (toolName: string): string => {
     const descriptions: Record<string, string> = {
       web_search: 'Search the web for current information and facts',
@@ -400,7 +540,32 @@ export const RunbooksClient: React.FC = () => {
     fetchAvailableTemplates()
     fetchAvailableEndpoints()
     fetchAvailableTelegramChats()
-  }, [fetchRunbooks, fetchAvailableTemplates, fetchAvailableEndpoints, fetchAvailableTelegramChats])
+    fetchAvailableOperations()
+  }, [fetchRunbooks, fetchAvailableTemplates, fetchAvailableEndpoints, fetchAvailableTelegramChats, fetchAvailableOperations])
+
+  const getOperationPillId = (operation: RunbookOperation) => `${operation.method.toUpperCase()}|${operation.path}`
+
+  const parseOperationPillId = (pillId: string) => {
+    const [method, ...pathParts] = pillId.split('|')
+    return {
+      method,
+      path: pathParts.join('|')
+    }
+  }
+
+  const endpointOperationOptions = availableOperations.map((operation) => ({
+    id: getOperationPillId(operation),
+    label: `${operation.method} ${operation.path}`
+  }))
+
+  const selectedOperationForStep = availableOperations.find((operation) => {
+    return (
+      operation.path === stepFormData.endpoint_url &&
+      operation.method.toUpperCase() === stepFormData.http_method.toUpperCase()
+    )
+  })
+
+  const selectedOperationPillId = selectedOperationForStep ? getOperationPillId(selectedOperationForStep) : ''
 
   // Fetch available tools when endpoint changes
   useEffect(() => {
@@ -765,6 +930,8 @@ export const RunbooksClient: React.FC = () => {
           <RunbookStepsContent
             runbook={runbook}
             availableTemplates={availableTemplates}
+            availableEndpoints={availableEndpoints}
+            availableTelegramChats={availableTelegramChats}
             onEditStep={handleEditStep}
             onDeleteStep={handleDeleteStep}
           />
@@ -886,7 +1053,10 @@ export const RunbooksClient: React.FC = () => {
                 { id: 'telegram_message', label: 'Telegram Message' }
               ]}
               selected={[stepFormData.step_type]}
-              onChange={(selected) => setStepFormData({ ...stepFormData, step_type: selected[0] as 'ai_operation' | 'endpoint_call' | 'telegram_message' })}
+              onChange={(selected) => setStepFormData({
+                ...stepFormData,
+                step_type: selected[0] as 'ai_operation' | 'endpoint_call' | 'telegram_message'
+              })}
               variant="single"
               size="xs"
             />
@@ -981,6 +1151,89 @@ export const RunbooksClient: React.FC = () => {
 
           {stepFormData.step_type === 'endpoint_call' && (
             <>
+              <div className={styles.formField}>
+                <label className={styles.formLabel}>Choose from discovered operations</label>
+                {isOperationsLoading ? (
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '0.5rem' }}>
+                    Loading operations...
+                  </div>
+                ) : endpointOperationOptions.length > 0 ? (
+                  <PillList
+                    options={endpointOperationOptions}
+                    selected={selectedOperationPillId ? [selectedOperationPillId] : []}
+                    onChange={(selected) => {
+                      if (!selected.length) {
+                        setStepFormData({ ...stepFormData, http_method: '', endpoint_url: '' })
+                        return
+                      }
+
+                      const mapped = parseOperationPillId(selected[0])
+                      if (!mapped.path || !mapped.method) return
+                      setStepFormData({ ...stepFormData, http_method: mapped.method, endpoint_url: mapped.path })
+                    }}
+                    variant="single"
+                    size="xs"
+                    maxVisibleItems={5}
+                  />
+                ) : (
+                  <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '0.5rem' }}>
+                    No operation endpoints discovered yet.
+                  </div>
+                )}
+              </div>
+
+              {selectedOperationForStep && (
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Selected operation</label>
+                  <div className={styles.operationInfoCard}>
+                    <div className={styles.operationInfoGrid}>
+                      <div className={styles.operationInfoItem}>
+                        <span className={styles.operationInfoLabel}>Method</span>
+                        <span className={styles.operationInfoValue}>{selectedOperationForStep.method}</span>
+                      </div>
+                      <div className={styles.operationInfoItem}>
+                        <span className={styles.operationInfoLabel}>Path</span>
+                        <span className={styles.operationInfoValue}>{selectedOperationForStep.path}</span>
+                      </div>
+                      <div className={styles.operationInfoItem}>
+                        <span className={styles.operationInfoLabel}>Auth required</span>
+                        <span className={styles.operationInfoValue}>
+                          {selectedOperationForStep.auth?.required ? 'Yes' : 'No'}
+                        </span>
+                      </div>
+                      <div className={styles.operationInfoItem}>
+                        <span className={styles.operationInfoLabel}>Auth mechanisms</span>
+                        <span className={styles.operationInfoValue}>
+                          {selectedOperationForStep.auth?.mechanisms?.join(', ') || 'N/A'}
+                        </span>
+                      </div>
+                      <div className={`${styles.operationInfoItem} ${styles.operationInfoFullWidth}`}>
+                        <span className={styles.operationInfoLabel}>Description</span>
+                        <span className={styles.operationInfoValue}>
+                          {selectedOperationForStep.description || 'No description provided.'}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {selectedOperationForStep?.requestParams && selectedOperationForStep.requestParams.length > 0 && (
+                <div className={styles.formField}>
+                  <label className={styles.formLabel}>Known parameters</label>
+                  <div className={styles.operationParamsGrid}>
+                    {selectedOperationForStep.requestParams.map((param) => (
+                      <div key={param.name} className={styles.operationParamCard}>
+                        <div className={styles.operationParamName}>{param.name}</div>
+                        <div className={styles.operationParamMeta}>
+                          {param.in.toUpperCase()} • {param.type}{param.required ? ' • Required' : ' • Optional'}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className={styles.formField}>
                 <label className={styles.formLabel}>HTTP Method</label>
                 <PillList
