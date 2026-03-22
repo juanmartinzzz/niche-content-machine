@@ -83,12 +83,12 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
       setExpandedNodes(newExpanded);
     };
 
-    const renderTreeNode = (node: TreeNode, path: string, depth = 0): React.ReactNode => {
+    const renderTreeNode = (node: TreeNode, path: string): React.ReactNode => {
       const isExpanded = expandedNodes.has(path);
       const hasChildren = node.children && node.children.length > 0;
 
       return (
-        <div key={path} className={styles.treeNode} style={{ paddingLeft: `${depth * 16}px` }}>
+        <div key={path} className={styles.treeNode}>
           <div className={styles.nodeContent}>
             {hasChildren ? (
               <button
@@ -111,7 +111,7 @@ export const JsonTreeViewer = forwardRef<HTMLTextAreaElement, JsonTreeViewerProp
           {hasChildren && isExpanded && (
             <div className={styles.children}>
               {node.children!.map((child, index) =>
-                renderTreeNode(child, `${path}.${index}`, depth + 1)
+                renderTreeNode(child, `${path}.${index}`)
               )}
             </div>
           )}

@@ -49,7 +49,8 @@ export async function POST(request: NextRequest) {
       is_active,
       use_structured_output,
       structured_output_schema,
-      structured_output_format
+      structured_output_format,
+      prompt_intentions
     } = body
 
     if (!slug || !name || !user_prompt_template) {
@@ -94,7 +95,52 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Failed to create prompt template' }, { status: 500 })
     }
 
-    return NextResponse.json({ template: data })
+    const normalizedIntentions = Array.isArray(prompt_intentions)
+      ? prompt_intentions
+          .map((intention, index) => {
+            if (
+              typeof intention !== 'object' ||
+              intention === null ||
+              typeof (intention as { section_intention?: unknown }).section_intention !== 'string' ||
+              typeof (intention as { section?: unknown }).section !== 'string'
+            ) {
+              return null
+            }
+
+            const sectionIntention = (intention as { section_intention: string }).section_intention.trim()
+            const section = (intention as { section: string }).section.trim()
+
+            if (!sectionIntention || !section) {
+              return null
+            }
+
+            return {
+              prompt_template_id: data.id,
+              section_intention: sectionIntention,
+              section,
+              position: typeof (intention as { position?: unknown }).position === 'number'
+                ? (intention as { position?: unknown }).position as number
+                : index
+            }
+          })
+          .filter((item): item is { prompt_template_id: string; section_intention: string; section: string; position: number } => item !== null)
+      : []
+
+    if (normalizedIntentions.length > 0) {
+      const { error: intentionError } = await supabaseAdmin
+        .from(getTableName('ai_prompt_intentions'))
+        .insert(normalizedIntentions)
+
+      if (intentionError) {
+        console.error('Error creating prompt intentions:', intentionError)
+        return NextResponse.json({ error: 'Failed to create prompt intentions' }, { status: 500 })
+      }
+    }
+
+    return NextResponse.json({
+      template: data,
+      prompt_intentions: normalizedIntentions
+    })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

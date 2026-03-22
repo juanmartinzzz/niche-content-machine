@@ -10,7 +10,7 @@ This guide covers how to integrate xAI's Grok API into your application in a mai
 
 The only things that belong in your `.env` file or secrets manager are:
 
-- `GROK_API_KEY` — your xAI API key
+- `XAI_API_KEY` — your xAI API key
 - `GROK_API_SECRET` — if xAI introduces signing secrets in the future
 
 Everything else described below lives in the database.
@@ -103,7 +103,7 @@ If you want resilience — e.g., fall back to `grok-3-mini` if `grok-3` is unava
 
 ## Grok API Specifics Worth Knowing
 
-**Authentication:** Grok uses standard Bearer token auth. Your `GROK_API_KEY` goes in the `Authorization: Bearer` header on every request.
+**Authentication:** Grok uses standard Bearer token auth. Your `XAI_API_KEY` goes in the `Authorization: Bearer` header on every request.
 
 **Endpoint compatibility:** Grok's API is largely OpenAI-compatible, meaning the `/v1/chat/completions` request and response shape is nearly identical. If your app already has an OpenAI integration, you can often reuse the same HTTP client code and just change the base URL and API key — which is exactly why storing those in the `ai_providers` and environment variable rather than in code pays off.
 

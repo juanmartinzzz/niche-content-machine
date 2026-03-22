@@ -41,6 +41,15 @@ export interface TextareaProps extends InputProps {
   monospace?: boolean;
 }
 
+// Switch component types
+export interface SwitchProps extends CommonProps {
+  checked?: boolean;
+  onChange?: (value: boolean) => void;
+  label?: string;
+  required?: boolean;
+  size?: ComponentSize;
+}
+
 // Pill component types
 export type PillVariant = 'single' | 'multiple';
 

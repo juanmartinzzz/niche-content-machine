@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, Select, type TableColumn, type SelectOption } from '@/components/interaction'
 import { Plus, Pencil, Trash2, Copy, CircleDot } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
@@ -1182,57 +1183,81 @@ export const RunbooksClient: React.FC = () => {
                 )}
               </div>
 
-              {selectedOperationForStep && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Selected operation</label>
-                  <div className={styles.operationInfoCard}>
-                    <div className={styles.operationInfoGrid}>
-                      <div className={styles.operationInfoItem}>
-                        <span className={styles.operationInfoLabel}>Method</span>
-                        <span className={styles.operationInfoValue}>{selectedOperationForStep.method}</span>
-                      </div>
-                      <div className={styles.operationInfoItem}>
-                        <span className={styles.operationInfoLabel}>Path</span>
-                        <span className={styles.operationInfoValue}>{selectedOperationForStep.path}</span>
-                      </div>
-                      <div className={styles.operationInfoItem}>
-                        <span className={styles.operationInfoLabel}>Auth required</span>
-                        <span className={styles.operationInfoValue}>
-                          {selectedOperationForStep.auth?.required ? 'Yes' : 'No'}
-                        </span>
-                      </div>
-                      <div className={styles.operationInfoItem}>
-                        <span className={styles.operationInfoLabel}>Auth mechanisms</span>
-                        <span className={styles.operationInfoValue}>
-                          {selectedOperationForStep.auth?.mechanisms?.join(', ') || 'N/A'}
-                        </span>
-                      </div>
-                      <div className={`${styles.operationInfoItem} ${styles.operationInfoFullWidth}`}>
-                        <span className={styles.operationInfoLabel}>Description</span>
-                        <span className={styles.operationInfoValue}>
-                          {selectedOperationForStep.description || 'No description provided.'}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {selectedOperationForStep?.requestParams && selectedOperationForStep.requestParams.length > 0 && (
-                <div className={styles.formField}>
-                  <label className={styles.formLabel}>Known parameters</label>
-                  <div className={styles.operationParamsGrid}>
-                    {selectedOperationForStep.requestParams.map((param) => (
-                      <div key={param.name} className={styles.operationParamCard}>
-                        <div className={styles.operationParamName}>{param.name}</div>
-                        <div className={styles.operationParamMeta}>
-                          {param.in.toUpperCase()} • {param.type}{param.required ? ' • Required' : ' • Optional'}
+              <AnimatePresence>
+                {selectedOperationForStep && (
+                  <motion.div
+                    key={selectedOperationForStep.id}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2, ease: 'easeOut' }}
+                    className={styles.formField}
+                  >
+                    <label className={styles.formLabel}>Selected operation</label>
+                    <div className={styles.operationInfoCard}>
+                      <div className={styles.operationInfoGrid}>
+                        <div className={styles.operationInfoItem}>
+                          <span className={styles.operationInfoLabel}>Method</span>
+                          <span className={styles.operationInfoValue}>{selectedOperationForStep.method}</span>
+                        </div>
+                        <div className={styles.operationInfoItem}>
+                          <span className={styles.operationInfoLabel}>Path</span>
+                          <span className={styles.operationInfoValue}>{selectedOperationForStep.path}</span>
+                        </div>
+                        <div className={styles.operationInfoItem}>
+                          <span className={styles.operationInfoLabel}>Auth required</span>
+                          <span className={styles.operationInfoValue}>
+                            {selectedOperationForStep.auth?.required ? 'Yes' : 'No'}
+                          </span>
+                        </div>
+                        <div className={styles.operationInfoItem}>
+                          <span className={styles.operationInfoLabel}>Auth mechanisms</span>
+                          <span className={styles.operationInfoValue}>
+                            {selectedOperationForStep.auth?.mechanisms?.join(', ') || 'N/A'}
+                          </span>
+                        </div>
+                        <div className={`${styles.operationInfoItem} ${styles.operationInfoFullWidth}`}>
+                          <span className={styles.operationInfoLabel}>Description</span>
+                          <span className={styles.operationInfoValue}>
+                            {selectedOperationForStep.description || 'No description provided.'}
+                          </span>
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <AnimatePresence>
+                {selectedOperationForStep?.requestParams && selectedOperationForStep.requestParams.length > 0 && (
+                  <motion.div
+                    key={`${selectedOperationForStep.id}-params`}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.22, ease: 'easeOut' }}
+                    className={styles.formField}
+                  >
+                    <label className={styles.formLabel}>Known parameters</label>
+                    <div className={styles.operationParamsGrid}>
+                      {selectedOperationForStep.requestParams.map((param, index) => (
+                        <motion.div
+                          key={param.name}
+                          className={styles.operationParamCard}
+                          initial={{ opacity: 0, x: -6 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2, delay: index * 0.03 }}
+                        >
+                          <div className={styles.operationParamName}>{param.name}</div>
+                          <div className={styles.operationParamMeta}>
+                            {param.in.toUpperCase()} • {param.type}{param.required ? ' • Required' : ' • Optional'}
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <div className={styles.formField}>
                 <label className={styles.formLabel}>HTTP Method</label>

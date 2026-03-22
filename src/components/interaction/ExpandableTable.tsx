@@ -4,6 +4,7 @@ import React, { forwardRef, useState, ReactNode } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { ExpandableTableProps } from './types';
 import styles from './ExpandableTable.module.css';
+import { IconAction } from './IconAction';
 
 export const ExpandableTable = forwardRef<HTMLDivElement, ExpandableTableProps>(
   <T extends Record<string, any>>({
@@ -89,20 +90,16 @@ export const ExpandableTable = forwardRef<HTMLDivElement, ExpandableTableProps>(
                       {expandableContent && (
                         <td className={styles.expandCell} role="cell">
                           {hasExpandableContent ? (
-                            <button
-                              type="button"
-                              className={styles.expandButton}
+                            <IconAction
+                              icon={isExpanded ? ChevronDown : ChevronRight}
+                              size={size}
+                              variant="ghost"
                               onClick={() => toggleRowExpansion(rowKey)}
                               onKeyDown={(e) => handleKeyDown(e, rowKey)}
                               aria-expanded={isExpanded}
-                              aria-label={isExpanded ? 'Collapse row' : 'Expand row'}
-                            >
-                              {isExpanded ? (
-                                <ChevronDown className={styles.expandIcon} size={16} />
-                              ) : (
-                                <ChevronRight className={styles.expandIcon} size={16} />
-                              )}
-                            </button>
+                              className={styles.expandButton}
+                              ariaLabel={isExpanded ? 'Collapse row' : 'Expand row'}
+                            />
                           ) : (
                             <div className={styles.expandPlaceholder} />
                           )}

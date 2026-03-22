@@ -1,10 +1,18 @@
 'use client'
 
 import React, { useState, useCallback, useEffect } from 'react'
-import { Button, Input, Textarea, ExpandableTable, Drawer, PillList, JsonTreeViewer, useToast, type TableColumn } from '@/components/interaction'
+import { useRouter } from 'next/navigation'
+import {
+  Button,
+  IconAction,
+  Textarea,
+  ExpandableTable,
+  useToast,
+  type TableColumn,
+  JsonTreeViewer,
+} from '@/components/interaction'
 import { Plus, Pencil, Trash2, Braces } from 'lucide-react'
 import { formatHumanReadableDate } from '@/utils/time'
-import { generateSlug, validateSlug } from '@/utils/slug'
 import styles from './client.module.css'
 
 interface PromptTemplate {
@@ -19,28 +27,23 @@ interface PromptTemplate {
   created_at: string
   updated_at: string
   use_structured_output: boolean
-  structured_output_schema: Record<string, unknown> | null
+  structured_output_schema: Record<string, unknown> | string | null
   structured_output_format: 'pydantic' | 'zod' | 'json_schema' | null
+}
+
+const stringifySchema = (value: Record<string, unknown> | string | null): string => {
+  if (!value) {
+    return ''
+  }
+
+  return typeof value === 'string' ? value : JSON.stringify(value, null, 2)
 }
 
 export const PromptTemplatesClient: React.FC = () => {
   const [templates, setTemplates] = useState<PromptTemplate[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
-  const [editingTemplate, setEditingTemplate] = useState<PromptTemplate | null>(null)
+  const router = useRouter()
   const { showToast } = useToast()
-  const [formData, setFormData] = useState({
-    slug: '',
-    name: '',
-    system_prompt: '',
-    user_prompt_template: '',
-    description: '',
-    is_active: true,
-    use_structured_output: false,
-    structured_output_schema: '',
-    structured_output_format: 'pydantic'
-  })
-  const [slugError, setSlugError] = useState<string>('')
 
   const fetchTemplates = useCallback(async () => {
     try {
@@ -60,59 +63,12 @@ export const PromptTemplatesClient: React.FC = () => {
     fetchTemplates()
   }, [fetchTemplates])
 
-  // Auto-generate slug from name when creating new template
-  useEffect(() => {
-    if (!editingTemplate && formData.name && !formData.slug) {
-      const suggestedSlug = generateSlug(formData.name)
-      if (suggestedSlug) {
-        setFormData(prev => ({ ...prev, slug: suggestedSlug }))
-      }
-    }
-  }, [formData.name, editingTemplate, formData.slug])
-
-  // Validate slug format
-  useEffect(() => {
-    if (formData.slug && !validateSlug(formData.slug)) {
-      setSlugError('Slug must contain only lowercase letters, numbers, and dashes')
-    } else {
-      setSlugError('')
-    }
-  }, [formData.slug])
-
   const handleCreateTemplate = () => {
-    setEditingTemplate(null)
-    setFormData({
-      slug: '',
-      name: '',
-      system_prompt: '',
-      user_prompt_template: '',
-      description: '',
-      is_active: true,
-      use_structured_output: false,
-      structured_output_schema: '',
-      structured_output_format: 'pydantic'
-    })
-    setIsDrawerOpen(true)
+    router.push('/prompt-templates/new')
   }
 
   const handleEditTemplate = (template: PromptTemplate) => {
-    setEditingTemplate(template)
-    setFormData({
-      slug: template.slug,
-      name: template.name,
-      system_prompt: template.system_prompt || '',
-      user_prompt_template: template.user_prompt_template,
-      description: template.description || '',
-      is_active: template.is_active,
-      use_structured_output: template.use_structured_output || false,
-      structured_output_schema: template.structured_output_schema
-        ? (typeof template.structured_output_schema === 'string'
-            ? template.structured_output_schema
-            : JSON.stringify(template.structured_output_schema, null, 2))
-        : '',
-      structured_output_format: template.structured_output_format || 'pydantic'
-    })
-    setIsDrawerOpen(true)
+    router.push(`/prompt-templates/${template.id}/edit`)
   }
 
   const handleToggleActive = async (template: PromptTemplate) => {
@@ -146,86 +102,21 @@ export const PromptTemplatesClient: React.FC = () => {
     }
   }
 
-  const handleSaveTemplate = async () => {
-    try {
-      // Prepare the data for submission
-      const submitData = { ...formData }
-
-      // Handle structured output schema based on format
-      if (formData.use_structured_output && formData.structured_output_schema.trim()) {
-        if (formData.structured_output_format === 'json_schema') {
-          try {
-            submitData.structured_output_schema = JSON.parse(formData.structured_output_schema)
-          } catch {
-            alert('Invalid JSON in structured output schema. Please check your JSON Schema definition.')
-            return
-          }
-        } else {
-          // For Pydantic and Zod, store as string for now
-          // TODO: Add conversion to JSON Schema for API compatibility
-          submitData.structured_output_schema = formData.structured_output_schema.trim()
-        }
-      } else {
-        submitData.structured_output_schema = null
-        submitData.structured_output_format = null
-      }
-
-      const method = editingTemplate ? 'PUT' : 'POST'
-      const url = editingTemplate
-        ? `/api/prompt-templates/${editingTemplate.id}`
-        : '/api/prompt-templates'
-
-      const response = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(submitData)
-      })
-
-      if (response.ok) {
-        setIsDrawerOpen(false)
-        fetchTemplates()
-      } else {
-        const errorData = await response.json()
-        showToast(`Error saving template: ${errorData.error || 'Unknown error'}`, 'error')
-      }
-    } catch (error) {
-      console.error('Error saving prompt template:', error)
-      showToast('Error saving prompt template. Please try again.', 'error')
-    }
-  }
-
   const handleDeleteTemplate = async (template: PromptTemplate) => {
-    console.log('handleDeleteTemplate called with template:', template)
     if (!confirm(`Are you sure you want to delete "${template.name}"?`)) {
-      console.log('User cancelled delete')
       return
     }
 
-    console.log('User confirmed delete, making API call')
     try {
       const response = await fetch(`/api/prompt-templates/${template.id}`, {
         method: 'DELETE'
       })
 
-      console.log('Delete API response:', response.status, response.ok)
       if (response.ok) {
-        console.log('Delete successful, updating local state')
-        // Optimistically update the local state
         setTemplates(prev => prev.filter(t => t.id !== template.id))
       } else {
-        const responseText = await response.text()
-        console.error('Delete failed - raw response:', responseText)
-        console.error('Response status:', response.status)
-        console.error('Response ok:', response.ok)
-
-        try {
-          const errorData = JSON.parse(responseText)
-          console.error('Delete failed - parsed:', errorData)
-          showToast(`Delete failed: ${errorData.error || 'Unknown error'}`, 'error')
-        } catch (parseError) {
-          console.error('Failed to parse response as JSON:', parseError)
-          showToast(`Delete failed: ${responseText || 'Unknown error'}`, 'error')
-        }
+        const errorData = await response.json()
+        showToast(`Delete failed: ${errorData.error || 'Unknown error'}`, 'error')
       }
     } catch (error) {
       console.error('Error deleting prompt template:', error)
@@ -296,34 +187,28 @@ export const PromptTemplatesClient: React.FC = () => {
       header: 'Actions',
       render: (template) => (
         <div className={styles.templateActions}>
-          <Button
-            size="sm"
+          <IconAction
+            icon={Pencil}
+            size="xs"
             variant="ghost"
             onClick={() => handleEditTemplate(template)}
-            aria-label="Edit template"
-          >
-            <Pencil size={16} />
-          </Button>
-          <Button
-            size="sm"
+            ariaLabel="Edit template"
+          />
+          <IconAction
+            icon={Trash2}
+            size="xs"
             variant="ghost"
             onClick={() => handleDeleteTemplate(template)}
-            aria-label="Delete template"
-            className={styles.buttonDanger}
-          >
-            <Trash2 size={16} />
-          </Button>
+            ariaLabel="Delete template"
+            className={styles.iconActionDanger}
+          />
         </div>
       )
     }
   ]
 
   const renderExpandableContent = (template: PromptTemplate) => {
-    const structuredOutputSchemaText = template.structured_output_schema
-      ? (typeof template.structured_output_schema === 'string'
-          ? template.structured_output_schema
-          : JSON.stringify(template.structured_output_schema, null, 2))
-      : ''
+    const structuredOutputSchemaText = stringifySchema(template.structured_output_schema)
     const isJsonSchema = template.structured_output_format === 'json_schema'
 
     return (
@@ -357,12 +242,9 @@ export const PromptTemplatesClient: React.FC = () => {
             <div className={styles.expandedSection}>
               <h4 className={styles.expandedSectionTitle}>Structured Output Schema ({template.structured_output_format})</h4>
               {isJsonSchema ? (
-                <JsonTreeViewer
-                  value={structuredOutputSchemaText}
-                  className={styles.expandedPromptTextarea}
-                />
+                <JsonTreeViewer value={structuredOutputSchemaText} disabled rows={2} />
               ) : (
-                <pre className={styles.expandedCodeBlock}>{structuredOutputSchemaText}</pre>
+                <pre>{structuredOutputSchemaText}</pre>
               )}
             </div>
           )}
@@ -384,7 +266,7 @@ export const PromptTemplatesClient: React.FC = () => {
     <div>
       <div style={{ marginBottom: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '0.5rem' }}>
+          <h2 style={{ fontSize: '1.5rem', fontWeight: 600, marginBottom: '0.5rem' }}>
             Your Prompt Templates
           </h2>
           <p style={{ color: '#6b7280' }}>
@@ -402,162 +284,9 @@ export const PromptTemplatesClient: React.FC = () => {
         columns={columns}
         expandableContent={renderExpandableContent}
         getRowKey={(template) => template.id}
+        size="xs"
         emptyMessage="No prompt templates found. Create your first template to get started."
       />
-
-      <Drawer
-        isOpen={isDrawerOpen}
-        onClose={() => setIsDrawerOpen(false)}
-        position="right"
-      >
-        <div style={{ padding: '1rem' }}>
-          <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem' }}>
-            {editingTemplate ? 'Edit Prompt Template' : 'Create Prompt Template'}
-          </h3>
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>Template Name</label>
-            <Input size="sm"
-              value={formData.name}
-              onChange={(value) => setFormData({ ...formData, name: value })}
-              placeholder="e.g., Blog Post Generator"
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>Slug</label>
-            <Input size="sm"
-              value={formData.slug}
-              onChange={(value) => {
-                // Only allow lowercase letters, numbers, and dashes
-                const filteredValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '')
-                setFormData({ ...formData, slug: filteredValue })
-              }}
-              placeholder="e.g., blog-post-generator"
-              className={slugError ? styles.inputError : ''}
-            />
-            {slugError && <div className={styles.fieldError}>{slugError}</div>}
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>Description (Optional)</label>
-            <Input size="sm"
-              value={formData.description}
-              onChange={(value) => setFormData({ ...formData, description: value })}
-              placeholder="Brief description of what this template does"
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                style={{ marginRight: '8px' }}
-              />
-              Active
-            </label>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
-              Active templates can be used in runbooks and content generation.
-            </div>
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>System Prompt (Optional)</label>
-            <Textarea size="sm"
-              value={formData.system_prompt}
-              onChange={(value) => setFormData({ ...formData, system_prompt: value })}
-              placeholder="System instructions for the AI..."
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>User Prompt Template</label>
-            <Textarea size="sm"
-              value={formData.user_prompt_template}
-              onChange={(value) => setFormData({ ...formData, user_prompt_template: value })}
-              placeholder="User prompt template with {{variables}}..."
-            />
-          </div>
-
-          <div className={styles.formField}>
-            <label className={styles.formLabel}>
-              <input
-                type="checkbox"
-                checked={formData.use_structured_output}
-                onChange={(e) => setFormData({ ...formData, use_structured_output: e.target.checked })}
-                style={{ marginRight: '8px' }}
-              />
-              Use Structured Outputs
-            </label>
-            <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>
-              Enable structured outputs to get responses in a specific JSON format using Pydantic, Zod, or JSON Schema.
-            </div>
-          </div>
-
-          {formData.use_structured_output && (
-            <>
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Schema Format</label>
-                <PillList
-                  options={[
-                    { id: 'pydantic', label: 'Pydantic' },
-                    { id: 'zod', label: 'Zod' },
-                    { id: 'json_schema', label: 'JSON Schema' }
-                  ]}
-                  selected={[formData.structured_output_format]}
-                  onChange={(selected) => setFormData({ ...formData, structured_output_format: selected[0] || 'pydantic' })}
-                  variant="single"
-                  size="xs"
-                />
-              </div>
-
-              <div className={styles.formField}>
-                <label className={styles.formLabel}>Output Schema</label>
-                <JsonTreeViewer
-                  value={formData.structured_output_schema}
-                  onChange={(value) => setFormData({ ...formData, structured_output_schema: value })}
-                  placeholder={`Define your schema here. For example:
-
-Pydantic:
-class Response(BaseModel):
-    title: str
-    summary: str
-    tags: List[str]
-
-Zod:
-z.object({
-    title: z.string(),
-    summary: z.string(),
-    tags: z.array(z.string())
-})
-
-JSON Schema:
-{
-  "type": "object",
-  "properties": {
-    "title": {"type": "string"},
-    "summary": {"type": "string"},
-    "tags": {"type": "array", "items": {"type": "string"}}
-  },
-  "required": ["title", "summary"]
-}`}
-                  className={styles.formTextarea}
-                />
-              </div>
-            </>
-          )}
-
-          <div style={{ display: 'flex', gap: '12px', marginTop: '2rem' }}>
-            <Button size="sm" onClick={handleSaveTemplate}>
-              {editingTemplate ? 'Update Template' : 'Create Template'}
-            </Button>
-            <Button size="sm" variant="secondary" onClick={() => setIsDrawerOpen(false)}>
-              Cancel
-            </Button>
-          </div>
-        </div>
-      </Drawer>
     </div>
   )
 }

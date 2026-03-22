@@ -1,0 +1,278 @@
+.pageContainer {
+  position: relative;
+  padding-bottom: 16rem;
+}
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.pageTitle {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.formSection {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  background: #ffffff;
+}
+
+.sectionTitle {
+  margin: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.formLabel {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.4rem;
+}
+
+.formField {
+  margin-bottom: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 1rem;
+}
+
+.formFieldFull {
+  grid-column: 1 / -1;
+}
+
+.formFieldHalf {
+  grid-column: span 1;
+}
+
+.formTopRow {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0 1rem;
+}
+
+.helperText {
+  color: #6b7280;
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.intentionList {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.intentionSection {
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.intentionFooter {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: center;
+}
+
+.intentionRowActions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.sectionTextarea {
+  min-height: 120px;
+}
+
+.sectionLabelRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.sectionPreview {
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: #f9fafb;
+  padding: 0.75rem 0.9rem;
+  min-height: 120px;
+  font-size: 0.925rem;
+  line-height: 1.5;
+  color: #111827;
+}
+
+.markdownParagraph,
+.markdownEmpty {
+  margin: 0 0 0.75rem;
+}
+
+.markdownHeading {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  font-weight: 600;
+  color: #111827;
+}
+
+.markdownList {
+  margin: 0 0 0.75rem;
+  padding-left: 1.4rem;
+}
+
+.markdownListItem {
+  margin: 0.2rem 0;
+}
+
+.markdownCodeBlock {
+  margin: 0 0 0.75rem;
+  background: #111827;
+  color: #f9fafb;
+  border-radius: 6px;
+  padding: 0.75rem;
+  overflow-x: auto;
+}
+
+.markdownCode {
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.markdownInlineCode {
+  padding: 0.05rem 0.28rem;
+  border-radius: 4px;
+  background: #e5e7eb;
+  color: #111827;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-size: 0.875rem;
+}
+
+.markdownStrong {
+  font-weight: 600;
+}
+
+.markdownItalic {
+  font-style: italic;
+}
+
+.markdownLink {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.markdownBlockquote {
+  margin: 0 0 0.75rem;
+  border-left: 3px solid #d1d5db;
+  padding: 0.35rem 0.75rem;
+  color: #4b5563;
+}
+
+.schemaEditor {
+  width: 100%;
+}
+
+.previewPanel {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-radius: 12px;
+  border: 1px solid #dbeafe;
+  background: #eff6ff;
+}
+
+.previewTextarea {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.footerBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.98);
+  border-top: 1px solid #e5e7eb;
+  box-shadow: 0 -4px 12px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(6px);
+}
+
+.footerActions {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+.backButton {
+  border-radius: 8px;
+}
+
+.inputError {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.fieldError {
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.buttonDanger {
+  color: #dc2626;
+}
+
+@media (max-width: 840px) {
+  .formGrid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.75rem;
+  }
+
+  .formTopRow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .sectionHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .footerActions {
+    justify-content: stretch;
+    flex-direction: column-reverse;
+  }
+}
+
+@media (max-width: 640px) {
+  .formGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

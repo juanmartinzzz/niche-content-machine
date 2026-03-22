@@ -208,9 +208,9 @@ export async function executeAIOperation(params: AIOperationParams): Promise<AIO
 
   // Add authentication for xAI provider
   if (provider.base_url.includes('api.x.ai')) {
-    const apiKey = process.env.GROK_API_KEY
+    const apiKey = process.env.XAI_API_KEY
     if (!apiKey) {
-      throw new Error('GROK_API_KEY environment variable is required for xAI provider')
+      throw new Error('XAI_API_KEY environment variable is required for xAI provider')
     }
     headers['Authorization'] = `Bearer ${apiKey}`
   }

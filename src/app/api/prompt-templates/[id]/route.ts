@@ -20,7 +20,7 @@ export async function GET(
 
     const { data: template, error } = await supabaseAdmin
       .from(getTableName('ai_prompt_templates'))
-      .select('*')
+      .select('*, prompt_intentions:ncm_ai_prompt_intentions(*)')
       .eq('id', id)
       .single()
 
@@ -33,7 +33,10 @@ export async function GET(
       return NextResponse.json({ error: 'Prompt template not found' }, { status: 404 })
     }
 
-    return NextResponse.json({ template })
+    return NextResponse.json({
+      template,
+      prompt_intentions: template?.prompt_intentions || []
+    })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
@@ -64,7 +67,8 @@ export async function PUT(
       is_active,
       use_structured_output,
       structured_output_schema,
-      structured_output_format
+      structured_output_format,
+      prompt_intentions
     } = body
 
     if (!slug || !name || !user_prompt_template) {
@@ -97,7 +101,83 @@ export async function PUT(
       return NextResponse.json({ error: 'Failed to update prompt template' }, { status: 500 })
     }
 
-    return NextResponse.json({ template: data })
+    if (Array.isArray(prompt_intentions)) {
+      const normalizedIntentions = prompt_intentions
+        .map((intention, index) => {
+          if (
+            typeof intention !== 'object' ||
+            intention === null ||
+            typeof (intention as { section_intention?: unknown }).section_intention !== 'string' ||
+            typeof (intention as { section?: unknown }).section !== 'string'
+          ) {
+            return null
+          }
+
+          const sectionIntention = (intention as { section_intention: string }).section_intention.trim()
+          const section = (intention as { section: string }).section.trim()
+
+          if (!sectionIntention || !section) {
+            return null
+          }
+
+          return {
+            prompt_template_id: id,
+            section_intention: sectionIntention,
+            section,
+            position: typeof (intention as { position?: unknown }).position === 'number'
+              ? (intention as { position?: unknown }).position as number
+              : index
+          }
+        })
+        .filter((item): item is { prompt_template_id: string; section_intention: string; section: string; position: number } => item !== null)
+
+      const { error: deleteError } = await supabaseAdmin
+        .from(getTableName('ai_prompt_intentions'))
+        .delete()
+        .eq('prompt_template_id', id)
+
+      if (deleteError) {
+        console.error('Error deleting previous prompt intentions:', deleteError)
+        return NextResponse.json({ error: 'Failed to update prompt intentions' }, { status: 500 })
+      }
+
+      if (normalizedIntentions.length > 0) {
+        const { error: intentionsError } = await supabaseAdmin
+          .from(getTableName('ai_prompt_intentions'))
+          .insert(normalizedIntentions)
+
+        if (intentionsError) {
+          console.error('Error updating prompt intentions:', intentionsError)
+          return NextResponse.json({ error: 'Failed to update prompt intentions' }, { status: 500 })
+        }
+      }
+    }
+
+    return NextResponse.json({
+      template: data,
+      prompt_intentions: Array.isArray(prompt_intentions)
+        ? prompt_intentions.map((intention, index) => {
+            if (typeof intention !== 'object' || intention === null) {
+              return null
+            }
+
+            const sectionIntention = typeof (intention as { section_intention?: unknown }).section_intention === 'string'
+              ? (intention as { section_intention: string }).section_intention
+              : ''
+            const section = typeof (intention as { section?: unknown }).section === 'string'
+              ? (intention as { section: string }).section
+              : ''
+
+            return {
+              section_intention: sectionIntention,
+              section,
+              position: typeof (intention as { position?: unknown }).position === 'number'
+                ? (intention as { position?: unknown }).position as number
+                : index
+            }
+          }).filter((item): item is { section_intention: string; section: string; position: number } => item !== null)
+        : []
+    })
   } catch (error) {
     console.error('API error:', error)
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 })

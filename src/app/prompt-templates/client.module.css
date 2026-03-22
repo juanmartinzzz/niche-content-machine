@@ -31,7 +31,10 @@
 }
 
 .templateActions {
-  display: flex;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 4px;
 }
 
 .versionBadge {
@@ -150,20 +153,6 @@
   width: 100%;
 }
 
-.expandedCodeBlock {
-  background-color: #1f2937;
-  color: #f9fafb;
-  padding: 12px;
-  border-radius: 6px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
-  font-size: var(--font-size-base);
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-wrap: break-word;
-  overflow-x: auto;
-  margin: 0;
-}
-
 .expandedText {
   margin: 0;
   font-size: var(--font-size-base);
@@ -174,12 +163,12 @@
   padding: 4px;
 }
 
-.buttonDanger {
-  color: #dc2626;
+.iconActionDanger {
+  color: var(--color-error);
 }
 
-.buttonDanger:hover {
-  background-color: #fef2f2;
+.iconActionDanger:hover {
+  background-color: rgba(239, 68, 68, 0.08);
   color: #b91c1c;
 }
 
